@@ -6,10 +6,12 @@
 import { DurableObject } from "cloudflare:workers";
 import init from "../migrations/0001_init.sql";
 import seed from "../migrations/0002_seed.sql";
+import scores from "../migrations/0003_scores.sql";
 
 const MIGRATIONS: [string, string][] = [
   ["0001_init", init],
   ["0002_seed", seed],
+  ["0003_scores", scores],
 ];
 
 export interface Row {

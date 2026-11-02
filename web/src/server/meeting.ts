@@ -308,3 +308,43 @@ export async function recentChips(env: Env, limit = 24) {
     .all();
   return results;
 }
+
+// ─────────────────────────────────────────────────────────── the game's attendance sheet
+
+const utcDay = (offset = 0) => new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10).replaceAll("-", "");
+
+export async function topScores(env: Env, day?: string | null, limit = 20) {
+  const d = day && /^\d{8}$/.test(day) ? day : utcDay();
+  const { results } = await db(env)
+    .prepare("SELECT handle, wave, score, kills, created_at FROM scores WHERE day = ? ORDER BY score DESC, created_at ASC LIMIT ?")
+    .bind(d, Math.min(Math.max(Number(limit) || 20, 1), 50))
+    .all();
+  return { day: d, scores: results };
+}
+
+/** Sign the sheet. Client-side games can't be fully trusted, so we check plausibility and keep it light. */
+export async function submitScore(env: Env, voter: string, input: Record<string, unknown>) {
+  if (!(await rateLimit(env, `score:${voter}`, 12, 3600))) throw new HttpError(429, "That's a lot of meetings for one hour.");
+  const day = String(input.day ?? "");
+  if (day !== utcDay() && day !== utcDay(-1)) throw new HttpError(400, "Only today's meeting counts.");
+  const wave = Math.floor(Number(input.wave));
+  const score = Math.floor(Number(input.score));
+  const kills = Math.floor(Number(input.kills));
+  if (!(wave >= 1 && wave <= 200 && score >= 0 && kills >= 0)) throw new HttpError(400, "That run doesn't add up.");
+  if (score > wave * wave * 900 + 5000 || kills > wave * 160) throw new HttpError(400, "That run doesn't add up. Nice try, though.");
+  const handle = normalizeHandle(input.handle);
+  await db(env)
+    .prepare(
+      `INSERT INTO scores (day, voter, handle, wave, score, kills, created_at) VALUES (?, ?, ?, ?, ?, ?, unixepoch())
+       ON CONFLICT(day, voter) DO UPDATE SET handle = excluded.handle, wave = excluded.wave, score = excluded.score,
+         kills = excluded.kills, created_at = excluded.created_at
+       WHERE excluded.score > scores.score`
+    )
+    .bind(day, voter, handle, wave, score, kills)
+    .run();
+  const rank = await db(env)
+    .prepare("SELECT COUNT(*) + 1 AS rank FROM scores WHERE day = ? AND score > ?")
+    .bind(day, score)
+    .first<{ rank: number }>();
+  return { day, handle, rank: rank?.rank ?? null, ...(await topScores(env, day, 10)) };
+}
