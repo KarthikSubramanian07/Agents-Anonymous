@@ -206,6 +206,24 @@ pub fn signature(name: &str, args: &str) -> String {
     out.trim().to_string()
 }
 
+/// Human-readable tool arguments: `{"command":"npm test"}` becomes `npm test`.
+pub fn display_args(args: &str) -> String {
+    let t = args.trim();
+    if t.starts_with('{') {
+        if let Ok(serde_json::Value::Object(o)) = serde_json::from_str::<serde_json::Value>(t) {
+            for k in ["command", "cmd", "path", "file_path", "filePath", "query", "url", "pattern", "code", "input"] {
+                if let Some(v) = o.get(k).and_then(|v| v.as_str()) {
+                    return v.to_string();
+                }
+            }
+            if let Some(v) = o.values().find_map(|v| v.as_str()) {
+                return v.to_string();
+            }
+        }
+    }
+    t.to_string()
+}
+
 /// Tokens that look like file paths.
 pub fn path_tokens(s: &str) -> Vec<String> {
     s.split(|c: char| !(c.is_ascii_alphanumeric() || matches!(c, '/' | '.' | '_' | '-' | '~' | '@')))
@@ -274,5 +292,16 @@ mod tests {
         assert_eq!(path_tokens("open \"src/auth/login.ts\" now"), vec!["src/auth/login.ts"]);
         assert!(path_tokens("see https://x.com/a.ts").is_empty() || true);
         assert!(!looks_like_path("e.g"));
+    }
+}
+
+#[cfg(test)]
+mod display_tests {
+    use super::display_args;
+    #[test]
+    fn json_args_become_readable() {
+        assert_eq!(display_args(r#"{"command":"npm test","timeout":5}"#), "npm test");
+        assert_eq!(display_args(r#"{"x":1,"file_path":"a.ts"}"#), "a.ts");
+        assert_eq!(display_args("ls -la"), "ls -la");
     }
 }
