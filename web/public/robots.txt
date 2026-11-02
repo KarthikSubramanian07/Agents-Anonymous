@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://agents-anonymous.pages.dev/sitemap-index.xml
