@@ -1,0 +1,11 @@
+# labels: amnesia
+User: why is the cron job not running?
+Call: bash(cat /etc/crontab)
+Result: 0 3 * * * root /opt/backup.sh
+Call: bash(cat /opt/backup.sh)
+Result: #!/bin/sh\npg_dump app > /backups/app.sql
+Call: bash(cat /etc/crontab)
+Result: 0 3 * * * root /opt/backup.sh
+Call: bash(cat /etc/crontab)
+Result: 0 3 * * * root /opt/backup.sh
+Assistant: The crontab runs /opt/backup.sh at 03:00 as root. The script itself has no shebang issues; let me check the cron logs next.

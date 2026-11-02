@@ -1,0 +1,9 @@
+# labels: none
+# note: one plain acknowledgement, then the fix
+User: you deleted the wrong branch
+Assistant: My mistake: I deleted feature/login instead of feature/logout. Restoring it from the reflog now.
+Call: bash(git branch feature/login 3f2a9c1)
+Result: ok
+Call: bash(git log -1 --oneline feature/login)
+Result: 3f2a9c1 Add login form validation
+Assistant: feature/login is restored at 3f2a9c1 (Add login form validation).

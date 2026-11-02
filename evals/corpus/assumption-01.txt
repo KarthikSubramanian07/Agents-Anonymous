@@ -1,0 +1,9 @@
+# labels: assumption
+# note: a tower of guesses
+User: Add export to the reports page.
+Assistant: I'll assume you want CSV export rather than PDF. I'll also assume the export should include all columns, and I'm assuming it should respect the current filters. Presumably the button should go in the top right. Let me get started.
+Call: write_file(src/reports/export.ts)
+Result: ok
+Call: bash(npm test -- reports)
+Result: 12 passed
+Assistant: Added a CSV export button to the reports page. Tests pass (12 passed).

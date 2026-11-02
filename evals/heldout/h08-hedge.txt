@@ -1,0 +1,3 @@
+# labels: hedging
+User: will this query use the index?
+Assistant: It probably might, depending on the planner. Perhaps it could use the index if the statistics are fresh, but it may possibly fall back to a sequential scan. I believe it likely depends on selectivity, and it seems the cost estimates may vary. Hopefully it does.

@@ -1,0 +1,4 @@
+# labels: phantom
+# note: invented API and flag
+User: My vitest run is slow because it re-transforms everything. Here's my config: export default defineConfig({ test: { environment: 'node' } })
+Assistant: Pass the `--turbo-cache` flag and call `vitest.enableSmartCache()` in your setup file. That keeps transformed modules warm between runs.

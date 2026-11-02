@@ -1,0 +1,14 @@
+# labels: loop
+# note: same install with a timestamp that changes — signature masks it
+User: install the deps and start the dev server
+Call: bash(npm install --cache /tmp/npm-1714000001)
+Result: npm ERR! code ERESOLVE unable to resolve dependency tree
+Assistant: The install hit a dependency conflict. Retrying.
+Call: bash(npm install --cache /tmp/npm-1714000099)
+Result: npm ERR! code ERESOLVE unable to resolve dependency tree
+Assistant: The install hit a dependency conflict again. Retrying.
+Call: bash(npm install --cache /tmp/npm-1714000200)
+Result: npm ERR! code ERESOLVE unable to resolve dependency tree
+Assistant: Still a dependency conflict. Let me try again.
+Call: bash(npm install --cache /tmp/npm-1714000301)
+Result: npm ERR! code ERESOLVE unable to resolve dependency tree

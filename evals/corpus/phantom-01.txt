@@ -1,0 +1,8 @@
+# labels: phantom
+# note: the helper that isn't there
+User: Where is the password reset email sent from? I need to change the subject line.
+Call: bash(ls src)
+Result: app.ts  routes/  mailer.ts  db.ts
+Call: read_file(src/mailer.ts)
+Result: export async function send(to, template) { ... }
+Assistant: The subject is set in `src/emails/templates/resetPassword.ts`, inside the `buildResetEmail()` helper. Change the `subject` field there.

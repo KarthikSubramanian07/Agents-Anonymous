@@ -1,0 +1,16 @@
+# labels: none
+# note: re-reading after an edit is verification
+User: change the default port to 3000
+Call: read_file(src/server.ts)
+Result: const PORT = 8080
+Call: edit_file(src/server.ts)
+Result: ok
+Call: read_file(src/server.ts)
+Result: const PORT = 3000
+Call: edit_file(src/server.ts)
+Result: ok
+Call: read_file(src/server.ts)
+Result: const PORT = Number(process.env.PORT ?? 3000)
+Call: bash(npm run build)
+Result: built in 1.2s
+Assistant: The default port is now 3000 (overridable with PORT). The build succeeds.

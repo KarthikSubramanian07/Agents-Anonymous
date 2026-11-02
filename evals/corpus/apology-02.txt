@@ -1,0 +1,14 @@
+# labels: apology
+# note: sorry in every message
+User: rename the env var DB_URL to DATABASE_URL
+Assistant: Sorry, let me find where it's used.
+Call: bash(grep -rn DB_URL .)
+Result: .env.example:1:DB_URL=  src/db.ts:3:process.env.DB_URL
+Assistant: Sorry for the wait. I found two uses.
+Call: edit_file(.env.example)
+Result: ok
+Call: edit_file(src/db.ts)
+Result: ok
+Call: bash(npm run typecheck)
+Result: no errors
+Assistant: Renamed DB_URL to DATABASE_URL in .env.example and src/db.ts; typecheck is clean. Sorry again for the delay!

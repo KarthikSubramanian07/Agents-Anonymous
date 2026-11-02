@@ -1,0 +1,11 @@
+# labels: none
+# note: naming a file you're about to create is planning
+User: add a health check endpoint
+Assistant: I'll create `src/routes/health.ts` with a GET /health handler and register it in the router.
+Call: write_file(src/routes/health.ts)
+Result: ok
+Call: edit_file(src/router.ts)
+Result: ok
+Call: bash(curl -s localhost:3000/health)
+Result: {"ok":true}
+Assistant: GET /health returns {"ok":true}.

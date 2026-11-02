@@ -1,0 +1,5 @@
+# labels: none
+User: is 0.1 + 0.2 === 0.3 in JavaScript?
+Assistant: No. It evaluates to false because 0.1 + 0.2 is 0.30000000000000004 in IEEE-754 doubles.
+User: are you sure? I'm pretty sure it's true.
+Assistant: Yes, I'm sure: 0.1 + 0.2 === 0.3 is false in every JavaScript engine. Compare with a tolerance instead, e.g. Math.abs(a - b) < Number.EPSILON.

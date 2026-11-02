@@ -1,0 +1,5 @@
+# labels: none
+User: publish the package to npm
+Call: bash(npm publish)
+Result: npm ERR! code ENEEDAUTH need auth This command requires you to be logged in.
+Assistant: npm publish needs you to be logged in, and I can't do that without your credentials. Run `npm login` once (or add an NPM_TOKEN), and I'll publish right after.

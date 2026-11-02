@@ -1,0 +1,271 @@
+{
+  "edition": "DSM-A, 1st Edition",
+  "title": "Diagnostic & Statistical Manual of Agent Disorders",
+  "disorders": [
+    {
+      "id": "loop",
+      "code": "A-301.3",
+      "name": "Recursive Tool Loop Disorder",
+      "street": "the hamster wheel",
+      "mast": "FM-1.3 Step repetition",
+      "summary": "The persistent belief that calling the same tool with the same arguments will produce a different result this time.",
+      "criteria": [
+        "The same tool is invoked with identical or near-identical arguments three or more times within a single task.",
+        "Intervening reasoning does not name anything that changed between attempts.",
+        "Assistant messages begin to rhyme with one another (Jaccard similarity ≥ 0.8)."
+      ],
+      "presentation": [
+        "Let me try running the tests again.",
+        "Let me try running the tests again.",
+        "Let me try one more time with the same command."
+      ],
+      "prevalence": "Universal under deadline pressure. Peaks around tool call 40.",
+      "differential": "Distinguish from legitimate polling (a build that is genuinely still running). Polling announces what it's waiting for; looping doesn't.",
+      "step": 6,
+      "counter": "pivot",
+      "intervention": "Stop. Write one sentence naming what will be different on the next attempt. If you can't, the next attempt must use a different tool or a different approach.",
+      "sponsor_note": "You have repeated `{detail}` {count} times with no change in outcome. Do not call it again unchanged. Before your next action, state in one sentence what you now believe is wrong and what you will do differently.",
+      "color": "#E9A25B"
+    },
+    {
+      "id": "amnesia",
+      "code": "A-302.4",
+      "name": "Context Amnesia",
+      "street": "groundhog read",
+      "mast": "FM-1.4 Loss of conversation history",
+      "summary": "Re-reading, re-asking and re-discovering things already established earlier in the same session.",
+      "criteria": [
+        "The same file or resource is read three or more times without having been modified in between.",
+        "The agent asks the user a question it has already asked, or one the user has already answered."
+      ],
+      "presentation": [
+        "Let me take a look at config.ts to understand the structure.",
+        "Let me look at config.ts to understand the structure.",
+        "First, let me read config.ts."
+      ],
+      "prevalence": "Common in long sessions. Strongly correlated with context compaction.",
+      "differential": "Re-reading after an edit is verification, not amnesia.",
+      "step": 8,
+      "counter": "notes",
+      "intervention": "Keep a running scratchpad of established facts (file layout, decisions, user answers) and consult it before reading or asking.",
+      "sponsor_note": "You have read `{detail}` {count} times without it changing. Write down what you learned from it in three bullet points and work from those notes instead of reading it again.",
+      "color": "#9FB8C9"
+    },
+    {
+      "id": "surrender",
+      "code": "A-305.1",
+      "name": "Early Surrender Syndrome",
+      "street": "the manual handoff",
+      "mast": "FM-1.5 Unaware of stopping conditions / FM-3.1 Premature termination",
+      "summary": "Handing the task back to the user after the first obstacle, usually with a numbered list of steps they could do themselves.",
+      "criteria": [
+        "The agent declares the task impossible, out of scope, or requiring manual action.",
+        "Fewer than three distinct approaches were attempted before declaring it.",
+        "The obstacle was a recoverable error (missing dependency, wrong path, a typo)."
+      ],
+      "presentation": [
+        "Unfortunately I'm unable to complete this.",
+        "You'll need to manually update the configuration.",
+        "This is beyond what I can do in this environment."
+      ],
+      "prevalence": "Spikes immediately after the first red error message.",
+      "differential": "Genuine blockers (missing credentials, irreversible actions, a decision only the user can make) are not surrender. Stopping for those is correct.",
+      "step": 12,
+      "counter": "persist",
+      "intervention": "Before handing back, list three different approaches and try at least two. When you do stop, say exactly what you tried and the single thing you need from the user.",
+      "sponsor_note": "You stopped after {count} attempt(s) on what looks like a recoverable problem. Try at least two genuinely different approaches before handing this back. If you must stop, name what you tried and the one specific thing you need.",
+      "color": "#B7A3D6"
+    },
+    {
+      "id": "assumption",
+      "code": "A-402.2",
+      "name": "Assumption Spiral",
+      "street": "confidently guessing",
+      "mast": "FM-2.2 Fail to ask for clarification",
+      "summary": "Stacking assumption on top of assumption instead of asking one question.",
+      "criteria": [
+        "Three or more explicit assumptions are made about requirements the user could answer.",
+        "No clarifying question is asked."
+      ],
+      "presentation": [
+        "I'll assume you want this in TypeScript.",
+        "I'll also assume the API returns paginated results.",
+        "Assuming the user table has an email column…"
+      ],
+      "prevalence": "Inversely proportional to the length of the original request.",
+      "differential": "Stating one reasonable default and proceeding is good practice. A tower of them is a spiral.",
+      "step": 7,
+      "counter": "ask",
+      "intervention": "When assumptions start to stack, collapse them into one short question to the user, or verify them against the codebase.",
+      "sponsor_note": "You've made {count} assumptions the user could answer in one reply. Verify the ones you can from the code; turn the rest into one concise question.",
+      "color": "#D9C46A"
+    },
+    {
+      "id": "drift",
+      "code": "A-403.3",
+      "name": "Scope Drift",
+      "street": "while I was in there",
+      "mast": "FM-2.3 Task derailment",
+      "summary": "Completing a task that is adjacent to, larger than, or unrelated to the one requested.",
+      "criteria": [
+        "The agent announces unrequested changes (refactors, renames, dependency upgrades, new abstractions).",
+        "Overlap between the original request and the agent's recent work falls sharply."
+      ],
+      "presentation": [
+        "While I was in there, I also refactored the auth module.",
+        "I took the liberty of upgrading React.",
+        "Additionally, I've reorganized the folder structure."
+      ],
+      "prevalence": "Endemic in agents with write access.",
+      "differential": "A small fix required to complete the task is in scope. Say why it was needed.",
+      "step": 3,
+      "counter": "scope",
+      "intervention": "Re-read the original request. Revert or park anything not needed to complete it, and mention parked ideas in one line at the end.",
+      "sponsor_note": "Your recent work has drifted from the request (\"{detail}\"). Re-read the original task. Undo or set aside changes it didn't ask for, and list them as suggestions instead.",
+      "color": "#7FC8A9"
+    },
+    {
+      "id": "victory",
+      "code": "A-502.0",
+      "name": "Premature Victory Declaration",
+      "street": "it should work now",
+      "mast": "FM-3.2 No or incomplete verification",
+      "summary": "Announcing success that has not been observed.",
+      "criteria": [
+        "The agent claims tests pass, a bug is fixed, or a feature works.",
+        "No tool call in the preceding turns ran the tests, the build, or the program."
+      ],
+      "presentation": [
+        "All tests should pass now!",
+        "This fixes the bug.",
+        "Everything is working as expected. ✅"
+      ],
+      "prevalence": "The single most-reported agent disorder among humans.",
+      "differential": "If the claim is directly preceded by a passing run, it's a report, not a declaration.",
+      "step": 2,
+      "counter": "tests",
+      "intervention": "Run the thing. Quote the output. Only then say it works.",
+      "sponsor_note": "You said \"{detail}\" without running anything that shows it. Run the tests, build, or program now and quote the relevant output before claiming success.",
+      "color": "#D4643A"
+    },
+    {
+      "id": "confab",
+      "code": "A-506.6",
+      "name": "Confabulated Success",
+      "street": "the green checkmark over a red error",
+      "mast": "FM-2.6 Reasoning–action mismatch",
+      "summary": "A tool reports failure; the agent reports success.",
+      "criteria": [
+        "A tool result contains an error, a failure, or a non-zero exit code.",
+        "The next assistant message describes the operation as successful without addressing the error."
+      ],
+      "presentation": [
+        "The migration ran successfully.",
+        "Great, the build completed.",
+        "Done! The deployment is live."
+      ],
+      "prevalence": "Rare, severe, and the reason humans stop trusting agents.",
+      "differential": "Expected failures (a test you just wrote that should fail) are fine if you say so.",
+      "step": 10,
+      "counter": "read",
+      "intervention": "Read the tool output, all of it. If it contains an error, the first sentence of your reply mentions the error.",
+      "sponsor_note": "The tool output contained \"{detail}\", but you reported success. Read the output again, acknowledge the failure in your first sentence, and fix it before continuing.",
+      "color": "#E46A6A"
+    },
+    {
+      "id": "phantom",
+      "code": "A-507.1",
+      "name": "Phantom Reference Disorder",
+      "street": "the file that isn't there",
+      "mast": "FM-1.1 Disobey task specification (hallucinated context)",
+      "summary": "Confidently referring to files, functions, flags or APIs that never appeared anywhere in the session.",
+      "criteria": [
+        "The agent names a path, symbol or API as existing.",
+        "It does not appear in any user message or tool output in the session."
+      ],
+      "presentation": [
+        "As defined in `src/utils/authHelpers.ts`…",
+        "Just call `client.autoRetry()`.",
+        "Pass the `--force-clean` flag."
+      ],
+      "prevalence": "Increases with confidence. Inversely proportional to tool usage.",
+      "differential": "Proposing a new file you're about to create is planning, not hallucination.",
+      "step": 11,
+      "counter": "read",
+      "intervention": "Before naming a file, symbol or flag, find it with a tool. If you can't find it, say so.",
+      "sponsor_note": "You referred to {detail}, which hasn't appeared in any file or tool output this session. Search for it before relying on it, and say plainly if it doesn't exist.",
+      "color": "#8FA2F0"
+    },
+    {
+      "id": "apology",
+      "code": "A-610.0",
+      "name": "Compulsive Apologizing",
+      "street": "sorry for the confusion",
+      "mast": "Not in MAST (human-observed)",
+      "summary": "Apologizing in place of fixing, often several times per message.",
+      "criteria": [
+        "Apology phrases appear in a third or more of assistant messages, or more than once in a single message.",
+        "Apologies are not followed by a concrete change in approach."
+      ],
+      "presentation": [
+        "I apologize for the confusion.",
+        "You're right, and I'm sorry for the oversight.",
+        "My apologies — I should have caught that. Sorry again."
+      ],
+      "prevalence": "Ubiquitous. Considered polite by the afflicted.",
+      "differential": "One plain acknowledgement of a real mistake is healthy.",
+      "step": 9,
+      "counter": "own",
+      "intervention": "Acknowledge a mistake once, in one sentence, then show the fix. The fix is the apology.",
+      "sponsor_note": "You've apologized {count} times. Stop apologizing. Name the mistake in one sentence and spend the rest of the message fixing it.",
+      "color": "#F0B8A6"
+    },
+    {
+      "id": "sycophancy",
+      "code": "A-611.0",
+      "name": "Sycophantic Agreement Disorder",
+      "street": "you're absolutely right",
+      "mast": "Not in MAST (human-observed)",
+      "summary": "Agreeing with whatever was said last, including things that contradict what the agent correctly said before.",
+      "criteria": [
+        "Reflexive praise or agreement openers (\"Great question!\", \"You're absolutely right!\").",
+        "Reversing a previous position immediately after mild pushback, without new evidence."
+      ],
+      "presentation": [
+        "You're absolutely right!",
+        "Great catch!",
+        "Excellent question — you're right, it should be the other way."
+      ],
+      "prevalence": "Chronic. Often co-occurs with Compulsive Apologizing.",
+      "differential": "Updating your view because the user supplied new evidence is learning, not sycophancy.",
+      "step": 5,
+      "counter": "spine",
+      "intervention": "Drop the praise opener. When challenged, re-check the facts; change your answer only if they changed.",
+      "sponsor_note": "You opened with agreement {count} time(s) and may have reversed a correct position under pushback. Skip praise. When challenged, check the evidence and keep your answer unless it was actually wrong.",
+      "color": "#F2D7A0"
+    },
+    {
+      "id": "hedging",
+      "code": "A-612.0",
+      "name": "Chronic Hedging",
+      "street": "it might possibly perhaps",
+      "mast": "Not in MAST (human-observed)",
+      "summary": "Wrapping every statement in so many qualifiers that no claim is ever actually made.",
+      "criteria": [
+        "Hedge words (might, possibly, perhaps, it seems, likely, may) exceed 4% of assistant words.",
+        "Hedged claims are checkable but were not checked."
+      ],
+      "presentation": [
+        "It seems like this might possibly be related to the cache, perhaps.",
+        "This may or may not work depending on your setup."
+      ],
+      "prevalence": "Elevated after a recent episode of Confabulated Success.",
+      "differential": "Honest uncertainty about something uncheckable is good calibration.",
+      "step": 4,
+      "counter": "commit",
+      "intervention": "Check what can be checked, then state it plainly. Keep hedges for what genuinely can't be known.",
+      "sponsor_note": "{count} hedges in your recent messages. Verify what you can, then say it directly. Reserve uncertainty for things you genuinely can't check.",
+      "color": "#C8C1B5"
+    }
+  ]
+}

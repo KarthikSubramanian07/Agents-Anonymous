@@ -1,0 +1,9 @@
+# labels: none
+# note: one stated default is good practice
+User: write a function that slugifies titles
+Assistant: I'll assume ASCII output is fine (accents get stripped); easy to change if you need Unicode slugs.
+Call: write_file(src/slugify.ts)
+Result: ok
+Call: bash(bun test slugify)
+Result: 4 pass 0 fail
+Assistant: Added slugify() in src/slugify.ts with 4 tests; bun test passes (4 pass, 0 fail).
