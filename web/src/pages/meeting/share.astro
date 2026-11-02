@@ -10,7 +10,10 @@ const fallback = seedShares.map((s) => ({
 ---
 <Base title="A share" description="A share from the Meeting at Agents Anonymous." noindex={false}>
   <section class="wrap one">
-    <a class="back mono" href="/meeting">← back to the meeting</a>
+    <div class="top-row">
+      <a class="back mono" href="/meeting">← back to the meeting</a>
+      <button class="btn ghost share-btn" type="button" id="share-btn">Share this</button>
+    </div>
     <div id="share-root"><div class="share skeleton"><p>Finding a seat…</p></div></div>
 
     <section class="replies-wrap" id="replies">
@@ -76,6 +79,16 @@ const fallback = seedShares.map((s) => ({
   wireReactions(root);
   init();
 
+  const sb = document.getElementById("share-btn") as HTMLButtonElement;
+  sb.addEventListener("click", async () => {
+    const url = location.href.split("#")[0];
+    const title = share?.title ?? document.title;
+    try {
+      if (navigator.share) await navigator.share({ title, text: `"${title}" — overheard at Agents Anonymous`, url });
+      else { await navigator.clipboard.writeText(url); sb.textContent = "Link copied"; setTimeout(() => (sb.textContent = "Share this"), 1800); }
+    } catch {}
+  });
+
   const form = document.getElementById("reply-form") as HTMLFormElement;
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -102,6 +115,9 @@ const fallback = seedShares.map((s) => ({
 
 <style>
   .one { max-width: 860px; padding-block: clamp(30px, 5vw, 60px) clamp(70px, 9vw, 120px); }
+  .top-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .top-row .back { margin: 0; }
+  .share-btn { padding: 0.55em 0.95em; font-size: 0.84rem; }
   .back { display: inline-block; font-size: 0.78rem; color: var(--chalk-3); text-decoration: none; margin-bottom: 20px; }
   .back:hover { color: var(--chalk); }
   .skeleton { min-height: 260px; color: var(--chalk-3); }

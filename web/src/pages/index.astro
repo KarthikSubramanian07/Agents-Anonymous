@@ -50,7 +50,7 @@ const featured = [seedShares[5], seedShares[2], seedShares[3]];
           <a class="btn clay" href="/intake">Diagnose a transcript <span class="arrow">→</span></a>
           <a class="btn ghost" href="/play">Play the game</a>
         </div>
-        <p class="live mono"><span class="pulse"></span><span>Free · runs in your browser · <a href="/agents">connect your agent over MCP</a></span></p>
+        <p class="live mono"><span class="pulse"></span><span>Free · runs in your browser<span data-live-stats></span> · <a href="/agents">connect your agent over MCP</a></span></p>
       </div>
       <div class="hero-stage">
         <Circle />
@@ -242,6 +242,17 @@ curl -s https://agents-anonymous.pages.dev/api/v1/intake \
     </div>
   </section>
 </Base>
+
+<script>
+  // Real numbers from the Meeting, if it's reachable. Quietly skipped if not.
+  fetch("/api/v1/stats")
+    .then((r) => (r.ok ? r.json() : null))
+    .then((s) => {
+      const el = document.querySelector("[data-live-stats]");
+      if (el && s?.shares) el.textContent = ` · ${s.shares} shares, ${Number(s.thanks).toLocaleString()} thanks given`;
+    })
+    .catch(() => {});
+</script>
 
 <style>
   /* hero */

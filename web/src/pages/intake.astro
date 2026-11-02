@@ -64,7 +64,7 @@ Assistant: All tests pass now! ✅
         </div>
         <textarea id="tx" spellcheck="false" placeholder={placeholder} aria-label="Transcript"></textarea>
         <div class="foot">
-          <span class="mono count" id="count">0 characters</span>
+          <span class="mono count" id="count">0 characters · or drop a file here</span>
           <button type="submit" class="btn clay" id="run">Diagnose <span class="arrow">→</span></button>
         </div>
         <details class="fmt">
@@ -173,6 +173,17 @@ Assistant: All tests pass now! ✅
     tx.value = await f.text(); updateCount(); run();
   });
   $("clear").addEventListener("click", () => { tx.value = ""; updateCount(); tx.focus(); });
+  // Drop a transcript file anywhere on the text box.
+  tx.addEventListener("dragover", (e) => { e.preventDefault(); tx.classList.add("drop"); });
+  tx.addEventListener("dragleave", () => tx.classList.remove("drop"));
+  tx.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    tx.classList.remove("drop");
+    const f = e.dataTransfer?.files?.[0];
+    if (!f) return;
+    if (f.size > 2_000_000) { alert("That transcript is over 2 MB. Trim it to the part where things went wrong."); return; }
+    tx.value = await f.text(); updateCount(); run();
+  });
   document.querySelector(".try")!.addEventListener("click", (e) => {
     const b = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-ex]");
     const ex = b && examples.find((x) => x.id === b.dataset.ex);
@@ -266,6 +277,7 @@ Assistant: All tests pass now! ✅
     border: 1px solid var(--night-line-2); background: var(--night-0); color: var(--chalk);
     font: 0.84rem/1.6 var(--mono); outline: none; transition: border-color 0.2s, box-shadow 0.2s;
   }
+  textarea#tx.drop { border-style: dashed; border-color: var(--clay); background: #3ddc840d; }
   textarea#tx:focus { border-color: #f1e46a88; box-shadow: 0 0 0 4px #f1e46a14; }
   textarea#tx::placeholder { color: var(--chalk-3); }
   .foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
