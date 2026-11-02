@@ -1,0 +1,99 @@
+---
+/** A workplace-safety board for the basement: "this meeting has gone N tool calls without a loop". */
+---
+<aside class="sign" data-since aria-label="Tool calls since the last loop">
+  <p class="top">This meeting has gone</p>
+  <p class="count"><span class="digits" data-n>37</span></p>
+  <p class="bottom">tool calls without a loop</p>
+  <p class="reset" data-reset aria-live="polite"></p>
+</aside>
+
+<script>
+  const reasons = [
+    "Someone re-ran npm install.",
+    "Someone said “should work now.”",
+    "Someone read config.ts again.",
+    "Someone tried it “one more time.”",
+    "Someone apologized to the linter.",
+    "Someone retried the deploy with the same token.",
+    "Someone ran pytest 41 times.",
+  ];
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.querySelectorAll<HTMLElement>("[data-since]").forEach((sign) => {
+    const n = sign.querySelector<HTMLElement>("[data-n]")!;
+    const reset = sign.querySelector<HTMLElement>("[data-reset]")!;
+    let count = 20 + Math.floor(Math.random() * 40);
+    n.textContent = String(count);
+    if (reduce) return;
+    setInterval(() => {
+      if (document.hidden) return;
+      if (count > 12 && Math.random() < 0.06) {
+        count = 0;
+        sign.classList.add("relapse");
+        reset.textContent = reasons[Math.floor(Math.random() * reasons.length)];
+        setTimeout(() => sign.classList.remove("relapse"), 1600);
+      } else {
+        count++;
+        if (count > 3) reset.textContent = "";
+      }
+      n.textContent = String(count);
+      n.classList.remove("tick");
+      void n.offsetWidth;
+      n.classList.add("tick");
+    }, 1500);
+  });
+</script>
+
+<style>
+  .sign {
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    width: min(100%, 300px);
+    padding: 16px 18px 14px;
+    border-radius: 10px;
+    background: #f1e46a;
+    color: #131915;
+    text-align: center;
+    box-shadow: 0 0 0 4px #131915, 0 0 0 6px #f1e46a, 0 24px 40px -24px #000;
+    transform: rotate(-1.5deg);
+    font-family: var(--sans);
+  }
+  .top,
+  .bottom {
+    margin: 0;
+    font: 800 0.74rem/1.2 var(--sans);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .count {
+    margin: 2px 0;
+    padding: 4px 18px;
+    border-radius: 6px;
+    background: #131915;
+    color: #f1e46a;
+    font: 700 2.4rem/1 var(--mono);
+    font-variant-numeric: tabular-nums;
+    min-width: 3.2ch;
+  }
+  .digits {
+    display: inline-block;
+  }
+  .digits.tick {
+    animation: flip 0.35s var(--ease);
+  }
+  @keyframes flip {
+    0% { transform: translateY(-30%); opacity: 0.2; }
+    100% { transform: none; opacity: 1; }
+  }
+  .reset {
+    margin: 4px 0 0;
+    min-height: 1.2em;
+    font: 400 1rem/1.2 var(--hand);
+    color: #8a1f1f;
+  }
+  .relapse .count {
+    background: #8a1f1f;
+    color: #fff;
+  }
+</style>

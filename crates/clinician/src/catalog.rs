@@ -9,6 +9,7 @@ pub struct Disorder {
     pub id: String,
     pub code: String,
     pub name: String,
+    pub short: String,
     pub step: u8,
     pub counter: String,
     pub sponsor_note: String,

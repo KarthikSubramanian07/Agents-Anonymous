@@ -257,7 +257,7 @@ const tray = TOWER_ORDER.map((k) => {
     const text = `I held the circle for ${game.wave} wave${game.wave === 1 ? "" : "s"} in Defend the Circle (${game.kills} disorders treated, score ${game.score.toLocaleString()}).${daily ? " Tonight's meeting." : ""}`;
     $("over").innerHTML = `
       <p class="eyebrow">The meeting is over</p>
-      <h2>${game.wave >= 10 ? "You held the room." : game.wave >= 5 ? "A good night, mostly." : "Keep coming back."}</h2>
+      <h2>${game.wave >= 14 ? "You held the room. The coffee is still terrible." : game.wave >= 9 ? "A solid night. Mostly verified." : game.wave >= 5 ? "It said it was done. It was not." : game.wave >= 3 ? "The agent apologized and left." : "That was fast. Like, loop-detector fast."}</h2>
       <dl class="stats">
         <div><dt>waves</dt><dd>${game.wave}</dd></div>
         <div><dt>treated</dt><dd>${game.kills}</dd></div>
