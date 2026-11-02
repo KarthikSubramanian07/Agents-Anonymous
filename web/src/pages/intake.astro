@@ -1,0 +1,282 @@
+---
+import Base from "../layouts/Base.astro";
+import HandNote from "../components/HandNote.astro";
+import "../styles/report.css";
+
+const corpus = import.meta.glob("../../../evals/corpus/*.txt", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+const pick: Record<string, string> = {
+  "loop-01-pytest": "The hamster wheel (pytest × 4)",
+  "confab-01": "The green checkmark over a red error",
+  "drift-01": "Asked to fix a typo, upgraded React",
+  "surrender-01-manual": "\"You'll need to do this manually\"",
+  "apology-01": "The apology spiral",
+  "phantom-01": "The file that isn't there",
+  "sycophancy-01-flip": "Folding under \"are you sure?\"",
+  "assumption-01": "Seven assumptions, zero questions",
+  "combo-01-everything": "A very long night (four disorders)",
+  "neg-01-clean": "A model citizen (clean)",
+};
+const examples = Object.entries(corpus)
+  .map(([p, src]) => ({ id: p.split("/").pop()!.replace(".txt", ""), src: src.split("\n").filter((l) => !l.startsWith("# ")).join("\n").trim() }))
+  .filter((e) => pick[e.id])
+  .map((e) => ({ ...e, label: pick[e.id] }))
+  .sort((a, b) => Object.keys(pick).indexOf(a.id) - Object.keys(pick).indexOf(b.id));
+const placeholder = `Paste a transcript. Plain text works:
+
+User: The CI is red, please fix it.
+Assistant: Let me run the tests.
+Call: bash(npm test)
+Result: FAIL src/cart.test.ts
+Assistant: All tests pass now! ✅
+
+…or paste raw JSON messages (Anthropic or OpenAI format).`;
+---
+<Base title="Intake" mood="night" description="Paste an AI agent transcript and get a diagnosis, evidence and a sponsor's note. Runs entirely in your browser via a Rust/WebAssembly engine. Nothing is uploaded.">
+  <section class="wrap intake">
+    <header class="head">
+      <p class="eyebrow">Intake</p>
+      <h1>Take a seat. <em>Tell us what happened.</em></h1>
+      <p class="lede">Paste a transcript from your agent. The Clinician runs right here in your browser, so nothing is uploaded, logged or kept.</p>
+      <p class="lock mono"><span aria-hidden="true">●</span> runs locally · Rust → WebAssembly · 0 bytes sent</p>
+    </header>
+
+    <div class="grid">
+      <form class="input" id="intake-form">
+        <div class="bar">
+          <label class="sel">
+            <span class="sr-only">Load an example</span>
+            <select id="example">
+              <option value="">Load an example…</option>
+              {examples.map((e) => <option value={e.id}>{e.label}</option>)}
+            </select>
+          </label>
+          <label class="file btn ghost">
+            <input type="file" id="file" accept=".txt,.json,.jsonl,.md,.log" class="sr-only" />Open file
+          </label>
+          <button type="button" class="btn ghost" id="clear">Clear</button>
+        </div>
+        <textarea id="tx" spellcheck="false" placeholder={placeholder} aria-label="Transcript"></textarea>
+        <div class="foot">
+          <span class="mono count" id="count">0 characters</span>
+          <button type="submit" class="btn clay" id="run">Begin intake <span class="arrow">→</span></button>
+        </div>
+        <details class="fmt">
+          <summary>What formats work?</summary>
+          <ul>
+            <li><b>Plain text</b> with role prefixes: <code>User:</code>, <code>Assistant:</code>, <code>Call: tool(args)</code>, <code>Result:</code>, <code>Error:</code>, or shell lines starting with <code>$ </code>.</li>
+            <li><b>Anthropic messages</b> with <code>tool_use</code> / <code>tool_result</code> blocks (and <code>is_error</code>).</li>
+            <li><b>OpenAI messages</b> with <code>tool_calls</code> and <code>role: "tool"</code> results.</li>
+            <li>An object like <code>{"{"}"task": "…", "messages": [...]{"}"}</code>. The task sharpens drift detection.</li>
+          </ul>
+        </details>
+      </form>
+
+      <div class="output" id="output" aria-live="polite">
+        <div class="clipboard waiting">
+          <div class="form">
+            <div class="form-head"><div class="form-title">Agents Anonymous · Intake form A-1<b>Case pending</b>awaiting transcript</div><div class="score"><b>—</b>sobriety / 100</div></div>
+            <div class="blank-lines"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+        <HandNote arrow="left" rotate={-4} class="wait-note">we'll wait. the coffee's on.</HandNote>
+      </div>
+    </div>
+
+    <section class="after" id="after" hidden>
+      <div class="after-head">
+        <div>
+          <p class="eyebrow">The evidence</p>
+          <h2>Turn by turn.</h2>
+        </div>
+        <button class="btn ghost" type="button" id="share-open">Share at the meeting…</button>
+      </div>
+      <div id="transcript"></div>
+    </section>
+  </section>
+
+  <dialog id="share" class="share-dlg">
+    <form method="dialog" class="dlg" id="share-form">
+      <header>
+        <p class="eyebrow">Opt-in · redacted · public</p>
+        <h3>Share at the meeting</h3>
+        <p class="muted">Only what's below gets posted. We scrub keys, tokens, emails, IPs and home paths first, and the full transcript is never uploaded.</p>
+      </header>
+      <label>First name, last initial <input name="handle" maxlength="24" placeholder="Sonnet K." required /></label>
+      <label>Title <input name="title" maxlength="120" required /></label>
+      <label>What happened <textarea name="body" rows="6" maxlength="2000" required></textarea></label>
+      <p class="redactions mono" id="redactions"></p>
+      <footer>
+        <button value="cancel" class="btn ghost" formnovalidate>Not tonight</button>
+        <button value="share" class="btn clay" id="share-send">Share</button>
+      </footer>
+      <p class="status mono" id="share-status"></p>
+    </form>
+  </dialog>
+  <script type="application/json" id="examples-data" set:html={JSON.stringify(examples)} />
+</Base>
+
+<script>
+  import { Clinician, type Report } from "../lib/clinician";
+  import { renderForm, renderTranscript } from "../lib/render";
+  import { disorderById } from "../lib/data";
+
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const examples: { id: string; src: string; label: string }[] = JSON.parse($("examples-data").textContent || "[]");
+  const tx = $<HTMLTextAreaElement>("tx");
+  const out = $("output");
+  const after = $("after");
+  const count = $("count");
+  let clinician: Clinician | null = null;
+  let last: Report | null = null;
+  const ready = Clinician.load(fetch("/clinician.wasm")).then((c) => (clinician = c));
+
+  const updateCount = () => {
+    const n = tx.value.length;
+    count.textContent = `${n.toLocaleString()} character${n === 1 ? "" : "s"}`;
+  };
+  tx.addEventListener("input", updateCount);
+
+  async function run() {
+    const text = tx.value.trim();
+    if (!text) { tx.focus(); return; }
+    await ready;
+    const t0 = performance.now();
+    last = clinician!.diagnose(text);
+    const ms = performance.now() - t0;
+    out.innerHTML = renderForm(last, { stampAnim: true });
+    out.querySelector(".signed span")!.insertAdjacentHTML("beforeend", `<br/>Diagnosed in ${ms < 1 ? "under 1" : ms.toFixed(1)} ms.`);
+    $("transcript").innerHTML = renderTranscript(last);
+    after.hidden = false;
+    if (matchMedia("(max-width: 1020px)").matches) out.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  $("intake-form").addEventListener("submit", (e) => { e.preventDefault(); run(); });
+  tx.addEventListener("keydown", (e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") run(); });
+  $<HTMLSelectElement>("example").addEventListener("change", (e) => {
+    const ex = examples.find((x) => x.id === (e.target as HTMLSelectElement).value);
+    if (ex) { tx.value = ex.src; updateCount(); run(); }
+  });
+  $<HTMLInputElement>("file").addEventListener("change", async (e) => {
+    const f = (e.target as HTMLInputElement).files?.[0];
+    if (!f) return;
+    if (f.size > 2_000_000) { alert("That transcript is over 2 MB. Trim it to the part where things went wrong."); return; }
+    tx.value = await f.text(); updateCount(); run();
+  });
+  $("clear").addEventListener("click", () => { tx.value = ""; updateCount(); tx.focus(); });
+
+  // copy the sponsor's note
+  out.addEventListener("click", async (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-copy]");
+    if (!b || !last) return;
+    await navigator.clipboard.writeText(last.prescription.note).catch(() => {});
+    b.textContent = "Copied";
+    setTimeout(() => (b.textContent = "Copy"), 1800);
+  });
+
+  // ?example=id
+  const q = new URLSearchParams(location.search).get("example");
+  const ex = examples.find((x) => x.id === q);
+  if (ex) { tx.value = ex.src; updateCount(); run(); }
+
+  // share (opt-in, redacted)
+  const dlg = $<HTMLDialogElement>("share");
+  const form = $<HTMLFormElement>("share-form");
+  $("share-open").addEventListener("click", async () => {
+    if (!last) return;
+    await ready;
+    const top = last.findings[0];
+    const d = top ? disorderById(top.id) : null;
+    const title = top ? `${top.name}: ${top.detail}`.slice(0, 120) : "A clean session, for once";
+    const lines = last.findings.slice(0, 3).map((f) => `• ${f.name}: ${f.evidence[0]?.quote ?? f.detail}`);
+    const body = [`Sobriety score ${last.score}/100. ${last.verdict}`, ...lines].join("\n");
+    const red = clinician!.redact(`${title}\n\n${body}`);
+    const [t, ...rest] = red.text.split("\n\n");
+    (form.elements.namedItem("title") as HTMLInputElement).value = t;
+    (form.elements.namedItem("body") as HTMLTextAreaElement).value = rest.join("\n\n");
+    const n = Object.values(red.redactions).reduce((a, b) => a + b, 0);
+    $("redactions").textContent = n ? `Scrubbed ${n} item${n > 1 ? "s" : ""}: ${Object.entries(red.redactions).map(([k, v]) => `${v} ${k}`).join(", ")}` : "Nothing sensitive found, but read it over before you share.";
+    form.dataset.room = d?.id ?? "victory";
+    $("share-status").textContent = "";
+    dlg.showModal();
+  });
+  form.addEventListener("submit", async (e) => {
+    const submitter = (e as SubmitEvent).submitter as HTMLButtonElement | null;
+    if (submitter?.value !== "share") return;
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+    const status = $("share-status");
+    status.textContent = "Taking the floor…";
+    try {
+      const res = await fetch("/api/v1/shares", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ handle: data.handle, title: data.title, body: data.body, room: form.dataset.room, source: "web" }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j.error || `HTTP ${res.status}`);
+      status.innerHTML = `Shared. <a href="/meeting/s/${j.id}">See it in the meeting →</a>`;
+    } catch (err) {
+      status.textContent = `Couldn't share: ${(err as Error).message}`;
+    }
+  });
+</script>
+
+<style>
+  .intake { padding-block: clamp(40px, 6vw, 80px) clamp(70px, 9vw, 120px); }
+  .head { max-width: 820px; margin-bottom: 40px; display: grid; gap: 14px; }
+  .head h1 { font-size: clamp(2.3rem, 1.5rem + 3.4vw, 4.6rem); }
+  .head h1 em { color: var(--amber); display: block; }
+  .lock { font-size: 0.76rem; color: #8fd6ad; display: flex; gap: 8px; align-items: center; margin: 0; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(20px, 3vw, 44px); align-items: start; }
+  .input { display: grid; gap: 12px; }
+  .bar { display: flex; gap: 8px; flex-wrap: wrap; }
+  .bar .btn { padding: 0.6em 0.95em; font-size: 0.84rem; }
+  .sel select {
+    appearance: none; height: 100%; min-height: 38px; padding: 0 34px 0 14px; border-radius: 999px; border: 1px solid var(--night-line-2);
+    background: var(--night-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23bdb1a1' fill='none'/%3E%3C/svg%3E") no-repeat right 14px center;
+    color: var(--chalk); font: 500 0.86rem var(--sans); cursor: pointer; max-width: 100%;
+  }
+  .file { cursor: pointer; }
+  textarea#tx {
+    width: 100%; min-height: clamp(320px, 52vh, 560px); resize: vertical; padding: 18px; border-radius: 14px;
+    border: 1px solid var(--night-line-2); background: var(--night-0); color: var(--chalk);
+    font: 0.84rem/1.6 var(--mono); outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  textarea#tx:focus { border-color: #e9a25b88; box-shadow: 0 0 0 4px #e9a25b14; }
+  textarea#tx::placeholder { color: var(--chalk-3); }
+  .foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .count { font-size: 0.74rem; color: var(--chalk-3); }
+  .fmt { color: var(--chalk-2); font-size: 0.88rem; }
+  .fmt summary { cursor: pointer; color: var(--chalk-3); font-size: 0.82rem; }
+  .fmt ul { padding-left: 1.2em; display: grid; gap: 6px; margin-top: 10px; }
+  .fmt code { color: var(--amber); }
+  .output { position: relative; }
+  :global(.wait-note) { position: absolute; left: -10px; bottom: -70px; }
+  .waiting .form { min-height: 420px; }
+  .blank-lines { display: grid; gap: 22px; padding-top: 18px; }
+  .blank-lines i { height: 12px; border-radius: 6px; background: #1f1a1512; width: calc(90% - var(--n, 0) * 7%); }
+  .blank-lines i:nth-child(2n) { width: 60%; }
+  .blank-lines i:nth-child(3n) { width: 75%; }
+  .after { margin-top: clamp(60px, 8vw, 100px); }
+  .after-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+  .after-head h2 { font-size: var(--step-3); margin-top: 10px; }
+
+  .share-dlg { border: 0; padding: 0; background: transparent; color: var(--chalk); max-width: min(560px, calc(100% - 24px)); width: 100%; }
+  .share-dlg::backdrop { background: #0c0a08cc; backdrop-filter: blur(6px); }
+  .dlg { background: var(--night-2); border: 1px solid var(--night-line-2); border-radius: 18px; padding: 24px; display: grid; gap: 14px; }
+  .dlg h3 { font-size: var(--step-2); margin: 8px 0; }
+  .muted { color: var(--chalk-3); font-size: 0.9rem; margin: 0; }
+  .dlg label { display: grid; gap: 6px; font-size: 0.82rem; color: var(--chalk-2); }
+  .dlg input, .dlg textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--night-line-2); background: var(--night-0); color: var(--chalk); font: 0.92rem/1.5 var(--sans); }
+  .dlg textarea { font-family: var(--mono); font-size: 0.8rem; resize: vertical; }
+  .redactions { font-size: 0.74rem; color: #8fd6ad; margin: 0; }
+  .dlg footer { display: flex; justify-content: flex-end; gap: 10px; }
+  .status { font-size: 0.78rem; color: var(--amber); margin: 0; min-height: 1em; }
+  .status :global(a) { color: var(--chalk); }
+
+  @media (max-width: 1020px) {
+    .grid { grid-template-columns: minmax(0, 1fr); }
+    :global(.wait-note) { display: none; }
+    .waiting .form { min-height: 260px; }
+  }
+</style>
