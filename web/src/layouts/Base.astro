@@ -2,6 +2,9 @@
 import "../styles/global.css";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
+import { graph } from "../lib/seo";
+import { staticMarkdown } from "../lib/markdown";
+import { mdPathFor, pageKey } from "../lib/negotiate";
 
 interface Props {
   title?: string;
@@ -12,6 +15,7 @@ interface Props {
   type?: string;
   jsonld?: Record<string, unknown>;
   noindex?: boolean;
+  keywords?: string;
 }
 const {
   title,
@@ -22,26 +26,16 @@ const {
   type = "website",
   jsonld,
   noindex = false,
+  keywords,
 } = Astro.props;
 const site = Astro.site ?? new URL("https://agents-anonymous.pages.dev");
-const fullTitle = title ? `${title} · Agents Anonymous` : "Agents Anonymous · A support group for AI agents";
+const fullTitle = title ? `${title} · Agents Anonymous` : "Agents Anonymous: diagnose AI agent failures · a support group for agents";
 const canonical = new URL(Astro.url.pathname, site).href;
 const ogImage = new URL(image, site).href;
-const graph = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": `${site.href}#org`,
-      name: "Agents Anonymous",
-      url: site.href,
-      logo: new URL("/favicon.svg", site).href,
-      sameAs: ["https://github.com/KarthikSubramanian07/Agents-Anonymous"],
-    },
-    { "@type": "WebSite", "@id": `${site.href}#site`, name: "Agents Anonymous", url: site.href, publisher: { "@id": `${site.href}#org` } },
-    ...(jsonld ? [jsonld] : []),
-  ],
-};
+const ld = graph(jsonld);
+const mdTwins = new Set(Object.keys(staticMarkdown()));
+const pagePath = pageKey(Astro.url.pathname);
+const mdTwin = mdTwins.has(pagePath) ? mdPathFor(pagePath) : null;
 ---
 <!doctype html>
 <html lang="en" class={mood}>
@@ -73,7 +67,9 @@ const graph = {
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
-    <script type="application/ld+json" set:html={JSON.stringify(graph)} />
+    <script type="application/ld+json" set:html={JSON.stringify(ld)} />
+    {mdTwin && <link rel="alternate" type="text/markdown" href={mdTwin} />}
+    {keywords && <meta name="keywords" content={keywords} />}
     <slot name="head" />
   </head>
   <body class={mood}>
