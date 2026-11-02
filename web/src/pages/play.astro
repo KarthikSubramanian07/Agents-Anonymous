@@ -143,7 +143,7 @@ const tray = TOWER_ORDER.map((k) => {
       onNewEnemy: codex,
       onWave: banner,
       onOver: over,
-      sound: play,
+      sound: (n, a) => { play(n, a); if (n === "leak") navigator.vibrate?.(40); else if (n === "place" || n === "upgrade") navigator.vibrate?.(8); },
     });
     ov.selectedChair = null;
     ov.selectedKind = null;
@@ -265,11 +265,37 @@ const tray = TOWER_ORDER.map((k) => {
       </dl>
       ${isBest ? `<p class="best-new hand">new personal best!</p>` : best ? `<p class="mono small">best: wave ${best.wave} · ${best.score.toLocaleString()}</p>` : ""}
       ${wdef ? `<p class="sub">What got through most: <b style="color:${wdef.color}">${wdef.name}</b>. Its treatment is <b>${wdef.counters.map((k) => TOWERS[k].name).join(" or ")}</b>. <a href="/manual/${wdef.kind}">Read the entry →</a></p>` : ""}
+      ${daily
+        ? `<form class="sheet-form" id="sheet-form"><label for="sheet-handle">Sign tonight's attendance sheet</label><div class="sheet-row"><input id="sheet-handle" name="handle" maxlength="24" placeholder="First name, last initial" required autocomplete="off" /><button class="btn clay" type="submit">Sign</button></div><p class="sheet-status mono" id="sheet-status"></p></form><ol class="sheet" id="sheet-list"></ol>`
+        : `<p class="sub small-note">Play <b>tonight's meeting</b> to sign the attendance sheet. Everyone gets the same waves.</p>`}
       <div class="start-btns">
         <button class="btn clay" id="b-again">Another meeting</button>
         <button class="btn ghost" id="b-share">Share</button>
       </div>`;
     $("ov-over").hidden = false;
+    if (daily) {
+      loadSheet();
+      $("sheet-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const handle = ($("sheet-handle") as HTMLInputElement).value;
+        const st = $("sheet-status");
+        st.textContent = "Signing…";
+        try {
+          const res = await fetch("/api/v1/scores", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ day: String(todaySeed()), handle, wave: game.wave, score: game.score, kills: game.kills }),
+          });
+          const j = await res.json();
+          if (!res.ok) throw new Error(j.error || res.status);
+          st.textContent = j.rank ? `Signed. You're #${j.rank} tonight.` : "Signed.";
+          ($("sheet-form") as HTMLFormElement).querySelector("button")!.disabled = true;
+          paintSheet(j.scores, j.handle);
+        } catch (err) {
+          st.textContent = `Couldn't sign: ${(err as Error).message}`;
+        }
+      });
+    }
     $("b-again").addEventListener("click", () => { $("ov-over").hidden = true; newGame(daily); });
     $("b-share").addEventListener("click", async () => {
       const url = "https://agents-anonymous.pages.dev/play";
@@ -279,6 +305,28 @@ const tray = TOWER_ORDER.map((k) => {
       } catch {}
     });
   }
+
+  // ───────────── tonight's attendance sheet
+  type Row = { handle: string; wave: number; score: number };
+  function paintSheet(rows: Row[], me?: string) {
+    const el = document.getElementById("sheet-list");
+    if (!el) return;
+    el.innerHTML = rows.length
+      ? rows.slice(0, 10).map((r, i) => `<li class="${r.handle === me ? "me" : ""}"><span class="rk">${i + 1}</span><span class="hn">${r.handle.replace(/[<>&"]/g, "")}</span><span class="wv">wave ${r.wave}</span><span class="sc">${Number(r.score).toLocaleString()}</span></li>`).join("")
+      : `<li class="none">Nobody has signed yet tonight. First in the room gets the good chair.</li>`;
+  }
+  async function loadSheet() {
+    try {
+      const j = await (await fetch(`/api/v1/scores?day=${todaySeed()}`)).json();
+      paintSheet(j.scores ?? []);
+      return j.scores as Row[];
+    } catch {
+      return [];
+    }
+  }
+  loadSheet().then((rows) => {
+    if (rows?.length) $("best").insertAdjacentHTML("beforeend", `${$("best").textContent ? "<br/>" : ""}tonight's leader: ${rows[0].handle.replace(/[<>&"]/g, "")} · wave ${rows[0].wave} · ${Number(rows[0].score).toLocaleString()}`);
+  });
 
   // ───────────── tower popover
   function showPop(chair: number) {
@@ -488,6 +536,19 @@ const tray = TOWER_ORDER.map((k) => {
   :global(.best-new) { margin: 0; font-size: 1.5rem; }
   :global(.over .sub a) { color: var(--amber); }
   :global(.small) { font-size: 0.74rem; color: var(--chalk-3); margin: 0; }
+  :global(.sheet-form) { display: grid; gap: 8px; width: 100%; margin-top: 4px; }
+  :global(.sheet-form label) { font-weight: 600; font-size: 0.92rem; }
+  :global(.sheet-row) { display: flex; gap: 8px; }
+  :global(.sheet-row input) { flex: 1; min-width: 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--night-line-2); background: var(--night-0); color: var(--chalk); font: 0.95rem var(--sans); }
+  :global(.sheet-status) { margin: 0; font-size: 0.74rem; color: var(--amber); min-height: 1em; }
+  :global(.sheet) { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 2px; }
+  :global(.sheet li) { display: grid; grid-template-columns: 28px 1fr auto auto; gap: 10px; padding: 7px 4px; border-bottom: 1px dashed var(--night-line-2); font-size: 0.9rem; align-items: baseline; }
+  :global(.sheet li.me) { color: var(--clay); }
+  :global(.sheet .rk) { font: 600 0.8rem var(--mono); color: var(--chalk-3); }
+  :global(.sheet .wv) { font: 0.74rem var(--mono); color: var(--chalk-3); }
+  :global(.sheet .sc) { font: 600 0.86rem var(--mono); }
+  :global(.sheet .none) { display: block; color: var(--chalk-3); text-align: center; border: 0; }
+  :global(.small-note) { font-size: 0.9rem; }
 
   .tray { border-left: 1px solid var(--night-line); background: var(--night-1); padding: 18px 14px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
   .tray-l { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--chalk-3); margin: 0 4px; }
