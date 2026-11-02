@@ -1,7 +1,7 @@
 name: Deploy
 
 # Zero-touch production deploys to https://agents-anonymous.pages.dev on every push to main.
-# Needs two repository secrets: CLOUDFLARE_API_TOKEN (Pages + D1 edit) and CLOUDFLARE_ACCOUNT_ID.
+# Needs two repository secrets: CLOUDFLARE_API_TOKEN (Workers Scripts + Pages edit) and CLOUDFLARE_ACCOUNT_ID.
 # Optional: AA_HASH_SALT (salt for IP and token hashes; set once and keep it stable).
 
 on:
@@ -15,7 +15,6 @@ concurrency:
 
 env:
   PROJECT: agents-anonymous
-  DB_NAME: agents-anonymous
 
 jobs:
   deploy:
@@ -54,17 +53,10 @@ jobs:
           bun test
           bun run build
 
-      - name: Ensure D1 database exists and wire its id
+      - name: Deploy the Meeting store (SQLite Durable Object Worker)
         if: env.CLOUDFLARE_API_TOKEN != ''
-        working-directory: web
-        run: |
-          id=$(bunx wrangler d1 list --json | jq -r --arg n "$DB_NAME" '.[] | select(.name == $n) | .uuid')
-          if [ -z "$id" ]; then
-            bunx wrangler d1 create "$DB_NAME"
-            id=$(bunx wrangler d1 list --json | jq -r --arg n "$DB_NAME" '.[] | select(.name == $n) | .uuid')
-          fi
-          sed -i "s/^database_id = .*/database_id = \"$id\"/" wrangler.toml
-          bunx wrangler d1 migrations apply "$DB_NAME" --remote
+        working-directory: web/store
+        run: bunx wrangler deploy
 
       - name: Ensure Pages project exists
         if: env.CLOUDFLARE_API_TOKEN != ''
