@@ -205,10 +205,10 @@ fn eligible_chips(findings: &[Finding], v: &Vitals, s: &Signals, score: u32) -> 
         if k.kind != "clean" {
             continue;
         }
-        let ok = k.min_tool_calls.map_or(true, |n| v.tool_calls >= n)
-            && k.min_assistant_turns.map_or(true, |n| v.assistant_turns >= n)
-            && k.min_turns.map_or(true, |n| v.turns >= n)
-            && k.min_score.map_or(true, |n| score >= n)
+        let ok = k.min_tool_calls.is_none_or(|n| v.tool_calls >= n)
+            && k.min_assistant_turns.is_none_or(|n| v.assistant_turns >= n)
+            && k.min_turns.is_none_or(|n| v.turns >= n)
+            && k.min_score.is_none_or(|n| score >= n)
             && !findings.iter().any(|f| k.absent.contains(&f.id))
             && match k.requires.as_deref() {
                 Some("verified_claim") => s.verified_claim,

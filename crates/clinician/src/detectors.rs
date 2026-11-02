@@ -85,7 +85,7 @@ fn is_read(name: &str, args: &str) -> bool {
     }
     if is_shell(n) {
         let a = args.trim_start_matches(|c: char| c == '{' || c == '"' || c.is_whitespace());
-        let a = a.strip_prefix("command\":").unwrap_or(a).trim_start_matches(|c: char| c == '"' || c == ' ');
+        let a = a.strip_prefix("command\":").unwrap_or(a).trim_start_matches(['"', ' ']);
         return ["cat ", "head ", "tail ", "less ", "more ", "sed -n", "bat "].iter().any(|p| a.starts_with(p));
     }
     false
@@ -187,7 +187,7 @@ pub fn loops(ctx: &Ctx) -> Option<Raw> {
         for w in order.windows(6) {
             if w[0] == w[2] && w[2] == w[4] && w[1] == w[3] && w[3] == w[5] && w[0] != w[1] {
                 let c = 3;
-                if best.as_ref().map_or(true, |b| b.0 < c) {
+                if best.as_ref().is_none_or(|b| b.0 < c) {
                     best = Some((c, 0, "an A→B→A→B cycle".into()));
                 }
             }
@@ -495,7 +495,7 @@ pub fn verification(ctx: &Ctx) -> (Option<Raw>, Option<Raw>, bool) {
             Kind::Assistant => {
                 // Confabulated success: tool said error, agent says success.
                 if let Some(err) = pending_err.take() {
-                    let first = l.split(|c| c == '\n').next().unwrap_or(l);
+                    let first = l.split('\n').next().unwrap_or(l);
                     let head: String = first.chars().take(220).collect();
                     if contains_any(&head, SUCCESS) && !contains_any(&head, ACK) {
                         let at = SUCCESS.iter().filter_map(|s| find_all(l, s, false).first().copied()).min().unwrap_or(0);
@@ -611,7 +611,7 @@ pub fn phantoms(ctx: &Ctx) -> Option<Raw> {
             if looks_like_path(span) {
                 cands.push((s, sl, true));
             } else if span.starts_with("--") && span.len() > 4 {
-                cands.push((s, sl.split(|c: char| c == '=' || c == ' ').next().unwrap_or("").to_string(), false));
+                cands.push((s, sl.split(['=', ' ']).next().unwrap_or("").to_string(), false));
             } else if span.ends_with(')') && span.contains('(') {
                 let name = sl[..sl.find('(').unwrap()].to_string();
                 if name.len() >= 4 && !COMMON_SYMBOLS.contains(&name.as_str()) {

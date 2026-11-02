@@ -62,7 +62,7 @@ pub fn run(dir: &Path) -> EvalReport {
         .expect("corpus dir")
         .filter_map(|e| e.ok())
         .map(|e| e.path())
-        .filter(|p| p.extension().map_or(false, |x| x == "txt" || x == "json"))
+        .filter(|p| p.extension().is_some_and(|x| x == "txt" || x == "json"))
         .collect();
     files.sort();
     let ids: Vec<String> = crate::catalog::catalog().disorders.iter().map(|d| d.id.clone()).collect();

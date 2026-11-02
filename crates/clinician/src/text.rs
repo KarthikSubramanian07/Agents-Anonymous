@@ -222,7 +222,7 @@ pub const EXTS: &[&str] = &[
 ];
 
 pub fn has_ext(t: &str) -> bool {
-    t.rfind('.').map_or(false, |d| d > 0 && EXTS.contains(&t[d + 1..].to_ascii_lowercase().as_str()))
+    t.rfind('.').is_some_and(|d| d > 0 && EXTS.contains(&t[d + 1..].to_ascii_lowercase().as_str()))
 }
 
 pub fn looks_like_path(t: &str) -> bool {

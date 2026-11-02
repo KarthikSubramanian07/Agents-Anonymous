@@ -13,6 +13,7 @@ pub struct Redacted {
 }
 
 type Span = (usize, usize, String, &'static str);
+type Pass<'a> = &'a dyn Fn(&str, &str, &mut Vec<Span>);
 
 fn is_tok(b: u8) -> bool {
     b.is_ascii_alphanumeric() || b == b'_' || b == b'-'
@@ -292,7 +293,7 @@ pub fn redact(input: &str) -> Redacted {
     let mut text = input.to_string();
     let mut counts: BTreeMap<&'static str, usize> = BTreeMap::new();
     // Passes run in order; each one sees the previous pass's output so spans never overlap.
-    let passes: [&dyn Fn(&str, &str, &mut Vec<Span>); 8] = [
+    let passes: [Pass; 8] = [
         &|t, _l, o| pem(t, o),
         &|t, _l, o| jwts(t, o),
         &|t, l, o| keys(t, l, o),
