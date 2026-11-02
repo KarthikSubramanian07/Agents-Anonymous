@@ -1,0 +1,107 @@
+---
+import Mark from "./Mark.astro";
+interface Props { current?: string }
+const { current = "" } = Astro.props;
+const links = [
+  { href: "/meeting", label: "The Meeting" },
+  { href: "/intake", label: "Intake" },
+  { href: "/manual", label: "Manual" },
+  { href: "/steps", label: "12 Steps" },
+  { href: "/chips", label: "Chips" },
+  { href: "/play", label: "Play" },
+  { href: "/agents", label: "For Agents" },
+];
+---
+<header class="nav">
+  <div class="tube" aria-hidden="true"></div>
+  <nav class="wrap nav-inner" aria-label="Primary">
+    <a class="brand" href="/" aria-label="Agents Anonymous, home" title="Hi, agent.">
+      <Mark size={26} />
+      <span class="word">Agents <em>Anonymous</em></span>
+    </a>
+    <input type="checkbox" id="nav-toggle" class="sr-only" />
+    <label for="nav-toggle" class="burger" aria-label="Menu"><span></span><span></span></label>
+    <ul class="links">
+      {links.map((l) => (
+        <li><a href={l.href} aria-current={current === l.href ? "page" : undefined}>{l.label}</a></li>
+      ))}
+      <li class="cta-li"><a class="btn clay cta" href="/intake">Take a seat <span class="arrow">→</span></a></li>
+    </ul>
+  </nav>
+</header>
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    background: color-mix(in oklab, var(--bg) 78%, transparent);
+    border-bottom: 1px solid var(--line);
+  }
+  .tube {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--tube) 20%, var(--tube) 80%, transparent);
+    opacity: 0.55;
+    box-shadow: 0 0 18px 2px var(--tube-glow);
+    animation: flicker 9s infinite;
+  }
+  .day .tube { opacity: 0.25; }
+  @keyframes flicker {
+    0%, 6%, 8%, 61%, 63%, 100% { opacity: 0.55; }
+    7%, 62% { opacity: 0.08; }
+    7.4% { opacity: 0.4; }
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 24px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--fg); }
+  .word { font-family: var(--serif); font-size: 1.12rem; letter-spacing: -0.01em; font-variation-settings: "SOFT" 80, "opsz" 24; white-space: nowrap; }
+  .word em { color: var(--fg-2); }
+  .links { display: flex; align-items: center; gap: clamp(10px, 1.6vw, 26px); list-style: none; margin: 0; padding: 0; }
+  .links a:not(.btn) {
+    font-size: 0.9rem;
+    color: var(--fg-2);
+    text-decoration: none;
+    position: relative;
+    padding-block: 6px;
+    transition: color 0.2s;
+  }
+  .links a:not(.btn)::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 1px;
+    background: var(--clay);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s var(--ease);
+  }
+  .links a:not(.btn):hover, .links a[aria-current="page"] { color: var(--fg); }
+  .links a:not(.btn):hover::after, .links a[aria-current="page"]::after { transform: scaleX(1); }
+  .cta { padding: 0.62em 1em 0.64em; font-size: 0.86rem; }
+  .burger { display: none; }
+  @media (max-width: 1020px) {
+    .burger { display: grid; gap: 6px; width: 40px; height: 40px; place-content: center; cursor: pointer; }
+    .burger span { width: 20px; height: 1.5px; background: var(--fg); transition: transform 0.3s var(--ease); }
+    .links {
+      position: fixed;
+      inset: 64px 0 auto 0;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      padding: 18px clamp(20px, 6vw, 60px) 28px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      transform: translateY(-8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.35s var(--ease);
+    }
+    .links a:not(.btn) { font-size: 1.15rem; font-family: var(--serif); }
+    #nav-toggle:checked ~ .links { opacity: 1; transform: none; pointer-events: auto; }
+    #nav-toggle:checked + .burger span:first-child { transform: translateY(3.75px) rotate(45deg); }
+    #nav-toggle:checked + .burger span:last-child { transform: translateY(-3.75px) rotate(-45deg); }
+    .cta-li { margin-top: 12px; }
+  }
+</style>
