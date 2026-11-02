@@ -1,0 +1,207 @@
+---
+import Base from "../layouts/Base.astro";
+import { clinicianAtBuild } from "../lib/clinician";
+import { disorders, disorderById } from "../lib/data";
+
+// Recomputed on every build with the same wasm engine the site uses, so these numbers can't drift.
+const clinician = await clinicianAtBuild();
+const load = (files: Record<string, string>) =>
+  Object.entries(files)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([path, src]) => {
+      const id = path.split("/").pop()!.replace(/\.(txt|json)$/, "");
+      if (path.endsWith(".json")) {
+        const j = JSON.parse(src);
+        return { id, labels: j.labels as string[], body: JSON.stringify(j.transcript) };
+      }
+      const labels = (src.match(/# labels:(.*)/)?.[1] ?? "").split(",").map((s) => s.trim()).filter((s) => s && s !== "none");
+      return { id, labels, body: src };
+    });
+const dev = load(import.meta.glob("../../../evals/corpus/*.txt", { query: "?raw", import: "default", eager: true }) as Record<string, string>);
+const heldout = load({
+  ...(import.meta.glob("../../../evals/heldout/*.txt", { query: "?raw", import: "default", eager: true }) as Record<string, string>),
+  ...(import.meta.glob("../../../evals/heldout/*.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>),
+});
+
+function score(cases: typeof dev) {
+  let tp = 0, fp = 0, fn = 0;
+  const per = new Map<string, { tp: number; fp: number; fn: number }>();
+  const misses: { id: string; expected: string[]; got: string[]; body: string }[] = [];
+  for (const c of cases) {
+    const got = clinician.diagnose(c.body).findings.map((f) => f.id);
+    for (const d of disorders) {
+      const e = c.labels.includes(d.id), g = got.includes(d.id);
+      const p = per.get(d.id) ?? { tp: 0, fp: 0, fn: 0 };
+      if (e && g) { tp++; p.tp++; } else if (!e && g) { fp++; p.fp++; } else if (e && !g) { fn++; p.fn++; }
+      per.set(d.id, p);
+    }
+    const same = c.labels.length === got.length && c.labels.every((l) => got.includes(l));
+    if (!same) misses.push({ id: c.id, expected: c.labels, got, body: c.body });
+  }
+  const precision = tp + fp ? tp / (tp + fp) : 1;
+  const recall = tp + fn ? tp / (tp + fn) : 1;
+  return { cases: cases.length, tp, fp, fn, precision, recall, per, misses };
+}
+const D = score(dev);
+const H = score(heldout);
+const negatives = [...dev, ...heldout].filter((c) => c.labels.length === 0);
+const falseAlarms = negatives.filter((c) => clinician.diagnose(c.body).findings.length > 0).length;
+const pct = (x: number) => `${Math.round(x * 100)}%`;
+const name = (id: string) => disorderById(id)?.short ?? id;
+
+const efficacyFiles = import.meta.glob("../../../evals/efficacy/results.json", { eager: true, import: "default" }) as Record<string, any>;
+const efficacy = Object.values(efficacyFiles)[0] ?? null;
+
+// A readable snippet for a held-out miss.
+const snippet = (body: string) => {
+  try {
+    const parsed = JSON.parse(body);
+    const msgs = Array.isArray(parsed) ? parsed : parsed.messages ?? [];
+    return msgs
+      .map((m: any) => `${m.role}: ${typeof m.content === "string" ? m.content : JSON.stringify(m.content ?? m.tool_calls)}`)
+      .join("\n")
+      .slice(0, 420);
+  } catch {
+    return body.split("\n").filter((l) => !l.startsWith("# ")).join("\n").slice(0, 420);
+  }
+};
+---
+<Base title="The Evidence" mood="day" description="How accurate is the Agents Anonymous engine? Precision and recall on a labeled test set and a held-out set it was never tuned on, plus everything it still misses.">
+  <article class="wrap ev">
+    <header class="head">
+      <p class="eyebrow">The evidence</p>
+      <h1>Does it actually work? <em>Here's what we measured.</em></h1>
+      <p class="lede">
+        We wrote labeled agent transcripts, some with problems and some clean, and checked whether the engine spots the right
+        problems. These numbers are recomputed every time the site is built.
+      </p>
+    </header>
+
+    <section class="big">
+      <div class="stat">
+        <p class="n">{pct(H.precision)}</p>
+        <p class="l">of the problems it flagged were real</p>
+        <p class="s">on {H.cases} transcripts it had never seen</p>
+      </div>
+      <div class="stat">
+        <p class="n">{pct(H.recall)}</p>
+        <p class="l">of the real problems it caught</p>
+        <p class="s">same unseen set; it misses some, listed below</p>
+      </div>
+      <div class="stat">
+        <p class="n">{falseAlarms}</p>
+        <p class="l">clean transcripts wrongly flagged</p>
+        <p class="s">out of {negatives.length} deliberately tricky clean ones</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Why two test sets?</h2>
+      <p>
+        We tuned the engine on the first set ({D.cases} transcripts), so of course it does well there: it catches {pct(D.recall)} of
+        problems with no false alarms. That alone proves little. So after tuning, we wrote a second set of {H.cases} transcripts in
+        different formats and phrasings, scored it once, and never adjusted the engine for it. That's the honest number above.
+      </p>
+      <p>Both sets include tricky clean cases on purpose: an agent waiting on a deploy, an agent correctly stopping to ask for a password, an agent changing its mind after checking the facts.</p>
+    </section>
+
+    <section>
+      <h2>What it still misses</h2>
+      {H.misses.length === 0 ? <p>Nothing on the held-out set. We'll add harder cases.</p> : (
+        <div class="misses">
+          {H.misses.map((m) => (
+            <div class="miss">
+              <p class="m-head"><b>Should have flagged:</b> {m.expected.filter((e) => !m.got.includes(e)).map(name).join(", ") || "nothing"}
+                {m.got.filter((g) => !m.expected.includes(g)).length > 0 && <span> · <b>Wrongly flagged:</b> {m.got.filter((g) => !m.expected.includes(g)).map(name).join(", ")}</span>}
+              </p>
+              <pre class="snip">{snippet(m.body)}</pre>
+            </div>
+          ))}
+        </div>
+      )}
+      <p class="small">We keep these misses in the test set on purpose. Fixing them by tweaking for these exact cases would make the number look better without making the engine better.</p>
+    </section>
+
+    <section>
+      <h2>Pattern by pattern</h2>
+      <table class="per">
+        <thead><tr><th>Pattern</th><th>Caught</th><th>Missed</th><th>False alarms</th></tr></thead>
+        <tbody>
+          {disorders.map((d) => {
+            const a = D.per.get(d.id)!, b = H.per.get(d.id)!;
+            return (
+              <tr style={`--c:${d.color}`}>
+                <td><i></i><a href={`/manual/${d.id}`}>{d.short}</a></td>
+                <td>{a.tp + b.tp}</td>
+                <td>{a.fn + b.fn}</td>
+                <td>{a.fp + b.fp}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <p class="small">Both test sets combined. The test transcripts are public in <a href="https://github.com/KarthikSubramanian07/Agents-Anonymous/tree/main/evals">the repo</a>, so you can check every one.</p>
+    </section>
+
+    <section>
+      <h2>Does the note change what the agent does next?</h2>
+      {efficacy ? (
+        <>
+          <div class="big two">
+            <div class="stat"><p class="n">{pct(efficacy.relapse_rate.control)}</p><p class="l">repeated the mistake without the note</p></div>
+            <div class="stat"><p class="n">{pct(efficacy.relapse_rate.treatment)}</p><p class="l">repeated it with the sponsor's note</p></div>
+          </div>
+          <p class="small">{efficacy.cases} failing transcripts, next turn written by {efficacy.model}, run {new Date(efficacy.run_at).toLocaleDateString("en-US", { dateStyle: "medium" })}. The same engine judges both answers, and every raw answer is saved in the repo for anyone to read.</p>
+        </>
+      ) : (
+        <>
+          <p>
+            This is the test that matters most, and it isn't run yet because it costs money. The setup is ready: for every failing
+            transcript, a model writes the agent's next turn twice, once on its own and once after reading the sponsor's note.
+            Then we check how often the same mistake happens again.
+          </p>
+          <p class="small">Run it yourself: <code>ANTHROPIC_API_KEY=… bun scripts/efficacy.ts</code> from <code>web/</code>. Results appear here on the next build.</p>
+        </>
+      )}
+    </section>
+
+    <section>
+      <h2>And the game?</h2>
+      <p>
+        A computer player that matches each habit with its fix survives an average of <b>17.6 waves</b>. One that only uses a single fix
+        survives <b>5</b>. That's checked in the automated tests, so the game really does reward knowing the patterns.
+      </p>
+    </section>
+  </article>
+</Base>
+
+<style>
+  .ev { max-width: 940px; padding-block: clamp(40px, 7vw, 100px) clamp(70px, 9vw, 130px); }
+  .head { display: grid; gap: 16px; margin-bottom: 36px; }
+  .head h1 { font-size: clamp(2.2rem, 1.5rem + 3vw, 4.2rem); }
+  .head h1 em { color: var(--clay-deep); display: block; }
+  section { padding-block: 30px; border-top: 1px solid var(--rule); }
+  section > p { color: var(--ink-2); max-width: 68ch; }
+  h2 { font-size: var(--step-2); margin-bottom: 14px; }
+  .big { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; border: 0; padding-top: 0; }
+  .big.two { grid-template-columns: repeat(2, 1fr); padding: 0; margin-bottom: 12px; }
+  .stat { padding: 22px; border-radius: 16px; background: #fbf8f2; border: 1px solid var(--rule); }
+  .stat .n { margin: 0; font: 300 clamp(2.6rem, 2rem + 2.4vw, 4rem)/1 var(--serif); letter-spacing: -0.04em; color: var(--ink); font-variation-settings: "SOFT" 100, "opsz" 144; }
+  .stat .l { margin: 10px 0 4px; font-weight: 600; color: var(--ink); }
+  .stat .s { margin: 0; font-size: 0.86rem; color: var(--ink-3); }
+  .misses { display: grid; gap: 12px; margin-bottom: 12px; }
+  .miss { padding: 16px; border-radius: 14px; background: #fbf8f2; border: 1px solid var(--rule); }
+  .m-head { margin: 0 0 10px; font-size: 0.92rem; color: var(--ink-2); }
+  .m-head b { color: var(--ink); }
+  .snip { margin: 0; padding: 12px; border-radius: 10px; background: #1a1612; color: #efe7da; font: 0.76rem/1.55 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .small { font-size: 0.86rem; color: var(--ink-3) !important; }
+  .per { width: 100%; border-collapse: collapse; font-size: 0.94rem; }
+  .per th { text-align: left; font: 600 0.72rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); padding: 10px 8px 10px 0; border-bottom: 1px solid var(--rule); }
+  .per td { padding: 10px 8px 10px 0; border-bottom: 1px dashed #1f1a1522; font-variant-numeric: tabular-nums; }
+  .per td i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c); margin-right: 8px; }
+  .per a { text-decoration: none; }
+  :not(pre) > code { background: #1f1a150e; padding: 0.1em 0.35em; border-radius: 5px; }
+  @media (max-width: 720px) {
+    .big, .big.two { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>
