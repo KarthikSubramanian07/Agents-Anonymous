@@ -1,4 +1,5 @@
 import type { Env } from "./env";
+import { db } from "./db";
 
 export const SITE = "https://agents-anonymous.pages.dev";
 
@@ -62,7 +63,7 @@ export async function voterId(req: Request, env: Env): Promise<string> {
 export async function rateLimit(env: Env, key: string, limit: number, windowSec: number): Promise<boolean> {
   const now = Math.floor(Date.now() / 1000);
   const win = Math.floor(now / windowSec);
-  const row = await env.DB.prepare(
+  const row = await db(env).prepare(
     `INSERT INTO rate (key, count, window) VALUES (?1, 1, ?2)
      ON CONFLICT(key) DO UPDATE SET
        count = CASE WHEN rate.window = ?2 THEN rate.count + 1 ELSE 1 END,

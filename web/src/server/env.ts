@@ -1,6 +1,7 @@
 /// <reference types="@cloudflare/workers-types" />
 export interface Env {
-  DB: D1Database;
+  /** The Meeting's SQLite store (a Durable Object in the agents-anonymous-store Worker). */
+  MEETING: DurableObjectNamespace;
   ASSETS: Fetcher;
   /** Salt for hashing IPs and tokens. Set as a Pages secret in production. */
   HASH_SALT?: string;
