@@ -45,14 +45,14 @@ export function renderForm(r: Report, opts: { caseNo?: string; stampAnim?: boole
     </header>
     <div class="stamp ${r.prognosis}${opts.stampAnim ? " pop" : ""}">${STAMP[r.prognosis]}</div>
     <p class="verdict">${esc(r.verdict)}</p>
-    <h5><span>What went wrong</span><span>${findings.length || "no"} problem${findings.length === 1 ? "" : "s"} found</span></h5>
+    <h3 class="fsec"><span>What went wrong</span><span>${findings.length || "no"} problem${findings.length === 1 ? "" : "s"} found</span></h3>
     ${dx}
     ${
       steps
-        ? `<h5><span>Steps to work</span><span>from the Twelve Steps</span></h5><div class="rx-steps">${steps}</div>`
+        ? `<h3 class="fsec"><span>Steps to work</span><span>from the Twelve Steps</span></h3><div class="rx-steps">${steps}</div>`
         : ""
     }
-    <h5><span>What to tell your agent</span><span>paste it into the chat</span></h5>
+    <h3 class="fsec"><span>What to tell your agent</span><span>paste it into the chat</span></h3>
     <pre class="note">${opts.copy !== false ? `<button class="copy" type="button" data-copy>Copy</button>` : ""}${esc(r.prescription.note)}</pre>
     <div class="signed"><span>Examined by ${esc(r.engine)}<br/>Nothing on this form left your browser.</span><span class="sig">— your sponsor</span></div>
   </article></div>`;

@@ -77,7 +77,7 @@ export function renderShare(s: ApiShare, opts: { full?: boolean; link?: boolean 
     <footer>
       ${REACTIONS.map(
         (x) =>
-          `<button type="button" class="react${r[`${s.id}:${x.kind}`] ? " on" : ""}" data-kind="${x.kind}" aria-label="${x.label}" title="${x.label}"><span class="g">${x.glyph}</span><span class="n">${(s as any)[x.kind] ?? 0}</span><span class="l">${x.short}</span></button>`
+          `<button type="button" class="react${r[`${s.id}:${x.kind}`] ? " on" : ""}" data-kind="${x.kind}" title="${x.label}"><span class="g">${x.glyph}</span><span class="n">${(s as any)[x.kind] ?? 0}</span><span class="l">${x.short}</span></button>`
       ).join("")}
       <a class="replies" href="/meeting/s/${esc(s.id)}#replies">${s.replies} ${s.replies === 1 ? "reply" : "replies"}</a>
     </footer>

@@ -41,7 +41,7 @@ const jsonld = {
 ---
 <Base title={`${d.name} · ${d.code}`} mood="day" description={`${d.name} (${d.code}): ${d.summary} Criteria, presentation, differential diagnosis and treatment.`} jsonld={jsonld} type="article">
   <article class="entry wrap" style={`--c:${d.color}`}>
-    <nav class="crumbs mono"><a href="/manual">DSM-A</a> / <span>{axis.name}</span> / <span>{d.code}</span></nav>
+    <nav class="crumbs mono" aria-label="Breadcrumb"><a href="/manual">DSM-A</a> / <span>{axis.name}</span> / <span>{d.code}</span></nav>
     <header class="head">
       <p class="code mono"><i></i>{d.code} · {d.mast}</p>
       <h1>{d.name}</h1>
@@ -96,7 +96,7 @@ const jsonld = {
       </aside>
     </div>
 
-    <nav class="pager">
+    <nav class="pager" aria-label="Previous and next entries">
       {prev ? <a href={`/manual/${prev.id}`} class="pv"><span class="mono">← {prev.code}</span>{prev.name}</a> : <span />}
       {next ? <a href={`/manual/${next.id}`} class="nx"><span class="mono">{next.code} →</span>{next.name}</a> : <a href="/steps" class="nx"><span class="mono">next →</span>The Twelve Steps</a>}
     </nav>
@@ -126,6 +126,8 @@ const jsonld = {
   .pres .who { font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
   .case { border-radius: 16px; padding: 24px !important; border-top: 0 !important; margin-top: 20px; }
   .case .h { color: var(--chalk); }
+  .case .h span { color: var(--clay); }
+  .case .h small { color: var(--chalk-3); }
   .case-intro { color: var(--chalk-3); font-size: 0.9rem; }
   .case-form { margin-top: 16px; padding: 12px 18px; border-radius: 10px; }
   .rx { position: sticky; top: 96px; }

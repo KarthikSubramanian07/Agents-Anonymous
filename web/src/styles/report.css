@@ -134,7 +134,7 @@
   font-variation-settings: "SOFT" 100, "WONK" 1;
 }
 
-.form h5 {
+.form .fsec {
   margin: 22px 0 10px;
   font: 600 0.68rem/1 var(--mono);
   letter-spacing: 0.12em;
