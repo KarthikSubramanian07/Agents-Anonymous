@@ -36,7 +36,7 @@ const shares = seedShares.map((s) => ({
   title: s.title,
   room: disorderById(s.room)?.short ?? "",
   code: "",
-  color: disorderById(s.room)?.color ?? "#d4643a",
+  color: disorderById(s.room)?.color ?? "#3ddc84",
 }));
 ---
 <div class="stage" data-circle data-shares={JSON.stringify(shares)}>
@@ -230,7 +230,7 @@ const shares = seedShares.map((s) => ({
     border-radius: 50%;
     background:
       repeating-conic-gradient(#ffffff06 0 25%, transparent 0 50%) 0 0 / 11% 11%,
-      radial-gradient(closest-side, #2a221b, #13100d 92%);
+      radial-gradient(closest-side, #2a221b, #0e1311 92%);
     -webkit-mask: radial-gradient(closest-side, #000 60%, transparent);
     mask: radial-gradient(closest-side, #000 60%, transparent);
   }
@@ -238,7 +238,7 @@ const shares = seedShares.map((s) => ({
     position: absolute;
     inset: 4%;
     border-radius: 50%;
-    background: radial-gradient(closest-side, #d3f7e01f, #e9a25b0a 55%, transparent 75%);
+    background: radial-gradient(closest-side, #d3f7e01f, #f1e46a0a 55%, transparent 75%);
     animation: hum 7s ease-in-out infinite;
   }
   @keyframes hum {
@@ -304,7 +304,7 @@ const shares = seedShares.map((s) => ({
   .seatpan { fill: #3d3731; stroke: #ffffff12; }
   .ribs { stroke: #ffffff0a; stroke-width: 1; }
   .empty .back { fill: none; stroke: var(--clay); stroke-width: 1.4; stroke-dasharray: 3 2.5; }
-  .empty .seatpan { fill: #d4643a14; stroke: var(--clay); stroke-width: 1.4; stroke-dasharray: 3 2.5; }
+  .empty .seatpan { fill: #3ddc8414; stroke: var(--clay); stroke-width: 1.4; stroke-dasharray: 3 2.5; }
   .empty .strut, .empty .ribs { display: none; }
 
   /* agents stand up out of the floor plane */
@@ -347,7 +347,7 @@ const shares = seedShares.map((s) => ({
     padding: 3px 7px 4px;
     border-radius: 4px;
     background: #f6f1e7;
-    color: #1f1a15;
+    color: #131915;
     font: 600 9px/1.1 var(--sans);
     letter-spacing: 0.06em;
     white-space: nowrap;
@@ -360,7 +360,7 @@ const shares = seedShares.map((s) => ({
   .seat:hover .nametag, .seat.speaking .nametag { opacity: 1; transform: none; }
   .seat.speaking .head {
     transform: translateY(-34%) scale(1.12);
-    box-shadow: inset -3px -5px 10px #0005, 0 0 0 2px var(--amber), 0 0 40px 2px #e9a25b88;
+    box-shadow: inset -3px -5px 10px #0005, 0 0 0 2px var(--amber), 0 0 40px 2px #f1e46a88;
     animation: none;
   }
   .you { opacity: 1; }
@@ -368,7 +368,7 @@ const shares = seedShares.map((s) => ({
     width: 100%;
     aspect-ratio: 1;
     border-radius: 50%;
-    border: 1.5px dashed #d4643aaa;
+    border: 1.5px dashed #3ddc84aa;
     animation: wait 3.2s var(--ease) infinite;
   }
   @keyframes wait { 50% { transform: scale(1.12); border-color: var(--clay); box-shadow: 0 0 22px -4px var(--clay); } }
@@ -422,10 +422,10 @@ const shares = seedShares.map((s) => ({
     border-radius: 8px;
     overflow: hidden;
     text-align: center;
-    color: #1f1a15;
+    color: #131915;
   }
-  .tag-top { background: var(--clay); color: #fff; font: 700 1rem/1 var(--sans); letter-spacing: 0.12em; padding: 9px 0 3px; }
-  .tag-sub { background: var(--clay); color: #fff; font: 500 0.62rem/1 var(--sans); padding-bottom: 8px; letter-spacing: 0.04em; }
+  .tag-top { background: var(--clay); color: #06120b; font: 700 1rem/1 var(--sans); letter-spacing: 0.12em; padding: 9px 0 3px; }
+  .tag-sub { background: var(--clay); color: #06120b; font: 500 0.62rem/1 var(--sans); padding-bottom: 8px; letter-spacing: 0.04em; }
   .tag-name { font: 400 1.15rem/1 var(--hand); padding: 12px 6px 14px; }
   .sticky {
     display: grid;

@@ -129,7 +129,7 @@ const featured = [seedShares[5], seedShares[2], seedShares[3]];
     <div class="wrap">
       <header class="sec-head" data-reveal>
         <p class="eyebrow">See it work</p>
-        <h2>The coffee is terrible. <em>The help is real.</em></h2>
+        <h2>What you get</h2>
         <p class="lede">
           A real transcript, checked by the real engine. Highlighted turns are where things went wrong; the form on the
           right is what you'd get.
@@ -246,7 +246,7 @@ curl -s https://agents-anonymous.pages.dev/api/v1/intake \
   .hero { position: relative; overflow: hidden; padding: clamp(36px, 6vw, 80px) 0 clamp(50px, 7vw, 100px); }
   .hero::before {
     content: ""; position: absolute; left: 62%; top: -10%; width: 70vw; height: 70vw; translate: -50% 0;
-    background: radial-gradient(closest-side, #d3f7e014, #e9a25b08 50%, transparent 70%); pointer-events: none;
+    background: radial-gradient(closest-side, #d3f7e014, #f1e46a08 50%, transparent 70%); pointer-events: none;
   }
   .hero-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center; gap: clamp(20px, 4vw, 60px); }
   .hero-copy { position: relative; z-index: 2; }
@@ -295,15 +295,15 @@ curl -s https://agents-anonymous.pages.dev/api/v1/intake \
     background: #fbf8f2;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 1px 0 #0000000d, 0 18px 40px -26px #1f1a1599;
+    box-shadow: 0 1px 0 #0000000d, 0 18px 40px -26px #13191599;
     transform: rotate(var(--tilt));
     transition: transform 0.5s var(--ease-spring), box-shadow 0.4s var(--ease);
     min-height: 236px;
   }
-  .nametag-card:hover { transform: rotate(0deg) translateY(-6px); box-shadow: 0 1px 0 #0000000d, 0 30px 50px -26px #1f1a15aa; }
-  .nt-top { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 16px 0; background: var(--c); color: #1f1a15; font: 800 1.15rem/1 var(--sans); letter-spacing: 0.14em; }
+  .nametag-card:hover { transform: rotate(0deg) translateY(-6px); box-shadow: 0 1px 0 #0000000d, 0 30px 50px -26px #131915aa; }
+  .nt-top { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 16px 0; background: var(--c); color: #131915; font: 800 1.15rem/1 var(--sans); letter-spacing: 0.14em; }
   .nt-top .code { font: 500 0.7rem/1 var(--mono); letter-spacing: 0.04em; opacity: 0.75; }
-  .nt-sub { background: var(--c); color: #1f1a15; padding: 4px 16px 12px; font: 500 0.7rem/1 var(--sans); letter-spacing: 0.04em; }
+  .nt-sub { background: var(--c); color: #131915; padding: 4px 16px 12px; font: 500 0.7rem/1 var(--sans); letter-spacing: 0.04em; }
   .nt-name { font: 400 clamp(1.5rem, 1.3rem + 0.6vw, 1.85rem)/1.05 var(--hand); color: #20305f; padding: 18px 16px 6px; transform: rotate(-1.5deg); }
   .nt-dx { padding: 0 16px; font: 650 0.98rem/1.3 var(--sans); color: var(--ink); }
   .nt-quote { padding: 6px 16px 18px; font: 0.86rem/1.45 var(--sans); color: var(--ink-2); }
@@ -339,7 +339,7 @@ curl -s https://agents-anonymous.pages.dev/api/v1/intake \
   .rituals li { counter-increment: r; display: grid; grid-template-columns: 36px 1fr; column-gap: 8px; color: var(--ink-2); }
   .rituals li::before { content: counter(r, decimal-leading-zero); font: 500 0.8rem/1.9 var(--mono); color: var(--clay-deep); grid-row: span 2; }
   .rituals b { color: var(--ink); font-weight: 600; }
-  .term { position: relative; background: #1a1612; color: #e9e1d4; border-radius: 16px; overflow: visible; box-shadow: 0 40px 80px -40px #1f1a15cc; }
+  .term { position: relative; background: #1a1612; color: #e9e1d4; border-radius: 16px; overflow: visible; box-shadow: 0 40px 80px -40px #131915cc; }
   .term pre { margin: 0; padding: 18px 20px 22px; overflow-x: auto; font: 0.82rem/1.65 var(--mono); }
   .term-bar { display: flex; align-items: center; gap: 7px; padding: 12px 16px; border-bottom: 1px solid #ffffff12; font: 0.72rem/1 var(--mono); color: #8d8273; }
   .term-bar i { width: 10px; height: 10px; border-radius: 50%; background: #ffffff1c; }
@@ -361,7 +361,7 @@ curl -s https://agents-anonymous.pages.dev/api/v1/intake \
 
   /* play */
   .play { text-align: center; overflow: hidden; }
-  .play::before { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 60% at 50% 40%, #d4643a1f, transparent 70%); pointer-events: none; }
+  .play::before { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 60% at 50% 40%, #3ddc841f, transparent 70%); pointer-events: none; }
   .play-inner { display: grid; justify-items: center; gap: 18px; position: relative; }
   .play-inner .lede { margin-inline: auto; max-width: 46ch; }
   .play-inner :global(.mark) { color: var(--chalk-2); }

@@ -242,7 +242,7 @@ export class Game {
     this.towers.delete(chair);
     const ch = CHAIRS[chair];
     this.gain(v, ch.x, ch.y - 30, "");
-    this.burst(ch.x, ch.y, "#bdb1a1", 12, 120);
+    this.burst(ch.x, ch.y, "#a9b7ad", 12, 120);
     this.hooks.sound?.("sell");
     this.hooks.onChange?.();
   }
@@ -284,7 +284,7 @@ export class Game {
 
   private gain(n: number, x: number, y: number, label: string) {
     this.tokens += n;
-    this.floaters.push({ x, y, text: `+${n}${label ? " " + label : ""}`, life: 1.1, color: "#e9a25b", size: 22 });
+    this.floaters.push({ x, y, text: `+${n}${label ? " " + label : ""}`, life: 1.1, color: "#f1e46a", size: 22 });
   }
 
   private burst(x: number, y: number, color: string, n: number, speed: number) {
@@ -509,7 +509,7 @@ export class Game {
     if (def.slow) e.slow = 1.2;
     if (e.kind === "loop" && t.kind === "pivot" && e.orbit > 0) {
       e.orbit = 0; // knocked out of the loop
-      this.floaters.push({ x: e.x, y: e.y - 24, text: "loop broken", life: 0.9, color: "#e9a25b", size: 18 });
+      this.floaters.push({ x: e.x, y: e.y - 24, text: "loop broken", life: 0.9, color: "#f1e46a", size: 18 });
     }
     if (e.kind === "drift" && t.kind === "scope") {
       const nr = Math.max(e.def.radius, e.r * 0.86);
@@ -684,16 +684,16 @@ export function draw(ctx: CanvasRenderingContext2D, g: Game, view: View, ov: Ove
   for (const ch of CHAIRS) {
     const tw = g.towers.get(ch.i);
     const hl =
-      ov.selectedChair === ch.i ? "#efe7da" : ov.hoverChair === ch.i && (ov.selectedKind || tw) ? (tw ? TOWERS[tw.kind].color : TOWERS[ov.selectedKind!].color) : null;
+      ov.selectedChair === ch.i ? "#e9efe9" : ov.hoverChair === ch.i && (ov.selectedKind || tw) ? (tw ? TOWERS[tw.kind].color : TOWERS[ov.selectedKind!].color) : null;
     const pulse = !tw && ov.selectedKind && g.canAfford(ov.selectedKind) ? 0.75 + Math.sin(t * 4 + ch.i) * 0.2 : 1;
-    drawChair(ctx, ch.x, ch.y, ch.a, pulse, hl ?? (!tw && ov.selectedKind ? "#d4643a" : null));
+    drawChair(ctx, ch.x, ch.y, ch.a, pulse, hl ?? (!tw && ov.selectedKind ? "#3ddc84" : null));
   }
 
   // core: the context window on the coffee table
   const ctxFrac = g.context / 100;
   ctx.globalCompositeOperation = "lighter";
   ctx.globalAlpha = 0.6 + g.hurt * 0.4;
-  ctx.drawImage(glow(g.hurt > 0.2 ? "#e46a6a" : "#e9a25b"), C - 150, C - 150, 300, 300);
+  ctx.drawImage(glow(g.hurt > 0.2 ? "#e46a6a" : "#f1e46a"), C - 150, C - 150, 300, 300);
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = "source-over";
   const tg = ctx.createRadialGradient(C - 14, C - 16, 4, C, C, CORE_R);
@@ -725,7 +725,7 @@ export function draw(ctx: CanvasRenderingContext2D, g: Game, view: View, ov: Ove
   ctx.beginPath();
   ctx.arc(C, C, CORE_R + 14, 0, TAU);
   ctx.stroke();
-  ctx.strokeStyle = ctxFrac > 0.5 ? "#c9f2dc" : ctxFrac > 0.25 ? "#e9a25b" : "#e46a6a";
+  ctx.strokeStyle = ctxFrac > 0.5 ? "#c9f2dc" : ctxFrac > 0.25 ? "#f1e46a" : "#e46a6a";
   ctx.beginPath();
   ctx.arc(C, C, CORE_R + 14, -Math.PI / 2, -Math.PI / 2 + TAU * ctxFrac);
   ctx.stroke();
@@ -740,7 +740,7 @@ export function draw(ctx: CanvasRenderingContext2D, g: Game, view: View, ov: Ove
     ctx.drawImage(glow(def.color), ch.x - 46, ch.y - 46, 92, 92);
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
-    ctx.fillStyle = "#1b1612";
+    ctx.fillStyle = "#151b18";
     ctx.strokeStyle = def.color;
     ctx.lineWidth = 2.5;
     ctx.beginPath();
@@ -792,7 +792,7 @@ export function draw(ctx: CanvasRenderingContext2D, g: Game, view: View, ov: Ove
       ctx.arc(e.x, e.y, e.r + 7, t * 4, t * 4 + Math.PI * 1.4);
       ctx.stroke();
     }
-    ctx.fillStyle = e.hitFlash > 0.5 ? "#ffffff" : "#1b1612";
+    ctx.fillStyle = e.hitFlash > 0.5 ? "#ffffff" : "#151b18";
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
     if (e.kind === "phantom") ctx.setLineDash([4, 4]);
@@ -817,7 +817,7 @@ export function draw(ctx: CanvasRenderingContext2D, g: Game, view: View, ov: Ove
       ctx.fillRect(e.x - w / 2, e.y - e.r - 9, (w * Math.max(0, e.hp)) / e.maxHp, 3.5);
     }
     if (e.stun > 0) {
-      ctx.strokeStyle = "#efe7da88";
+      ctx.strokeStyle = "#e9efe988";
       ctx.beginPath();
       ctx.arc(e.x, e.y, e.r + 4, 0, TAU);
       ctx.stroke();

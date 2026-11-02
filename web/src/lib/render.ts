@@ -14,7 +14,7 @@ const STAMP: Record<Report["prognosis"], string> = {
 
 export function renderFinding(f: Finding, withEvidence = true): string {
   const d = disorderById(f.id);
-  const c = d?.color ?? "#d4643a";
+  const c = d?.color ?? "#3ddc84";
   const ev = withEvidence
     ? `<div class="ev">${f.evidence
         .slice(0, 3)
@@ -68,11 +68,11 @@ export function renderTranscript(r: Report): string {
   return `<div class="tx">${r.events
     .map((e, i) => {
       const fl = flags.get(i) ?? [];
-      const c = fl.length ? disorderById(fl[0].f.id)?.color ?? "#d4643a" : "";
+      const c = fl.length ? disorderById(fl[0].f.id)?.color ?? "#3ddc84" : "";
       let body = esc(e.text || (e.kind === "result" ? "(empty)" : ""));
       for (const { f, quote } of fl) {
         const q = esc(quote.replace(/…$/, ""));
-        const col = disorderById(f.id)?.color ?? "#d4643a";
+        const col = disorderById(f.id)?.color ?? "#3ddc84";
         if (q && body.includes(q)) body = body.replace(q, `<mark style="--c:${col}" title="${esc(disorderById(f.id)?.short ?? f.name)}">${q}</mark>`);
       }
       const label = e.kind === "call" ? `call` : e.kind === "result" ? (e.error ? "error" : "result") : e.kind;

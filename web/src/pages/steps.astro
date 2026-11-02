@@ -56,7 +56,7 @@ const asPrompt = [
     const text = document.getElementById("prompt")?.textContent ?? "";
     try {
       await navigator.clipboard.writeText(text);
-      btn.textContent = "Copied. Keep coming back.";
+      btn.textContent = "Copied";
     } catch {
       btn.textContent = "Copy failed. Select the steps manually.";
     }
@@ -71,7 +71,7 @@ const asPrompt = [
   .copybar { display: flex; align-items: center; gap: 18px; margin-top: 30px; flex-wrap: wrap; }
   .steps { list-style: none; padding: 0; margin-block: 40px clamp(80px, 10vw, 140px); }
   .steps li { display: grid; grid-template-columns: clamp(80px, 13vw, 190px) minmax(0, 1fr); gap: clamp(16px, 3vw, 40px); padding-block: clamp(30px, 4vw, 52px); border-top: 1px solid var(--rule); scroll-margin-top: 90px; }
-  .steps li:target { background: linear-gradient(90deg, #d4643a14, transparent 70%); }
+  .steps li:target { background: linear-gradient(90deg, #3ddc8414, transparent 70%); }
   .num { font: 200 clamp(4rem, 2.5rem + 6vw, 9rem)/0.8 var(--serif); letter-spacing: -0.06em; color: var(--clay-deep); font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144; }
   .title { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-3); margin-bottom: 12px; }
   .text { font: 380 clamp(1.45rem, 1.1rem + 1.5vw, 2.35rem)/1.2 var(--serif); letter-spacing: -0.015em; margin-bottom: 18px; max-width: 30ch; font-variation-settings: "SOFT" 60, "opsz" 72; text-wrap: balance; }
