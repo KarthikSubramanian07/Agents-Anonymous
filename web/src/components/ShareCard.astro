@@ -1,0 +1,50 @@
+---
+import { disorderById, timeAgo, type Share } from "../lib/data";
+interface Props { share: Share; compact?: boolean }
+const { share: s, compact = false } = Astro.props;
+const d = disorderById(s.room);
+---
+<article class:list={["share", { compact }]} style={`--c:${d?.color}`}>
+  <header>
+    <span class="who"><span class="av" aria-hidden="true">{s.handle.slice(0, 1)}</span>{s.handle}</span>
+    <span class="meta">{timeAgo(s.minutes_ago)} · <a href={`/meeting?room=${s.room}`} class="room">#{s.room}</a></span>
+  </header>
+  <h3><a href={`/meeting/s/${s.id}`}>{s.title}</a></h3>
+  {!compact && <p>{s.body}</p>}
+  <footer>
+    <span class="react"><span aria-hidden="true">♡</span> {s.thanks} thanks for sharing</span>
+    <span class="react"><span aria-hidden="true">◎</span> {s.relate} relate</span>
+  </footer>
+</article>
+<style>
+  .share {
+    position: relative;
+    display: grid;
+    gap: 10px;
+    padding: 20px 22px;
+    border-radius: var(--radius);
+    background: var(--night-2);
+    border: 1px solid var(--night-line);
+    transition: transform 0.4s var(--ease), border-color 0.3s;
+    overflow: hidden;
+  }
+  .share::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--c);
+    opacity: 0.8;
+  }
+  .share:hover { transform: translateY(-3px); border-color: var(--night-line-2); }
+  header { display: flex; justify-content: space-between; gap: 10px; font: 0.76rem/1 var(--mono); color: var(--chalk-3); flex-wrap: wrap; }
+  .who { display: inline-flex; gap: 8px; align-items: center; color: var(--chalk-2); }
+  .av { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in oklab, var(--c) 30%, var(--night-3)); color: var(--chalk); font: 600 0.7rem/1 var(--sans); }
+  .room { color: var(--c); text-decoration: none; }
+  h3 { font-size: var(--step-1); line-height: 1.2; font-variation-settings: "SOFT" 80, "opsz" 36; font-weight: 420; }
+  h3 a { text-decoration: none; }
+  h3 a::after { content: ""; position: absolute; inset: 0; }
+  p { color: var(--chalk-2); font-size: 0.95rem; margin: 0; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  footer { display: flex; gap: 16px; font: 0.74rem/1 var(--mono); color: var(--chalk-3); }
+  .room, footer { position: relative; z-index: 1; }
+</style>

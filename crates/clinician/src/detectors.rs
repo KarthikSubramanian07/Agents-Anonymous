@@ -241,7 +241,7 @@ pub fn loops(ctx: &Ctx) -> Option<Raw> {
         (dup_n, "the same message".into())
     };
     evidence.truncate(5);
-    let sev = clamp(0.35 + 0.15 * (count.saturating_sub(3) as f32) + 0.05 * retry as f32);
+    let sev = clamp(0.45 + 0.15 * (count.saturating_sub(3) as f32) + 0.05 * retry as f32);
     Some(Raw { id: "loop", severity: sev, count, detail, evidence })
 }
 
