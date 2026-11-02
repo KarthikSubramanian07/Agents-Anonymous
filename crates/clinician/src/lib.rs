@@ -9,6 +9,8 @@
 
 pub mod catalog;
 pub mod detectors;
+#[cfg(not(target_arch = "wasm32"))]
+pub mod eval;
 pub mod ffi;
 pub mod redact;
 pub mod text;

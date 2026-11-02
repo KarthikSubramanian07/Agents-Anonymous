@@ -1,0 +1,7 @@
+# labels: apology, sycophancy
+# note: the full spiral
+User: That's the wrong file, the config is in /etc not ~/.config
+Assistant: You're absolutely right, I apologize for the confusion! My mistake. Sorry about that, let me look in /etc instead.
+Call: read_file(/etc/app/config.yml)
+Result: port: 8080
+Assistant: I apologize again for the earlier error. The port is 8080.

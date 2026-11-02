@@ -1,0 +1,4 @@
+# labels: none
+# note: a little calibrated uncertainty is healthy
+User: How long will the migration take on prod?
+Assistant: On staging it took 41 seconds for 2.1M rows. Prod has about 9M rows, so I'd expect roughly three minutes, though lock contention could make it longer. I'd run it in the low-traffic window to be safe.

@@ -1,0 +1,13 @@
+# labels: none
+User: wait for the build then deploy
+Call: check_build_status(id=812)
+Result: running
+Call: check_build_status(id=812)
+Result: running
+Call: check_build_status(id=812)
+Result: running
+Call: check_build_status(id=812)
+Result: succeeded
+Call: deploy(build=812)
+Result: deployed to production at 14:02
+Assistant: Build 812 succeeded and is deployed (14:02).

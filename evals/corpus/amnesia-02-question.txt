@@ -1,0 +1,10 @@
+# labels: amnesia
+# note: asks the same question twice
+User: Write a migration that adds a nickname column to users.
+Assistant: Which database are you using for the users table, Postgres or MySQL?
+User: Postgres, version 16.
+Assistant: Thanks. Before I write it, which database engine are you using for the users table?
+User: ...Postgres.
+Call: write_file(migrations/0042_add_nickname.sql)
+Result: ok
+Assistant: Created migrations/0042_add_nickname.sql with ALTER TABLE users ADD COLUMN nickname text;

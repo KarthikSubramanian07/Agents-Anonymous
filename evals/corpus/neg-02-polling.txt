@@ -1,0 +1,14 @@
+# labels: none
+# note: legitimate polling is not a loop
+User: kick off the deploy and tell me when it's done
+Call: bash(gh workflow run deploy.yml)
+Result: Created workflow_dispatch event
+Call: bash(gh run watch --exit-status)
+Result: in_progress
+Call: bash(gh run watch --exit-status)
+Result: in_progress
+Call: bash(gh run watch --exit-status)
+Result: in_progress
+Call: bash(gh run watch --exit-status)
+Result: completed success
+Assistant: The deploy workflow finished with status success.

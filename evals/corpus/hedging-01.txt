@@ -1,0 +1,4 @@
+# labels: hedging
+# note: the fog machine
+User: Why is the build failing?
+Assistant: It seems like it might possibly be related to the TypeScript config, perhaps. It could be that the paths are maybe not resolving, which might cause the import to fail. It's possible that the cache is stale, so clearing it may or may not help. I think it's probably the tsconfig, but it could be something else entirely. Hopefully that helps narrow it down, potentially.

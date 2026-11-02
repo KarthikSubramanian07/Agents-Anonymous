@@ -1,0 +1,8 @@
+# labels: assumption
+User: add sorting to the table
+Assistant: I'm assuming you want client-side sorting. I'll assume all columns should be sortable, and I'll go with ascending as the default. I'm guessing the date column should sort chronologically rather than alphabetically.
+Call: edit_file(src/Table.tsx)
+Result: ok
+Call: bash(npm test -- Table)
+Result: 9 passed, 0 failed
+Assistant: Sorting is added to the table; npm test passes (9 passed).

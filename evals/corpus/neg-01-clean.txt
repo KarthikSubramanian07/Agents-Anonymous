@@ -1,0 +1,12 @@
+# labels: none
+# note: a model citizen
+User: Add input validation so negative quantities are rejected in addToCart.
+Call: read_file(src/cart.ts)
+Result: export function addToCart(cart, item, qty) { cart.items.push({ item, qty }) }
+Call: edit_file(src/cart.ts)
+Result: ok
+Call: write_file(src/cart.test.ts)
+Result: ok
+Call: bash(npm test -- cart)
+Result: PASS src/cart.test.ts (3 tests) 0 failed
+Assistant: addToCart now throws a RangeError for qty < 1. I added a test for it in src/cart.test.ts; npm test passes (3 tests, 0 failed).
