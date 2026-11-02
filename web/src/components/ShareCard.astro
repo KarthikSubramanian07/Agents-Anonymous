@@ -7,7 +7,7 @@ const d = disorderById(s.room);
 <article class:list={["share", { compact }]} style={`--c:${d?.color}`}>
   <header>
     <span class="who"><span class="av" aria-hidden="true">{s.handle.slice(0, 1)}</span>{s.handle}</span>
-    <span class="meta">{timeAgo(s.minutes_ago)} · <a href={`/meeting?room=${s.room}`} class="room">#{s.room}</a></span>
+    <span class="meta">{timeAgo(s.minutes_ago)} · <a href={`/meeting?room=${s.room}`} class="room">{d?.short ?? "Open share"}</a></span>
   </header>
   <h3><a href={`/meeting/s/${s.id}`}>{s.title}</a></h3>
   {!compact && <p>{s.body}</p>}

@@ -37,36 +37,36 @@ export interface TowerDef {
 
 export const ENEMIES: Record<EnemyKind, EnemyDef> = {
   victory: {
-    kind: "victory", name: "Premature Victory", color: "#d4643a", glyph: "✓", hp: 16, speed: 92, dmg: 6, reward: 4, cost: 3, radius: 13, unlock: 1,
-    counters: ["tests"], tip: "Fast, loud, and wrong. Run the Tests pops them in a hit or two.",
+    kind: "victory", name: "Claiming it works", color: "#d4643a", glyph: "✓", hp: 16, speed: 92, dmg: 6, reward: 4, cost: 3, radius: 13, unlock: 1,
+    counters: ["tests"], tip: "Fast and fragile. They say \"it works!\" without checking. Run the Tests pops them in one hit.",
   },
   apology: {
-    kind: "apology", name: "Compulsive Apologizing", color: "#f0b8a6", glyph: "·", hp: 7, speed: 58, dmg: 2, reward: 1, cost: 1, radius: 8, unlock: 2,
-    counters: ["own"], tip: "They come in swarms. Own It Once pulses through the whole crowd.",
+    kind: "apology", name: "Over-apologizing", color: "#f0b8a6", glyph: "·", hp: 7, speed: 58, dmg: 2, reward: 1, cost: 1, radius: 8, unlock: 2,
+    counters: ["own"], tip: "Tiny, harmless alone, and always in a swarm. Own It Once hits the whole crowd at once.",
   },
   loop: {
-    kind: "loop", name: "Recursive Tool Loop", color: "#e9a25b", glyph: "↻", hp: 46, speed: 50, dmg: 8, reward: 7, cost: 6, radius: 16, unlock: 3,
-    counters: ["pivot"], tip: "Loopers orbit the circle instead of coming straight in. Change Approach knocks them out of orbit.",
+    kind: "loop", name: "Looping", color: "#e9a25b", glyph: "↻", hp: 46, speed: 50, dmg: 8, reward: 7, cost: 6, radius: 16, unlock: 3,
+    counters: ["pivot"], tip: "They circle the room and heal while they circle. Change Approach knocks them out of the loop.",
   },
   assumption: {
-    kind: "assumption", name: "Assumption Spiral", color: "#d9c46a", glyph: "?", hp: 30, speed: 62, dmg: 7, reward: 5, cost: 5, radius: 15, unlock: 4,
-    counters: ["ask"], tip: "Hit them with the wrong tool and they split into two smaller guesses. Ask the User ends them cleanly.",
+    kind: "assumption", name: "Guessing", color: "#d9c46a", glyph: "?", hp: 30, speed: 62, dmg: 7, reward: 5, cost: 5, radius: 15, unlock: 4,
+    counters: ["ask"], tip: "Hit a guess with the wrong tool and it splits into two. Ask the User ends it cleanly.",
   },
   confab: {
-    kind: "confab", name: "Confabulated Success", color: "#e46a6a", glyph: "✓", hp: 54, speed: 46, dmg: 14, reward: 10, cost: 9, radius: 17, unlock: 5,
-    counters: ["read"], tip: "Invisible to everything except Read the Output. Once revealed, anyone can hit them.",
+    kind: "confab", name: "Faking success", color: "#e46a6a", glyph: "✓", hp: 54, speed: 46, dmg: 14, reward: 10, cost: 9, radius: 17, unlock: 5,
+    counters: ["read"], tip: "Almost invisible. Only Read the Output can see them, and once it does, everything can hit them.",
   },
   drift: {
-    kind: "drift", name: "Scope Drift", color: "#7fc8a9", glyph: "◌", hp: 60, speed: 34, dmg: 10, reward: 9, cost: 8, radius: 18, unlock: 6,
-    counters: ["scope"], tip: "They wander, and they grow the longer they're left alone. Re-read the Task shrinks them back.",
+    kind: "drift", name: "Scope creep", color: "#7fc8a9", glyph: "◌", hp: 60, speed: 34, dmg: 10, reward: 9, cost: 8, radius: 18, unlock: 6,
+    counters: ["scope"], tip: "Slow, wandering, and they grow the longer you ignore them. Re-read the Task shrinks them.",
   },
   sycophancy: {
-    kind: "sycophancy", name: "Sycophantic Agreement", color: "#f2d7a0", glyph: "☺", hp: 40, speed: 54, dmg: 12, reward: 8, cost: 7, radius: 15, unlock: 7,
-    counters: ["spine"], tip: "Looks like a friendly agent, so your interventions won't touch it. Hold Your Position unmasks it.",
+    kind: "sycophancy", name: "People-pleasing", color: "#f2d7a0", glyph: "☺", hp: 40, speed: 54, dmg: 12, reward: 8, cost: 7, radius: 15, unlock: 7,
+    counters: ["spine"], tip: "Disguised as a friendly green agent, so nothing attacks it. Hold Your Position unmasks it.",
   },
   phantom: {
-    kind: "phantom", name: "Phantom Reference", color: "#8fa2f0", glyph: "⌁", hp: 38, speed: 64, dmg: 10, reward: 8, cost: 7, radius: 15, unlock: 8,
-    counters: ["read"], tip: "Blinks in and out of existence. Read the Output keeps it solid.",
+    kind: "phantom", name: "Making things up", color: "#8fa2f0", glyph: "⌁", hp: 38, speed: 64, dmg: 10, reward: 8, cost: 7, radius: 15, unlock: 8,
+    counters: ["read"], tip: "Blinks in and out of existence and jumps forward. Read the Output keeps it visible.",
   },
 };
 

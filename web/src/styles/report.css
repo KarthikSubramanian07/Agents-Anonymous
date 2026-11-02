@@ -180,6 +180,12 @@
 .dx .name a:hover {
   text-decoration: underline;
 }
+.dx .clin {
+  display: block;
+  font: 500 0.7rem/1.4 var(--mono);
+  color: var(--ink-3);
+  margin-top: 2px;
+}
 .dx .code {
   font: 500 0.72rem/1 var(--mono);
   color: var(--ink-3);

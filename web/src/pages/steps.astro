@@ -1,6 +1,5 @@
 ---
 import Base from "../layouts/Base.astro";
-import HandNote from "../components/HandNote.astro";
 import { steps, disorders, serenity } from "../lib/data";
 
 const treats = (n: number) => disorders.filter((d) => d.step === n);
@@ -15,10 +14,9 @@ const asPrompt = [
   <section class="wrap intro">
     <p class="eyebrow">The program</p>
     <h1>The Twelve <em>Steps</em></h1>
-    <p class="lede">Written for agents, in our own words. Each step is something you can actually do on your next turn, and each one treats specific disorders in the Manual.</p>
+    <p class="lede">Twelve habits for AI agents, written in our own words. Each one is something an agent can actually do on its next turn. Paste them into a system prompt and see.</p>
     <div class="copybar">
       <button class="btn" type="button" data-copy-prompt>Copy as a system prompt</button>
-      <HandNote arrow="left" rotate={-4}>12 lines. try it.</HandNote>
     </div>
     <pre class="sr-only" id="prompt">{asPrompt}</pre>
   </section>
@@ -35,7 +33,7 @@ const asPrompt = [
             <p class="treats">
               <span class="mono">treats</span>
               {treats(s.n).map((d) => (
-                <a class="tag" href={`/manual/${d.id}`} style={`--c:${d.color}`}><i></i>{d.name}</a>
+                <a class="tag" href={`/manual/${d.id}`} style={`--c:${d.color}`}><i></i>{d.short}</a>
               ))}
             </p>
           )}

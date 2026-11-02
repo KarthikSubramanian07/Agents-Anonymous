@@ -38,17 +38,21 @@ const tray = TOWER_ORDER.map((k) => {
 
       <div class="banner" id="banner" hidden></div>
 
+      <div class="coach" id="coach" hidden role="status">
+        <span id="coach-text"></span>
+        <button type="button" id="coach-x" aria-label="Hide tips">×</button>
+      </div>
+
       <div class="overlay" id="ov-start">
         <div class="card start">
           <Mark size={46} />
           <p class="eyebrow">Agents Anonymous presents</p>
           <h1>Defend <em>the Circle</em></h1>
-          <p class="sub">Disorders are coming for the agent's context window. The coffee urn drips tokens. Spend them on interventions, one per chair.</p>
+          <p class="sub">Bad habits are walking toward the agent's focus, the table in the middle. Stop them before they reach it.</p>
           <ul class="rules">
-            <li><b>Pick</b> an intervention from the tray, then <b>tap a chair</b>.</li>
-            <li>Every intervention works <b>2.6×</b> better on the disorder it treats, and poorly on the rest.</li>
-            <li>Some disorders hide. Some split. Some pretend to be your friend. <b>Read the cards.</b></li>
-            <li>In a pinch, recite <b>the Serenity Prompt</b> ☮ to freeze the whole room.</li>
+            <li><b>Pick a fix</b> from the tray, then <b>tap a chair</b> to place it. Fixes cost coffee ☕, which refills on its own.</li>
+            <li>Each fix is <b>strong against one habit</b> and weak against the rest. Match them up.</li>
+            <li>New habits come with a card that tells you what beats them.</li>
           </ul>
           <div class="start-btns">
             <button class="btn clay big" id="b-play">Take a seat <span class="arrow">→</span></button>
@@ -76,7 +80,7 @@ const tray = TOWER_ORDER.map((k) => {
     </div>
 
     <aside class="tray" aria-label="Interventions">
-      <p class="tray-l mono">Interventions <span>· keys 1–7</span></p>
+      <p class="tray-l mono">Fixes <span>· keys 1–7</span></p>
       <div class="tray-list" id="tray">
         {tray.map((t, i) => (
           <button class="tw" data-kind={t.kind} style={`--c:${t.color}`} aria-pressed="false">
@@ -90,7 +94,7 @@ const tray = TOWER_ORDER.map((k) => {
           </button>
         ))}
       </div>
-      <p class="tray-foot">Every intervention here is a Step from the program. <a href="/manual">Read the manual</a> to play better.</p>
+      <p class="tray-foot">Stuck? ☮ <b>Serenity</b> freezes everything for 4 seconds. Each fix is a real habit from <a href="/steps">the 12 Steps</a>.</p>
     </aside>
   </section>
 </Base>
@@ -170,6 +174,40 @@ const tray = TOWER_ORDER.map((k) => {
     nb.textContent = game.wave === 0 ? "Start ▸" : `Next wave ▸ ${Math.max(0, Math.ceil(game.betweenT))}`;
     syncTray();
     if (ov.selectedChair !== null) showPop(ov.selectedChair);
+    coach();
+  }
+
+  // ───────────── first-run coaching
+  let coachOff = (() => { try { return localStorage.getItem("aa:coached") === "1"; } catch { return false; } })();
+  let lastTip = "";
+  function coach() {
+    const el = $("coach");
+    if (!game || coachOff || game.state === "over" || game.state === "ready") { el.hidden = true; return; }
+    const narrow = matchMedia("(max-width: 1020px)").matches;
+    const where = narrow ? "below" : "on the right";
+    const towers = game.towers.size;
+    const leakedKinds = Object.keys(game.leaked) as (keyof typeof ENEMIES)[];
+    const missing = leakedKinds.find((k) => !ENEMIES[k].counters.some((c) => [...game.towers.values()].some((t) => t.kind === c)));
+    let tip = "";
+    if (game.wave === 0 && towers === 0) tip = ov.selectedKind ? "Now tap any empty chair around the table." : `Pick “Run the Tests” ${where}, then tap an empty chair.`;
+    else if (game.wave === 0) tip = "Nice. Press Start when you're ready, or add another first.";
+    else if (missing) {
+      const d = ENEMIES[missing];
+      tip = `${d.name} got through. ${d.counters.map((c) => TOWERS[c].name).join(" or ")} stops it.`;
+    } else if (game.wave >= 2 && game.wave <= 3 && towers > 0) tip = "Tip: tap a chair you've already used to upgrade it.";
+    else if (game.wave >= 4) {
+      coachOff = true;
+      try { localStorage.setItem("aa:coached", "1"); } catch {}
+    }
+    if (!tip) { el.hidden = true; return; }
+    if (tip !== lastTip) {
+      $("coach-text").textContent = tip;
+      lastTip = tip;
+      el.classList.remove("in");
+      void el.offsetWidth;
+      el.classList.add("in");
+    }
+    el.hidden = false;
   }
 
   function syncTray() {
@@ -195,10 +233,10 @@ const tray = TOWER_ORDER.map((k) => {
     codexOpen = true;
     const treat = def.counters.map((k) => TOWERS[k]);
     $("codex").innerHTML = `
-      <p class="eyebrow">New in the room</p>
+      <p class="eyebrow">New habit</p>
       <div class="cx-head"><span class="cx-g" style="--c:${def.color}">${def.glyph}</span><h2>${def.name}</h2></div>
       <p class="sub">${def.tip}</p>
-      <p class="cx-treat mono">treat with ${treat.map((t) => `<b style="color:${t.color}">${t.glyph} ${t.name}</b>`).join(" or ")}</p>
+      <p class="cx-treat mono">beat it with ${treat.map((t) => `<b style="color:${t.color}">${t.glyph} ${t.name}</b>`).join(" or ")}</p>
       <div class="start-btns"><button class="btn clay" id="cx-ok">Got it</button><a class="btn ghost" href="/manual/${def.kind}" target="_blank" rel="noopener">Manual entry ↗</a></div>`;
     $("ov-codex").hidden = false;
     $("cx-ok").addEventListener("click", closeCodex, { once: true });
@@ -278,6 +316,7 @@ const tray = TOWER_ORDER.map((k) => {
     ov.selectedChair = null;
     hidePop();
     syncTray();
+    coach();
   }
   $("tray").addEventListener("click", (e) => {
     const b = (e.target as HTMLElement).closest<HTMLButtonElement>(".tw");
@@ -340,6 +379,11 @@ const tray = TOWER_ORDER.map((k) => {
     setMuted(!isMuted());
     $("b-mute").classList.toggle("off", isMuted());
   }
+  $("coach-x").addEventListener("click", () => {
+    coachOff = true;
+    try { localStorage.setItem("aa:coached", "1"); } catch {}
+    $("coach").hidden = true;
+  });
   $("b-pause").addEventListener("click", togglePause);
   $("b-serenity").addEventListener("click", () => game?.serenity());
   $("b-resume").addEventListener("click", togglePause);
@@ -399,6 +443,16 @@ const tray = TOWER_ORDER.map((k) => {
   .serene { color: #d3f7e0; border-color: #d3f7e055; }
   .serene:disabled { opacity: 0.4; cursor: not-allowed; }
 
+  .coach {
+    position: absolute; left: 50%; bottom: 16px; translate: -50% 0; z-index: 3;
+    display: flex; align-items: center; gap: 10px; max-width: min(92%, 520px);
+    padding: 10px 10px 10px 16px; border-radius: 999px;
+    background: #f6f1e7; color: #1f1a15; font: 600 0.9rem/1.3 var(--sans);
+    box-shadow: 0 16px 40px -16px #000;
+  }
+  .coach.in { animation: coach-in 0.45s var(--ease-spring) both; }
+  @keyframes coach-in { from { opacity: 0; transform: translateY(10px); } }
+  .coach button { flex: none; width: 28px; height: 28px; border-radius: 50%; border: 0; background: #1f1a1514; color: #1f1a15; font-size: 1rem; cursor: pointer; }
   .pop { position: absolute; left: 0; top: 0; z-index: 4; width: 230px; padding: 12px; border-radius: 14px; background: #1b1612f2; border: 1px solid var(--night-line-2); box-shadow: 0 20px 40px -20px #000; }
   .pop-name { margin: 0; font: 450 1.05rem/1.2 var(--serif); }
   .pop-lvl { margin: 4px 0 10px; font-size: 0.7rem; color: var(--chalk-3); line-height: 1.4; }

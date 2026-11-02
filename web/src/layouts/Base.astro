@@ -85,6 +85,28 @@ const graph = {
         { rootMargin: "0px 0px -8% 0px" }
       );
       document.querySelectorAll("[data-reveal]").forEach((el) => io.observe(el));
+
+      // One-tap copy on every code block.
+      document.querySelectorAll<HTMLPreElement>("pre:has(> code)").forEach((pre) => {
+        const box = document.createElement("div");
+        box.className = "copybox";
+        pre.replaceWith(box);
+        box.append(pre);
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "copy-code";
+        b.textContent = "Copy";
+        b.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(pre.innerText.trim());
+            b.textContent = "Copied";
+          } catch {
+            b.textContent = "Select & copy";
+          }
+          setTimeout(() => (b.textContent = "Copy"), 1600);
+        });
+        box.append(b);
+      });
     </script>
   </body>
 </html>

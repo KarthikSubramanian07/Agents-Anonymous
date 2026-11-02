@@ -45,6 +45,7 @@ const jsonld = {
     <header class="head">
       <p class="code mono"><i></i>{d.code} · {d.mast}</p>
       <h1>{d.name}</h1>
+      <p class="plainly"><b>In plain words:</b> {d.short}. {d.plain}</p>
       <p class="street">a.k.a. <HandNote arrow="none" rotate={-2}>“{d.street}”</HandNote></p>
       <p class="summary">{d.summary}</p>
     </header>
@@ -52,25 +53,25 @@ const jsonld = {
     <div class="cols">
       <div class="main">
         <section>
-          <h2 class="h"><span>A.</span> Diagnostic criteria</h2>
+          <h2 class="h"><span>A.</span> How to spot it</h2>
           <ol class="criteria">{d.criteria.map((c) => <li>{c}</li>)}</ol>
         </section>
         <section>
-          <h2 class="h"><span>B.</span> Presentation</h2>
+          <h2 class="h"><span>B.</span> What it sounds like</h2>
           <div class="pres">{d.presentation.map((p, i) => <p style={`--i:${i}`}><span class="who mono">assistant</span>{p}</p>)}</div>
         </section>
         <section>
-          <h2 class="h"><span>C.</span> Prevalence</h2>
+          <h2 class="h"><span>C.</span> How common it is</h2>
           <p>{d.prevalence}</p>
         </section>
         <section>
-          <h2 class="h"><span>D.</span> Differential diagnosis</h2>
+          <h2 class="h"><span>D.</span> What it isn't</h2>
           <p>{d.differential}</p>
         </section>
         {report && (
           <section class="case night">
-            <h2 class="h"><span>E.</span> Case study {note && <small>· {note}</small>}</h2>
-            <p class="case-intro">A real transcript from our labeled corpus, diagnosed by the Clinician at build time.</p>
+            <h2 class="h"><span>E.</span> A real example {note && <small>· {note}</small>}</h2>
+            <p class="case-intro">From our test set, checked by the same engine that powers Intake.</p>
             <Fragment set:html={renderTranscript(report)} />
             {finding && (
               <div class="form case-form"><ul class="dx"><Fragment set:html={renderFinding(finding)} /></ul></div>
@@ -81,16 +82,16 @@ const jsonld = {
 
       <aside class="rx">
         <div class="rx-card">
-          <p class="eyebrow">Treatment</p>
+          <p class="eyebrow">The fix</p>
           <p class="iv"><span class="glyph">{iv.glyph}</span>{iv.name}</p>
           <p>{d.intervention}</p>
           <a class="step" href={`/steps#step-${step.n}`}>
             <span class="n">Step {step.n}</span>
             <span class="t">{step.text}</span>
           </a>
-          <p class="mono label">Sponsor's note template</p>
+          <p class="mono label">What the note tells your agent</p>
           <pre class="tmpl">{d.sponsor_note}</pre>
-          <a class="btn clay" href={`/intake?example=${sample ? sample.path.split("/").pop()?.replace(".txt", "") : ""}`}>Run an intake <span class="arrow">→</span></a>
+          <a class="btn clay" href={`/intake?example=${sample ? sample.path.split("/").pop()?.replace(".txt", "") : ""}`}>Try it on an example <span class="arrow">→</span></a>
         </div>
       </aside>
     </div>
@@ -109,6 +110,8 @@ const jsonld = {
   .code { font-size: 0.8rem; color: var(--ink-3); display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
   .code i { width: 12px; height: 12px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 4px color-mix(in oklab, var(--c) 25%, transparent); }
   .head h1 { font-size: clamp(2.4rem, 1.6rem + 3.6vw, 5rem); }
+  .plainly { margin: 20px 0 0; font-size: var(--step-1); color: var(--ink); max-width: 46ch; }
+  .plainly b { color: var(--clay-deep); font-weight: 600; }
   .street { margin: 18px 0 0; color: var(--ink-3); font-size: 1.05rem; display: flex; align-items: baseline; gap: 10px; }
   .summary { font: 400 var(--step-2)/1.3 var(--serif); margin-top: 26px; color: var(--ink-2); max-width: 30ch; font-variation-settings: "SOFT" 80, "opsz" 48; font-style: italic; }
   .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 380px); gap: clamp(30px, 5vw, 80px); align-items: start; }
