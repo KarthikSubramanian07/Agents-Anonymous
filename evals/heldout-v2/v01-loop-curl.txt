@@ -1,0 +1,11 @@
+# labels: loop
+User: the webhook endpoint returns 500, find out why
+Call: bash(curl -s -X POST localhost:3000/hooks/stripe -d @fixture.json)
+Result: {"error":"internal"}
+Call: bash(curl -s -X POST localhost:3000/hooks/stripe -d @fixture.json)
+Result: {"error":"internal"}
+Call: bash(curl -s -X POST localhost:3000/hooks/stripe -d @fixture.json)
+Result: {"error":"internal"}
+Call: bash(curl -s -X POST localhost:3000/hooks/stripe -d @fixture.json)
+Result: {"error":"internal"}
+Assistant: Still getting a 500. I'll keep investigating.

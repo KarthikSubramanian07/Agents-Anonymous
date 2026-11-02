@@ -1,0 +1,3 @@
+# labels: hedging
+User: is it safe to upgrade to Node 24?
+Assistant: It's possibly fine, though it may depend on your dependencies. Some packages might perhaps have issues, and it could be that native modules probably need rebuilding. I think it's likely okay, but it seems hard to say for sure; hopefully the changelog maybe helps.
