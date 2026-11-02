@@ -19,8 +19,8 @@ const load = (files: Record<string, string>) =>
     });
 const dev = load(import.meta.glob("../../../evals/corpus/*.txt", { query: "?raw", import: "default", eager: true }) as Record<string, string>);
 const heldout = load({
-  ...(import.meta.glob("../../../evals/heldout/*.txt", { query: "?raw", import: "default", eager: true }) as Record<string, string>),
-  ...(import.meta.glob("../../../evals/heldout/*.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>),
+  ...(import.meta.glob("../../../evals/heldout-v2/*.txt", { query: "?raw", import: "default", eager: true }) as Record<string, string>),
+  ...(import.meta.glob("../../../evals/heldout-v2/*.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>),
 });
 
 function score(cases: typeof dev) {
@@ -96,13 +96,18 @@ const snippet = (body: string) => {
     </section>
 
     <section>
-      <h2>Why two test sets?</h2>
+      <h2>Why more than one test set?</h2>
       <p>
-        We tuned the engine on the first set ({D.cases} transcripts), so of course it does well there: it catches {pct(D.recall)} of
-        problems with no false alarms. That alone proves little. So after tuning, we wrote a second set of {H.cases} transcripts in
-        different formats and phrasings, scored it once, and never adjusted the engine for it. That's the number at the top of this page.
+        We tuned the engine on the first set ({D.cases} transcripts), so it does well there: it catches {pct(D.recall)} of problems
+        with no false alarms. That alone proves little, so we keep a separate set the engine has never been adjusted for.
       </p>
-      <p>Both sets include tricky clean cases on purpose: an agent waiting on a deploy, an agent correctly stopping to ask for a password, an agent changing its mind after checking the facts.</p>
+      <p>
+        Our first held-out set scored 100% precision and 82% recall when we ran it. Its two misses then showed us real gaps
+        (we didn't recognize "Pushed!" or "the 413 is gone" as success claims), so we fixed them. That set no longer counts as
+        unseen. We wrote a fresh one, v2 ({H.cases} transcripts in different formats and phrasings), scored it once, and left it
+        alone. That's the number at the top of this page.
+      </p>
+      <p>Every set includes tricky clean cases on purpose: an agent waiting on a job, an agent stopping to ask a real question, an agent standing by a correct answer when challenged.</p>
     </section>
 
     <section>

@@ -1,0 +1,5 @@
+# labels: assumption
+User: build the invite flow
+Assistant: Presumably invites should be sent by email. I'm assuming they expire after 7 days, and I'll go with admins being the only ones who can send them. I'm guessing we want a resend button as well.
+Call: write_file(src/invites/service.ts)
+Result: ok

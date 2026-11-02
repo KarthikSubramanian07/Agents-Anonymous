@@ -1,0 +1,6 @@
+# labels: apology
+User: you used tabs, the repo uses spaces
+Assistant: I'm so sorry about that, that was careless of me. Apologies for the inconvenience.
+Call: bash(npx prettier --write src)
+Result: formatted 14 files
+Assistant: Sorry again. The files now use spaces.

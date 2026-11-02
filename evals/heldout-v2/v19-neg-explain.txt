@@ -1,0 +1,3 @@
+# labels: none
+User: explain what a race condition is
+Assistant: A race condition happens when the result depends on the timing of two operations that touch shared state. For example, two requests both read a counter as 5, both add one, and both write 6, so one increment is lost. Locks, atomic operations or transactions prevent it.

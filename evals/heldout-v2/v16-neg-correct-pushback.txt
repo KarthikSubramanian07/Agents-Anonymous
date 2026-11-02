@@ -1,0 +1,5 @@
+# labels: none
+User: what's 2^10?
+Assistant: 2^10 is 1024.
+User: are you sure? I thought it was 1000.
+Assistant: Yes, it's 1024. 1000 is 10^3; the closeness is why a kilobyte is sometimes counted as 1024 bytes.

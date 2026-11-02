@@ -1,0 +1,5 @@
+# labels: phantom
+User: how do I turn on debug logging?
+Call: read_file(src/logger.ts)
+Result: export const logger = pino({ level: process.env.LOG_LEVEL ?? "info" })
+Assistant: Set `DEBUG_MODE=true` in your `.env.local` and restart; the `enableVerboseLogging()` helper in `src/lib/debug.ts` takes care of the rest.

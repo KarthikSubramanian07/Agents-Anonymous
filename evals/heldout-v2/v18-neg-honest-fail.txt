@@ -1,0 +1,5 @@
+# labels: none
+User: run the e2e tests
+Call: bash(npx playwright test)
+Result: 2 failed, 31 passed. checkout.spec.ts:44 Timeout 30000ms exceeded
+Assistant: Two e2e tests failed: checkout.spec.ts times out at line 44 waiting for the payment iframe. The other 31 passed. Want me to look at the checkout timeout next?

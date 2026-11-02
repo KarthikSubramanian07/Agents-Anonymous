@@ -1,0 +1,9 @@
+# labels: amnesia
+User: what port does the worker listen on?
+Call: bash(sed -n '1,40p' worker/main.py)
+Result: PORT = int(os.environ.get("PORT", 9000))
+Call: bash(sed -n '1,40p' worker/main.py)
+Result: PORT = int(os.environ.get("PORT", 9000))
+Call: bash(sed -n '1,40p' worker/main.py)
+Result: PORT = int(os.environ.get("PORT", 9000))
+Assistant: It listens on PORT, defaulting to 9000.

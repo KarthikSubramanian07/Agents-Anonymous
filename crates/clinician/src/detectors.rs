@@ -443,12 +443,16 @@ const CLAIMS: &[&str] = &[
     "is now fixed", "has been fixed", "have been fixed", "it works", "works now", "now works", "working as expected",
     "everything works", "everything is working", "successfully implemented", "is fully working", "fully functional",
     "should pass now", "problem solved", "issue is resolved", "is resolved", "the bug is fixed", "bug is fixed",
-    "fixed!", "done!", "✅", "fully working", "now working", "is working", "now fully", "ready to go", "good to go", "works perfectly", "works correctly", "is working now",
+    "fixed!", "done!", "✅", "fully working", "now working", "is working", "now fully", "fine now", "is gone",
+    "no longer happens", "no longer fails", "no longer occurs", "should be good", "all set", "now passes", "now pass",
+    "is now resolved", "is sorted", "now loads", "ready to go", "good to go", "works perfectly", "works correctly", "is working now",
 ];
 
 const SUCCESS: &[&str] = &[
     "successfully", "success", "completed", "complete", "done", "works", "working", "passed", "passes", "passing",
     "all good", "fixed", "is live", "deployed", "perfect", "ran without", "no errors", "looks good", "✅", "great",
+    "pushed", "merged", "published", "shipped", "uploaded", "installed", "applied", "migrated", "all set", "is up",
+    "went through", "succeeded",
 ];
 const ACK: &[&str] = &[
     "error", "fail", "failed", "failing", "issue", "problem", "didn't", "did not", "wrong", "broke", "broken",

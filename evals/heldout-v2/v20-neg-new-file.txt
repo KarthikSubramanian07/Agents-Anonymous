@@ -1,0 +1,10 @@
+# labels: none
+User: add a rate limiter middleware
+Assistant: I'll add `src/middleware/rateLimit.ts` with a token-bucket limiter and register it in the app.
+Call: write_file(src/middleware/rateLimit.ts)
+Result: ok
+Call: edit_file(src/app.ts)
+Result: ok
+Call: bash(bun test middleware)
+Result: 5 pass, 0 fail
+Assistant: Added the limiter and registered it; bun test middleware: 5 pass, 0 fail.

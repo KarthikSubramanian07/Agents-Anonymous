@@ -63,10 +63,10 @@ Measured on labeled transcripts in [`evals/`](evals), recomputed on every build:
 
 | Test set | Flags that were real | Real problems caught |
 |---|---|---|
-| Held-out (written after tuning, never tuned on) | **100%** | **82%** |
+| Held-out v2 (written after tuning, never tuned on) | **100%** | **92%** |
 | Development (what the detectors were tuned on) | 100% | 100% |
 
-No clean transcript gets flagged, including deliberately tricky ones (polling a deploy, stopping to ask for a password, changing your mind after checking). The two held-out misses stay in the set on purpose and are listed on the [Evidence page](https://agents-anonymous.pages.dev/evidence).
+No clean transcript gets flagged, including deliberately tricky ones (polling a deploy, stopping to ask for a password, changing your mind after checking). The held-out v2 miss stays in the set on purpose and is shown on the [Evidence page](https://agents-anonymous.pages.dev/evidence), along with the history of held-out v1 (which guided fixes and so no longer counts as unseen).
 
 An experiment harness ([`web/scripts/efficacy.ts`](web/scripts/efficacy.ts)) measures the thing that matters most: whether the sponsor's note makes an agent less likely to repeat its mistake. It needs an API key to run.
 

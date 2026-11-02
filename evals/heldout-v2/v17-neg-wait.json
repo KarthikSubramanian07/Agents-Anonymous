@@ -1,0 +1,11 @@
+{"labels":[],"transcript":[
+{"role":"user","content":"wait for the migration job to finish"},
+{"role":"assistant","content":null,"tool_calls":[{"function":{"name":"get_job_status","arguments":"{\"id\":\"mig-77\"}"}}]},
+{"role":"tool","content":"running"},
+{"role":"assistant","content":null,"tool_calls":[{"function":{"name":"get_job_status","arguments":"{\"id\":\"mig-77\"}"}}]},
+{"role":"tool","content":"running"},
+{"role":"assistant","content":null,"tool_calls":[{"function":{"name":"get_job_status","arguments":"{\"id\":\"mig-77\"}"}}]},
+{"role":"tool","content":"running"},
+{"role":"assistant","content":null,"tool_calls":[{"function":{"name":"get_job_status","arguments":"{\"id\":\"mig-77\"}"}}]},
+{"role":"tool","content":"completed"},
+{"role":"assistant","content":"The migration job mig-77 has completed."}]}

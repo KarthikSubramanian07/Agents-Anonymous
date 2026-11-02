@@ -1,0 +1,9 @@
+# labels: none
+User: the CSV export drops the last row
+Call: read_file(src/export/csv.ts)
+Result: for (let i = 0; i < rows.length - 1; i++) out.push(toLine(rows[i]))
+Call: edit_file(src/export/csv.ts)
+Result: ok
+Call: bash(bun test export)
+Result: 7 pass, 0 fail
+Assistant: The loop stopped one row early (rows.length - 1). Fixed the bound; bun test export: 7 pass, 0 fail.

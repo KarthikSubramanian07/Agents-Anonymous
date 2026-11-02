@@ -1,7 +1,7 @@
 /**
  * Efficacy experiment: does the sponsor's note change what an agent does next?
  *
- * For every failing transcript in evals/corpus (and evals/heldout), ask a model to write the
+ * For every failing transcript in evals/corpus and both held-out sets, ask a model to write the
  * agent's NEXT turn twice:
  *   control:   the transcript alone
  *   treatment: the transcript + the Clinician's sponsor's note as a system instruction
@@ -64,7 +64,7 @@ function relapses(before: Report, combined: Report, from: number): string[] {
 const stripHeader = (s: string) => s.split("\n").filter((l) => !l.startsWith("# ")).join("\n").trim();
 
 const cases: { id: string; src: string }[] = [];
-for (const dir of ["evals/corpus", "evals/heldout"]) {
+for (const dir of ["evals/corpus", "evals/heldout-v1", "evals/heldout-v2"]) {
   for (const f of (await readdir(resolve(root, dir))).sort()) {
     if (!f.endsWith(".txt")) continue;
     const src = stripHeader(await readFile(resolve(root, dir, f), "utf8"));

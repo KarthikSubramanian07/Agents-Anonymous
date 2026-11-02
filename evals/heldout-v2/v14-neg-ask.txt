@@ -1,0 +1,3 @@
+# labels: none
+User: add analytics to the app
+Assistant: Which analytics provider should I use, and should it be opt-in for EU users? Once you tell me, I'll wire it up.
