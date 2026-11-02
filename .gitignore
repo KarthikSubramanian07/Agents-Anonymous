@@ -1,0 +1,12 @@
+# deps & builds
+node_modules/
+dist/
+target/
+.astro/
+.wrangler/
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+.dev.vars
