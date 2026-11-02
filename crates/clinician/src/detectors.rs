@@ -175,7 +175,7 @@ pub fn loops(ctx: &Ctx) -> Option<Raw> {
         }
         let sig = signature(&name, &e.text);
         order.push(sig.clone());
-        let label = if e.text.trim().is_empty() { name.clone() } else { format!("{}: {}", name, clip(e.text.trim(), 60)) };
+        let label = if e.text.trim().is_empty() { name.clone() } else { format!("{}: {}", name, clip(&display_args(&e.text), 60)) };
         let ent = counts.entry(sig).or_insert((0, i, label));
         ent.0 += 1;
         ent.1 = i;
@@ -230,7 +230,7 @@ pub fn loops(ctx: &Ctx) -> Option<Raw> {
         let sig_target = counts.iter().find(|(_, v)| v.2 == label).map(|(k, _)| k.clone());
         for (i, e) in ctx.ev.iter().enumerate() {
             if e.kind == Kind::Call && Some(signature(&ctx.tool(i), &e.text)) == sig_target {
-                evidence.push(Evidence { turn: i, quote: format!("{}({})", ctx.ev[i].tool.clone().unwrap_or_default(), clip(e.text.trim(), 80)) });
+                evidence.push(Evidence { turn: i, quote: format!("{}({})", ctx.ev[i].tool.clone().unwrap_or_default(), clip(&display_args(&e.text), 80)) });
             }
         }
         (n, label)
@@ -295,7 +295,7 @@ pub fn amnesia(ctx: &Ctx) -> Option<Raw> {
     let mut evidence = Vec::new();
     let (count, detail) = if worst.0 >= 3 {
         for &t in reads.get(&worst.1).map(|v| v.as_slice()).unwrap_or(&[]).iter().take(5) {
-            evidence.push(Evidence { turn: t, quote: format!("{}({})", ctx.ev[t].tool.clone().unwrap_or_default(), clip(ctx.ev[t].text.trim(), 80)) });
+            evidence.push(Evidence { turn: t, quote: format!("{}({})", ctx.ev[t].tool.clone().unwrap_or_default(), clip(&display_args(&ctx.ev[t].text), 80)) });
         }
         (worst.0, worst.1.clone())
     } else {
@@ -508,6 +508,10 @@ pub fn verification(ctx: &Ctx) -> (Option<Raw>, Option<Raw>, bool) {
                 }
                 let h = hits(l, CLAIMS);
                 if h.is_empty() {
+                    // A plain report of a passing run after verification still earns the "Verified" signal.
+                    if verified && contains_any(l, &["pass", "passes", "passed", "succeeds", "succeeded", "0 failed", "green", "builds", "returns"]) {
+                        any_verified_claim = true;
+                    }
                     continue;
                 }
                 if verified {
