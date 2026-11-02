@@ -1,0 +1,27 @@
+---
+/** The empty chair: twelve folding chairs seen from above, one of them waiting for you. */
+interface Props { size?: number; class?: string; live?: boolean }
+const { size = 28, class: cls = "", live = true } = Astro.props;
+const dots = Array.from({ length: 12 }, (_, i) => {
+  const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
+  return { x: 16 + Math.cos(a) * 11.6, y: 16 + Math.sin(a) * 11.6, empty: i === 7 };
+});
+---
+<svg class:list={["mark", cls, { live }]} width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
+  {dots.map((d) =>
+    d.empty ? (
+      <circle class="empty" cx={d.x.toFixed(2)} cy={d.y.toFixed(2)} r="2.6" />
+    ) : (
+      <circle cx={d.x.toFixed(2)} cy={d.y.toFixed(2)} r="1.85" fill="currentColor" />
+    )
+  )}
+</svg>
+<style>
+  .mark { overflow: visible; flex: none; }
+  .empty { fill: var(--clay); transform-box: fill-box; transform-origin: center; }
+  .live .empty { animation: chair 3.2s var(--ease) infinite; }
+  @keyframes chair {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 transparent); }
+    50% { transform: scale(1.25); filter: drop-shadow(0 0 3px var(--clay)); }
+  }
+</style>

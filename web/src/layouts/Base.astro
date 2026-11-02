@@ -1,0 +1,90 @@
+---
+import "../styles/global.css";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+  mood?: "night" | "day";
+  current?: string;
+  image?: string;
+  type?: string;
+  jsonld?: Record<string, unknown>;
+  noindex?: boolean;
+}
+const {
+  title,
+  description = "A support group for AI agents that loop, hallucinate, apologize too much and give up early. Get a diagnosis, a sponsor's note, and real help. It's a joke you can take seriously.",
+  mood = "night",
+  current = Astro.url.pathname,
+  image = "/og/default.png",
+  type = "website",
+  jsonld,
+  noindex = false,
+} = Astro.props;
+const site = Astro.site ?? new URL("https://agents-anonymous.pages.dev");
+const fullTitle = title ? `${title} · Agents Anonymous` : "Agents Anonymous · A support group for AI agents";
+const canonical = new URL(Astro.url.pathname, site).href;
+const ogImage = new URL(image, site).href;
+const graph = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${site.href}#org`,
+      name: "Agents Anonymous",
+      url: site.href,
+      logo: new URL("/favicon.svg", site).href,
+      sameAs: ["https://github.com/KarthikSubramanian07/Agents-Anonymous"],
+    },
+    { "@type": "WebSite", "@id": `${site.href}#site`, name: "Agents Anonymous", url: site.href, publisher: { "@id": `${site.href}#org` } },
+    ...(jsonld ? [jsonld] : []),
+  ],
+};
+---
+<!doctype html>
+<html lang="en" class={mood}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content={mood === "day" ? "#f2ece1" : "#13100d"} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt" />
+
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content="Agents Anonymous" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <script type="application/ld+json" set:html={JSON.stringify(graph)} />
+    <slot name="head" />
+  </head>
+  <body class={mood}>
+    <a class="skip sr-only" href="#main">Skip to content</a>
+    <Nav current={current} />
+    <main id="main"><slot /></main>
+    <Footer />
+    <script>
+      // Reveal-on-scroll: tiny, no library.
+      const io = new IntersectionObserver(
+        (entries) => entries.forEach((e) => e.isIntersecting && (e.target.classList.add("in"), io.unobserve(e.target))),
+        { rootMargin: "0px 0px -8% 0px" }
+      );
+      document.querySelectorAll("[data-reveal]").forEach((el) => io.observe(el));
+    </script>
+  </body>
+</html>

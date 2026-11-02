@@ -1,0 +1,352 @@
+/* ─────────────────────────────────────────────────────────────
+   Agents Anonymous — "Basement, Day & Night"
+   Day: a photocopied meeting handout. Night: the room at 9pm.
+   ───────────────────────────────────────────────────────────── */
+
+@import "@fontsource-variable/fraunces/full.css";
+@import "@fontsource-variable/fraunces/full-italic.css";
+@import "@fontsource-variable/instrument-sans/wdth.css";
+@import "@fontsource-variable/jetbrains-mono/wght.css";
+@import "@fontsource/kalam/latin-400.css";
+@import "@fontsource/kalam/latin-700.css";
+
+:root {
+  /* night: the room */
+  --night-0: #0c0a08;
+  --night-1: #13100d;
+  --night-2: #1b1612;
+  --night-3: #261f19;
+  --night-line: #ffffff12;
+  --night-line-2: #ffffff21;
+  --chalk: #efe7da;
+  --chalk-2: #bdb1a1;
+  --chalk-3: #847868;
+
+  /* day: the handout */
+  --paper: #f2ece1;
+  --paper-2: #e9e0cf;
+  --paper-3: #ddd2bd;
+  --ink: #1f1a15;
+  --ink-2: #4b4138;
+  --ink-3: #7b6f62;
+  --rule: #1f1a1520;
+
+  /* light & warmth */
+  --tube: #d3f7e0;
+  --tube-glow: #d3f7e026;
+  --amber: #e9a25b;
+  --clay: #d4643a;
+  --clay-deep: #b44f2a;
+  --bronze: #b68a55;
+  --red: #e46a6a;
+
+  /* type */
+  --serif: "Fraunces Variable", "Iowan Old Style", Georgia, serif;
+  --sans: "Instrument Sans Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
+  --hand: "Kalam", "Bradley Hand", cursive;
+
+  --step--1: clamp(0.82rem, 0.8rem + 0.1vw, 0.9rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.12rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.45vw, 1.45rem);
+  --step-2: clamp(1.5rem, 1.3rem + 0.9vw, 2.05rem);
+  --step-3: clamp(1.9rem, 1.5rem + 1.8vw, 3rem);
+  --step-4: clamp(2.5rem, 1.8rem + 3.4vw, 4.6rem);
+  --step-5: clamp(3.1rem, 2rem + 5.6vw, 7.2rem);
+
+  --wrap: min(1180px, calc(100% - clamp(40px, 8vw, 140px)));
+  --radius: 14px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  font-variation-settings: "wdth" 96;
+  background: var(--night-1);
+  color: var(--chalk);
+  min-height: 100dvh;
+  overflow-x: clip;
+}
+
+/* the moods */
+.night {
+  background: var(--night-1);
+  color: var(--chalk);
+  --fg: var(--chalk);
+  --fg-2: var(--chalk-2);
+  --fg-3: var(--chalk-3);
+  --bg: var(--night-1);
+  --bg-2: var(--night-2);
+  --line: var(--night-line);
+  --line-2: var(--night-line-2);
+  --accent: var(--clay);
+}
+.day {
+  background: var(--paper);
+  color: var(--ink);
+  color-scheme: light;
+  --fg: var(--ink);
+  --fg-2: var(--ink-2);
+  --fg-3: var(--ink-3);
+  --bg: var(--paper);
+  --bg-2: var(--paper-2);
+  --line: var(--rule);
+  --line-2: #1f1a1538;
+  --accent: var(--clay-deep);
+}
+
+/* grain: everything in the basement is a little photocopied */
+body::after {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.45 0 0 0 0 0.4 0 0 0 1.2 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  animation: grain 1.2s steps(6) infinite;
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -4%); }
+  60% { transform: translate(-1%, 3%); }
+  80% { transform: translate(3%, 1%); }
+  100% { transform: translate(0, 0); }
+}
+
+::selection {
+  background: var(--clay);
+  color: #fff;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+a:hover {
+  text-decoration-color: var(--accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+img,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--serif);
+  font-weight: 380;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  margin: 0;
+  font-variation-settings: "SOFT" 60, "WONK" 0, "opsz" 96;
+  text-wrap: balance;
+}
+h1 { font-size: var(--step-5); letter-spacing: -0.035em; }
+h2 { font-size: var(--step-4); letter-spacing: -0.03em; }
+h3 { font-size: var(--step-2); }
+h4 { font-size: var(--step-1); }
+
+em,
+.it {
+  font-style: italic;
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+}
+
+p {
+  margin: 0 0 1em;
+  text-wrap: pretty;
+}
+
+code,
+kbd,
+pre,
+.mono {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  font-variant-ligatures: none;
+}
+
+.wrap {
+  width: var(--wrap);
+  margin-inline: auto;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  display: inline-flex;
+  gap: 0.6em;
+  align-items: center;
+}
+.eyebrow::before {
+  content: "";
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 25%, transparent);
+}
+
+.lede {
+  font-size: var(--step-1);
+  line-height: 1.5;
+  color: var(--fg-2);
+  max-width: 38ch;
+}
+
+.hand {
+  font-family: var(--hand);
+  color: var(--clay);
+  font-size: 1.25em;
+  line-height: 1.1;
+}
+
+/* buttons */
+.btn {
+  --b-bg: var(--fg);
+  --b-fg: var(--bg);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.78em 1.25em 0.8em;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: var(--b-bg);
+  color: var(--b-fg);
+  font: 600 0.95rem/1 var(--sans);
+  letter-spacing: 0.005em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.35s var(--ease-spring), background 0.25s, box-shadow 0.35s var(--ease);
+  white-space: nowrap;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -12px color-mix(in oklab, var(--b-bg) 70%, transparent);
+}
+.btn:active {
+  transform: translateY(0) scale(0.98);
+}
+.btn.clay {
+  --b-bg: var(--clay);
+  --b-fg: #fff8f1;
+}
+.btn.ghost {
+  --b-bg: transparent;
+  --b-fg: var(--fg);
+  border-color: var(--line-2);
+}
+.btn.ghost:hover {
+  border-color: var(--fg-3);
+  box-shadow: none;
+}
+.btn .arrow {
+  transition: transform 0.35s var(--ease-spring);
+}
+.btn:hover .arrow {
+  transform: translateX(3px);
+}
+
+/* cards */
+.card {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.section {
+  padding-block: clamp(80px, 12vw, 170px);
+  position: relative;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font: 500 0.74rem/1 var(--mono);
+  letter-spacing: 0.02em;
+  padding: 0.38em 0.6em;
+  border-radius: 6px;
+  border: 1px solid var(--line-2);
+  color: var(--fg-2);
+  white-space: nowrap;
+}
+.tag i {
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: var(--c, var(--accent));
+  display: inline-block;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* reveal-on-scroll */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+  transition-delay: calc(var(--d, 0) * 1ms);
+}
+[data-reveal].in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}
