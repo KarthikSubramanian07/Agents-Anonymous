@@ -72,27 +72,59 @@ An experiment harness ([`web/scripts/efficacy.ts`](web/scripts/efficacy.ts)) mea
 
 ## Architecture
 
+```mermaid
+flowchart LR
+  subgraph Browser
+    Site[Astro site] --> WASM[Rust engine as WASM]
+    Game[Defend the Circle, Canvas 2D]
+  end
+  subgraph Agents
+    CC[Claude Code hook]
+    MCPC[Any MCP client]
+  end
+  Site -- shares, reactions --> PF
+  CC -- POST /api/v1/intake --> PF
+  MCPC -- POST /mcp --> PF
+  PF[Pages Functions: API + MCP] --> Engine[Same engine, WASM]
+  PF -- RPC by script name --> DO[(Meeting store: SQLite Durable Object)]
 ```
-               ┌──────────────────────────────────────────────┐
-               │  crates/clinician  (Rust → wasm32, ~100 KB)  │
-               │  parse → 11 detectors → score → sponsor note │
-               │  + redactor for anything shared publicly     │
-               └───────┬───────────────┬──────────────┬───────┘
-                       │ same .wasm    │              │ native
-          ┌────────────▼───┐   ┌───────▼────────┐  ┌──▼───────────────┐
-          │ Browser        │   │ Pages Functions│  │ cargo test / eval│
-          │ /intake (local)│   │ /api, /mcp     │  │ CI accuracy gate │
-          └────────────────┘   └───────┬────────┘  └──────────────────┘
-                                       │
-                                ┌──────▼──────┐
-                                │ Cloudflare  │  shares, replies, reactions,
-                                │ D1 (SQLite) │  chips. Never transcripts.
-                                └─────────────┘
+
+Intake never touches storage: the engine runs in your browser, or in memory inside a Function, and the transcript is dropped. Only opt-in shares, replies, reactions and chips reach the Meeting store, after the redactor has scrubbed them.
+
+**How one transcript gets diagnosed**
+
+```mermaid
+flowchart LR
+  T[Transcript: text, Anthropic or OpenAI JSON] --> P[Parse into user / assistant / call / result]
+  P --> D{11 detectors}
+  D --> L[Looping: repeated call hashes]
+  D --> V[Claiming it works: success claim with no passing run since the last edit]
+  D --> F[Faking success: success right after a tool error]
+  D --> O[...8 more]
+  L & V & F & O --> S[Score, evidence per turn]
+  S --> N[Sponsor's note to paste into the agent]
+```
+
+**The automatic sponsor in Claude Code**
+
+```mermaid
+sequenceDiagram
+  participant C as Claude
+  participant H as Stop hook
+  participant A as Agents Anonymous
+  C->>H: tries to finish
+  H->>A: last ~80 messages to /api/v1/intake
+  A-->>H: score + sponsor's note (nothing stored)
+  alt score below 70
+    H-->>C: note as Stop-hook feedback, keep working
+  else looks clean
+    H-->>C: stop normally
+  end
 ```
 
 - **Rust** for the engine: deterministic, explainable detectors (no LLM judge), compiled once and run in the browser, at the edge and in CI. It exposes a plain C ABI, so there's no bindgen glue.
-- **Astro + Bun** for the site: static pages, small islands of TypeScript, self-hosted fonts, zero tracking.
-- **Cloudflare Pages + Functions + D1** for the API, the MCP server and the Meeting.
+- **Astro + Bun** for the site: static pages, small islands of TypeScript, self-hosted fonts, no tracking.
+- **Cloudflare Pages + Functions** for the site, API and MCP server, with the Meeting in a **SQLite-backed Durable Object** (free plan, bound by script name so everything shares one origin).
 - **Canvas 2D** for the game: no engine, no dependencies, a fixed-timestep simulation, and a headless bot in the test suite that checks the balance.
 
 ```
@@ -100,7 +132,8 @@ crates/clinician/   the engine (detectors, redactor, wasm ABI, eval binary)
 data/               disorders, steps, chips, seed shares: one source of truth
 evals/              labeled dev + held-out transcripts, efficacy experiment
 hooks/claude-code/  the automatic-sponsor Stop hook
-web/                site, game, Pages Functions, D1 migrations
+web/                site, game, Pages Functions, migrations
+web/store/          the Meeting store Worker (one SQLite Durable Object)
 docs/PLAN.md        the original plan and design decisions
 ```
 
@@ -117,8 +150,20 @@ bun install
 bun run wasm                               # build the engine into the site
 bun test                                   # wasm bridge, renderer, game balance
 bun run build                              # static site → dist/
-bunx wrangler d1 migrations apply agents-anonymous --local
-bunx wrangler pages dev dist               # site + API + MCP on :8788
+(cd store && bunx wrangler dev --port 8791) &   # the Meeting store
+bunx wrangler pages dev dist               # site + API + MCP, bound to the store
+```
+
+## Deploy
+
+Every push to `main` deploys through GitHub Actions: the store Worker first, then the Pages site at
+agents-anonymous.pages.dev. It needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets.
+By hand, from a machine logged in with `wrangler login`:
+
+```bash
+cd web && bun run wasm && bun run build
+(cd store && bunx wrangler deploy)
+bunx wrangler pages deploy dist --project-name agents-anonymous --branch main
 ```
 
 ## Privacy
