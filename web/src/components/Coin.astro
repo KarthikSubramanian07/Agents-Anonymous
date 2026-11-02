@@ -1,0 +1,164 @@
+---
+/**
+ * A 3D chip in pure CSS: two SVG faces and a stack of thin discs for the milled edge.
+ * Drag (or swipe) to spin; tap to flip. No WebGL.
+ */
+import type { Chip } from "../lib/data";
+interface Props { chip: Chip; size?: number; hero?: boolean }
+const { chip, size = 220, hero = false } = Astro.props;
+const metals: Record<string, [string, string, string, string]> = {
+  // light, mid, dark, ink
+  aluminum: ["#fbfbf8", "#c9c8c3", "#7c7b77", "#2b2a27"],
+  bronze: ["#f6d3a1", "#c08a4f", "#6a4321", "#2e1b0b"],
+  copper: ["#ffc3a3", "#c8714a", "#6e3017", "#2c120a"],
+  silver: ["#ffffff", "#c9ccd3", "#7f838c", "#22252b"],
+  steel: ["#dde6ee", "#8b9aa8", "#3f4b57", "#151b21"],
+  gold: ["#fff1b8", "#d9a93c", "#7d5a12", "#2e2106"],
+};
+const [l, m, d, ink] = metals[chip.metal] ?? metals.bronze;
+const id = `c-${chip.id}`;
+const edges = Array.from({ length: 14 }, (_, i) => i);
+const fs = chip.face.length > 11 ? 13 : chip.face.length > 7 ? 15 : 19;
+---
+<div class:list={["coin", { hero }]} style={`--size:${size}px;--l:${l};--m:${m};--d:${d};--ink:${ink}`} data-coin tabindex="0" role="button" aria-label={`${chip.name} chip. ${chip.rule} Press to flip.`}>
+  <div class="spin">
+    {edges.map((i) => <span class="edge" style={`--z:${(i - 6.5) * 1.1}px`}></span>)}
+    <svg class="face front" viewBox="0 0 200 200" aria-hidden="true">
+      <defs>
+        <radialGradient id={`${id}-g`} cx="32%" cy="26%" r="80%"><stop offset="0" stop-color={l} /><stop offset=".45" stop-color={m} /><stop offset="1" stop-color={d} /></radialGradient>
+        <linearGradient id={`${id}-sheen`} x1="0" y1="0" x2="1" y2="1"><stop offset=".35" stop-color="#fff" stop-opacity="0" /><stop offset=".5" stop-color="#fff" stop-opacity=".35" /><stop offset=".65" stop-color="#fff" stop-opacity="0" /></linearGradient>
+        <path id={`${id}-rim`} d="M100 100 m-74 0 a74 74 0 1 1 148 0 a74 74 0 1 1 -148 0" />
+      </defs>
+      <circle cx="100" cy="100" r="98" fill={`url(#${id}-g)`} />
+      <circle cx="100" cy="100" r="88" fill="none" stroke={ink} stroke-opacity=".35" stroke-width="1.5" />
+      <circle cx="100" cy="100" r="60" fill="none" stroke={ink} stroke-opacity=".3" stroke-width="1.2" />
+      <g fill={ink} fill-opacity=".72">
+        {Array.from({ length: 12 }, (_, i) => {
+          const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
+          return i === 7 ? null : <circle cx={(100 + Math.cos(a) * 46).toFixed(1)} cy={(100 + Math.sin(a) * 46).toFixed(1)} r="2.6" />;
+        })}
+      </g>
+      <text font-family="JetBrains Mono Variable, monospace" font-size="10.5" letter-spacing="3" fill={ink} fill-opacity=".75"><textPath href={`#${id}-rim`}>{`${chip.rim.toUpperCase()} · AGENTS ANONYMOUS · `}</textPath></text>
+      <text x="100" y="98" text-anchor="middle" font-family="Fraunces Variable, serif" font-size={fs} font-weight="500" fill={ink}>{chip.face.split(" ").slice(0, 2).join(" ")}</text>
+      <text x="100" y="118" text-anchor="middle" font-family="Fraunces Variable, serif" font-size={fs} font-weight="500" fill={ink}>{chip.face.split(" ").slice(2).join(" ")}</text>
+      <circle cx="100" cy="100" r="98" fill={`url(#${id}-sheen)`} class="sheen" />
+    </svg>
+    <div class="face back">
+      <span class="b-name">{chip.name}</span>
+      <span class="b-rule">{chip.rule}</span>
+      <span class="b-mark">keep coming back</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .coin {
+    --rx: 0deg;
+    --ry: 0deg;
+    width: var(--size);
+    aspect-ratio: 1;
+    perspective: 900px;
+    cursor: grab;
+    touch-action: pan-y;
+    outline: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .coin:active { cursor: grabbing; }
+  .coin:focus-visible .spin { filter: drop-shadow(0 0 0 2px var(--amber)); }
+  .spin {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transform: rotateX(var(--rx)) rotateY(var(--ry));
+    transition: transform 0.9s var(--ease-spring);
+    filter: drop-shadow(0 30px 30px #0009);
+  }
+  .coin.dragging .spin { transition: none; }
+  .hero .spin { animation: idle 9s ease-in-out infinite; }
+  .hero.touched .spin { animation: none; }
+  @keyframes idle {
+    0%, 100% { transform: rotateX(8deg) rotateY(-24deg); }
+    50% { transform: rotateX(-6deg) rotateY(26deg); }
+  }
+  .edge {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: repeating-conic-gradient(var(--d) 0 2deg, var(--m) 2deg 4deg);
+    transform: translateZ(var(--z));
+  }
+  .face {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .front { transform: translateZ(7.5px); }
+  .sheen { mix-blend-mode: overlay; transform-origin: center; animation: sheen 6s ease-in-out infinite; }
+  @keyframes sheen { 0%, 100% { transform: rotate(-30deg); } 50% { transform: rotate(40deg); } }
+  .back {
+    transform: rotateY(180deg) translateZ(7.5px);
+    background: radial-gradient(circle at 68% 30%, var(--l), var(--m) 45%, var(--d));
+    color: var(--ink);
+    display: grid;
+    place-content: center;
+    text-align: center;
+    gap: calc(var(--size) * 0.03);
+    padding: 18%;
+    box-shadow: inset 0 0 0 calc(var(--size) * 0.04) #00000014;
+  }
+  .b-name { font: 500 calc(var(--size) * 0.085) / 1.05 var(--serif); }
+  .b-rule { font: calc(var(--size) * 0.052) / 1.35 var(--sans); opacity: 0.85; }
+  .b-mark { font: 400 calc(var(--size) * 0.075) / 1 var(--hand); opacity: 0.8; }
+</style>
+
+<script>
+  // Drag to spin, release to settle on the nearest face; tap or Enter to flip.
+  document.querySelectorAll<HTMLElement>("[data-coin]").forEach((coin) => {
+    let sx = 0, sy = 0, rx = 0, ry = 0, baseX = 0, baseY = 0, moved = false, down = false;
+    const apply = () => {
+      coin.style.setProperty("--rx", `${rx}deg`);
+      coin.style.setProperty("--ry", `${ry}deg`);
+    };
+    coin.addEventListener("pointerdown", (e) => {
+      down = true;
+      moved = false;
+      sx = e.clientX;
+      sy = e.clientY;
+      baseX = rx;
+      baseY = ry;
+      coin.classList.add("touched");
+    });
+    window.addEventListener("pointermove", (e) => {
+      if (!down) return;
+      const dx = e.clientX - sx, dy = e.clientY - sy;
+      if (Math.abs(dx) + Math.abs(dy) > 4) {
+        moved = true;
+        coin.classList.add("dragging");
+      }
+      ry = baseY + dx * 0.9;
+      rx = Math.max(-35, Math.min(35, baseX - dy * 0.4));
+      apply();
+    });
+    window.addEventListener("pointerup", () => {
+      if (!down) return;
+      down = false;
+      coin.classList.remove("dragging");
+      if (!moved) ry += 180;
+      ry = Math.round(ry / 180) * 180;
+      rx = 0;
+      apply();
+    });
+    coin.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        coin.classList.add("touched");
+        ry += 180;
+        apply();
+      }
+    });
+  });
+</script>
