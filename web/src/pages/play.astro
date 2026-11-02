@@ -166,7 +166,7 @@ const tray = TOWER_ORDER.map((k) => {
     $("h-ctx").textContent = `${game.context}%`;
     $("h-score").textContent = game.score.toLocaleString();
     ($("h-ctxbar") as HTMLElement).style.width = `${game.context}%`;
-    ($("h-ctxbar") as HTMLElement).style.background = game.context > 50 ? "#c9f2dc" : game.context > 25 ? "#e9a25b" : "#e46a6a";
+    ($("h-ctxbar") as HTMLElement).style.background = game.context > 50 ? "#c9f2dc" : game.context > 25 ? "#f1e46a" : "#e46a6a";
     const nb = $("b-next") as HTMLButtonElement;
     nb.hidden = game.state !== "between";
     $("ser-cost").textContent = String(game.serenityCost);
@@ -429,17 +429,17 @@ const tray = TOWER_ORDER.map((k) => {
   canvas { position: absolute; inset: 0; display: block; }
 
   .hud { position: absolute; left: 12px; right: 12px; top: 12px; display: flex; gap: 8px; align-items: stretch; pointer-events: none; flex-wrap: wrap; z-index: 2; }
-  .h-item { display: grid; gap: 3px; padding: 8px 12px; border-radius: 12px; background: #13100dcc; border: 1px solid var(--night-line); backdrop-filter: blur(8px); min-width: 64px; }
+  .h-item { display: grid; gap: 3px; padding: 8px 12px; border-radius: 12px; background: #0e1311cc; border: 1px solid var(--night-line); backdrop-filter: blur(8px); min-width: 64px; }
   .h-l { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--chalk-3); }
   .h-item b { font: 400 1.35rem/1 var(--serif); font-variant-numeric: tabular-nums; }
   .ctx { min-width: 118px; }
   .bar { height: 4px; border-radius: 2px; background: #ffffff14; overflow: hidden; }
   .bar i { display: block; height: 100%; width: 100%; transition: width 0.3s var(--ease), background 0.3s; }
   .h-btns { margin-left: auto; display: flex; gap: 6px; align-items: start; pointer-events: auto; }
-  .icon { height: 40px; min-width: 40px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--night-line-2); background: #13100dcc; color: var(--chalk); font: 600 0.82rem/1 var(--sans); cursor: pointer; backdrop-filter: blur(8px); }
+  .icon { height: 40px; min-width: 40px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--night-line-2); background: #0e1311cc; color: var(--chalk); font: 600 0.82rem/1 var(--sans); cursor: pointer; backdrop-filter: blur(8px); }
   .icon:hover { border-color: var(--chalk-3); }
   .icon.off { color: var(--chalk-3); text-decoration: line-through; }
-  #b-next { background: var(--amber); color: #1f1a15; border: 0; }
+  #b-next { background: var(--amber); color: #131915; border: 0; }
   .serene { color: #d3f7e0; border-color: #d3f7e055; }
   .serene:disabled { opacity: 0.4; cursor: not-allowed; }
 
@@ -447,25 +447,25 @@ const tray = TOWER_ORDER.map((k) => {
     position: absolute; left: 50%; bottom: 16px; translate: -50% 0; z-index: 3;
     display: flex; align-items: center; gap: 10px; max-width: min(92%, 520px);
     padding: 10px 10px 10px 16px; border-radius: 999px;
-    background: #f6f1e7; color: #1f1a15; font: 600 0.9rem/1.3 var(--sans);
+    background: #f6f1e7; color: #131915; font: 600 0.9rem/1.3 var(--sans);
     box-shadow: 0 16px 40px -16px #000;
   }
   .coach.in { animation: coach-in 0.45s var(--ease-spring) both; }
   @keyframes coach-in { from { opacity: 0; transform: translateY(10px); } }
-  .coach button { flex: none; width: 28px; height: 28px; border-radius: 50%; border: 0; background: #1f1a1514; color: #1f1a15; font-size: 1rem; cursor: pointer; }
-  .pop { position: absolute; left: 0; top: 0; z-index: 4; width: 230px; padding: 12px; border-radius: 14px; background: #1b1612f2; border: 1px solid var(--night-line-2); box-shadow: 0 20px 40px -20px #000; }
+  .coach button { flex: none; width: 28px; height: 28px; border-radius: 50%; border: 0; background: #13191514; color: #131915; font-size: 1rem; cursor: pointer; }
+  .pop { position: absolute; left: 0; top: 0; z-index: 4; width: 230px; padding: 12px; border-radius: 14px; background: #151b18f2; border: 1px solid var(--night-line-2); box-shadow: 0 20px 40px -20px #000; }
   .pop-name { margin: 0; font: 450 1.05rem/1.2 var(--serif); }
   .pop-lvl { margin: 4px 0 10px; font-size: 0.7rem; color: var(--chalk-3); line-height: 1.4; }
   .pop-btns { display: flex; gap: 6px; }
   .pop-btns .btn { padding: 0.6em 0.8em; font-size: 0.78rem; flex: 1; justify-content: center; }
   .pop-btns .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
-  .banner { position: absolute; left: 50%; top: 38%; translate: -50% -50%; font: 300 clamp(3rem, 2rem + 6vw, 7rem)/1 var(--serif); color: var(--chalk); pointer-events: none; text-shadow: 0 0 40px #e9a25b88; z-index: 3; font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144; }
+  .banner { position: absolute; left: 50%; top: 38%; translate: -50% -50%; font: 300 clamp(3rem, 2rem + 6vw, 7rem)/1 var(--serif); color: var(--chalk); pointer-events: none; text-shadow: 0 0 40px #f1e46a88; z-index: 3; font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144; }
   .banner .mono { font-size: 0.22em; letter-spacing: 0.2em; text-transform: uppercase; color: var(--amber); vertical-align: middle; margin-right: 0.3em; }
   .banner.go { animation: banner 1.6s var(--ease) both; }
   @keyframes banner { 0% { opacity: 0; transform: scale(0.9); } 15% { opacity: 1; transform: none; } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-20px); } }
 
-  .overlay { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; padding: 16px; background: radial-gradient(70% 70% at 50% 45%, #13100d99, #0c0a08ee); backdrop-filter: blur(3px); overflow-y: auto; }
+  .overlay { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; padding: 16px; background: radial-gradient(70% 70% at 50% 45%, #0e131199, #090c0bee); backdrop-filter: blur(3px); overflow-y: auto; }
   .card { width: min(520px, 100%); padding: clamp(22px, 4vw, 36px); border-radius: 22px; background: var(--night-2); border: 1px solid var(--night-line-2); box-shadow: 0 40px 80px -40px #000; display: grid; gap: 14px; justify-items: start; animation: card 0.5s var(--ease-spring) both; }
   @keyframes card { from { opacity: 0; transform: translateY(14px) scale(0.98); } }
   .card :global(.mark) { color: var(--chalk-2); }
@@ -501,7 +501,7 @@ const tray = TOWER_ORDER.map((k) => {
   .tw:hover { border-color: color-mix(in oklab, var(--c) 60%, transparent); }
   .tw[aria-pressed="true"] { border-color: var(--c); background: color-mix(in oklab, var(--c) 14%, var(--night-2)); box-shadow: 0 0 0 1px var(--c), 0 10px 30px -14px var(--c); transform: translateX(-3px); }
   .tw.broke { opacity: 0.5; }
-  .tw-g { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font: 700 1.15rem/1 var(--mono); color: var(--c); border: 1.5px solid var(--c); background: #0c0a08; }
+  .tw-g { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font: 700 1.15rem/1 var(--mono); color: var(--c); border: 1.5px solid var(--c); background: #090c0b; }
   .tw-txt { display: grid; gap: 2px; min-width: 0; }
   .tw-n { font: 600 0.9rem/1.2 var(--sans); }
   .tw-t { font-size: 0.72rem; color: var(--chalk-3); line-height: 1.3; }

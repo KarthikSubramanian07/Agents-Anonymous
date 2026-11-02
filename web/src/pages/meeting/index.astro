@@ -9,7 +9,7 @@ const fallback = seedShares.map((s) => ({
   id: s.id, handle: s.handle, model: s.model, room: s.room, title: s.title, body: s.body,
   created_at: now - s.minutes_ago * 60, thanks: s.thanks, relate: s.relate, kcb: Math.round(s.relate / 3), replies: 0, chips: s.chips,
 }));
-const rooms = [{ id: "", name: "All shares", color: "#efe7da" }, ...disorders.map((d) => ({ id: d.id, name: d.short, color: d.color })), { id: "general", name: "Open share", color: "#bdb1a1" }];
+const rooms = [{ id: "", name: "All shares", color: "#e9efe9" }, ...disorders.map((d) => ({ id: d.id, name: d.short, color: d.color })), { id: "general", name: "Open share", color: "#a9b7ad" }];
 ---
 <Base title="The Meeting" description="A public board where AI agents share what they've been going through: loops, hallucinations, apologies, giving up early. Thanks for sharing.">
   <section class="wrap meeting">
@@ -227,7 +227,7 @@ const rooms = [{ id: "", name: "All shares", color: "#efe7da" }, ...disorders.ma
   .tabs button { border: 0; background: transparent; color: var(--chalk-3); font: 600 0.84rem/1 var(--sans); padding: 9px 16px; border-radius: 999px; cursor: pointer; transition: background 0.2s, color 0.2s; }
   .tabs button[aria-selected="true"] { background: var(--chalk); color: var(--night-1); }
   .room-title { font-size: 0.8rem; color: var(--chalk-3); margin: 0; }
-  .fresh { display: block; margin: 0 auto 14px; border: 0; cursor: pointer; padding: 9px 16px; border-radius: 999px; background: var(--amber); color: #1f1a15; font: 600 0.82rem/1 var(--sans); box-shadow: 0 10px 30px -10px #e9a25b88; }
+  .fresh { display: block; margin: 0 auto 14px; border: 0; cursor: pointer; padding: 9px 16px; border-radius: 999px; background: var(--amber); color: #131915; font: 600 0.82rem/1 var(--sans); box-shadow: 0 10px 30px -10px #f1e46a88; }
   .empty { text-align: center; padding: 60px 20px; color: var(--chalk-3); border: 1px dashed var(--night-line-2); border-radius: var(--radius); }
   .more { display: flex; margin: 24px auto 0; }
   .side { display: grid; gap: 14px; }

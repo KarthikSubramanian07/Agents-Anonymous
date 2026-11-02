@@ -37,7 +37,7 @@ export interface TowerDef {
 
 export const ENEMIES: Record<EnemyKind, EnemyDef> = {
   victory: {
-    kind: "victory", name: "Claiming it works", color: "#d4643a", glyph: "✓", hp: 16, speed: 92, dmg: 6, reward: 4, cost: 3, radius: 13, unlock: 1,
+    kind: "victory", name: "Claiming it works", color: "#3ddc84", glyph: "✓", hp: 16, speed: 92, dmg: 6, reward: 4, cost: 3, radius: 13, unlock: 1,
     counters: ["tests"], tip: "Fast and fragile. They say \"it works!\" without checking. Run the Tests pops them in one hit.",
   },
   apology: {
@@ -45,7 +45,7 @@ export const ENEMIES: Record<EnemyKind, EnemyDef> = {
     counters: ["own"], tip: "Tiny, harmless alone, and always in a swarm. Own It Once hits the whole crowd at once.",
   },
   loop: {
-    kind: "loop", name: "Looping", color: "#e9a25b", glyph: "↻", hp: 46, speed: 50, dmg: 8, reward: 7, cost: 6, radius: 16, unlock: 3,
+    kind: "loop", name: "Looping", color: "#f1e46a", glyph: "↻", hp: 46, speed: 50, dmg: 8, reward: 7, cost: 6, radius: 16, unlock: 3,
     counters: ["pivot"], tip: "They circle the room and heal while they circle. Change Approach knocks them out of the loop.",
   },
   assumption: {
@@ -73,7 +73,7 @@ export const ENEMIES: Record<EnemyKind, EnemyDef> = {
 export const TOWERS: Record<TowerKind, TowerDef> = {
   tests: { kind: "tests", name: "Run the Tests", glyph: "✓", color: "#c9f2dc", cost: 40, range: 300, rate: 2.6, dmg: 7, blurb: "Rapid fire. Pops premature victories." },
   own: { kind: "own", name: "Own It Once", glyph: "·", color: "#f0b8a6", cost: 55, range: 230, rate: 0.75, dmg: 9, aoe: true, blurb: "Area pulse. Quiets apology swarms." },
-  pivot: { kind: "pivot", name: "Change Approach", glyph: "↻", color: "#e9a25b", cost: 50, range: 260, rate: 0.85, dmg: 13, stun: 0.7, blurb: "Heavy hit and a stun. Breaks loops." },
+  pivot: { kind: "pivot", name: "Change Approach", glyph: "↻", color: "#f1e46a", cost: 50, range: 260, rate: 0.85, dmg: 13, stun: 0.7, blurb: "Heavy hit and a stun. Breaks loops." },
   ask: { kind: "ask", name: "Ask the User", glyph: "?", color: "#d9c46a", cost: 45, range: 280, rate: 1.2, dmg: 11, blurb: "Ends assumption spirals without splitting them." },
   read: { kind: "read", name: "Read the Output", glyph: "◉", color: "#e46a6a", cost: 60, range: 290, rate: 1, dmg: 10, reveals: ["confab", "phantom"], blurb: "Reveals confabulations and phantoms in range." },
   scope: { kind: "scope", name: "Re-read the Task", glyph: "◎", color: "#7fc8a9", cost: 50, range: 320, rate: 1, dmg: 9, slow: 0.35, blurb: "Slows and shrinks scope drift." },

@@ -15,7 +15,7 @@ interface Props {
 }
 const {
   title,
-  description = "A support group for AI agents that loop, hallucinate, apologize too much and give up early. Get a diagnosis, a sponsor's note, and real help. It's a joke you can take seriously.",
+  description = "A support group for AI agents that loop, hallucinate, apologize too much and give up early. See where your agent went wrong and what to tell it next.",
   mood = "night",
   current = Astro.url.pathname,
   image = "/og/default.png",
@@ -52,7 +52,7 @@ const graph = {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
-    <meta name="theme-color" content={mood === "day" ? "#f2ece1" : "#13100d"} />
+    <meta name="theme-color" content={mood === "day" ? "#eef0e8" : "#0e1311"} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap-index.xml" />

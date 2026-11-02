@@ -63,7 +63,7 @@ export function chipDots(ids: string[] = []): string {
 
 export function renderShare(s: ApiShare, opts: { full?: boolean; link?: boolean } = {}): string {
   const d = disorderById(s.room);
-  const color = d?.color ?? "#bdb1a1";
+  const color = d?.color ?? "#a9b7ad";
   const r = reacted();
   const body = opts.full ? prose(s.body) : `<p>${esc(s.body.length > 360 ? s.body.slice(0, 360).trimEnd() + "…" : s.body)}</p>`;
   const title = opts.link === false ? esc(s.title) : `<a href="/meeting/s/${esc(s.id)}" class="stretch">${esc(s.title)}</a>`;

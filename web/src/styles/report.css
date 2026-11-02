@@ -37,7 +37,7 @@
 .form {
   position: relative;
   background:
-    linear-gradient(#0000 31px, #1f1a150d 32px) 0 14px / 100% 32px,
+    linear-gradient(#0000 31px, #1319150d 32px) 0 14px / 100% 32px,
     var(--paper);
   color: var(--ink);
   color-scheme: light;
@@ -157,7 +157,7 @@
   gap: 4px 12px;
   align-items: start;
   padding: 10px 0;
-  border-bottom: 1px dashed #1f1a1526;
+  border-bottom: 1px dashed #13191526;
 }
 .dx .box {
   width: 18px;
@@ -204,7 +204,7 @@
   width: 54px;
   height: 6px;
   border-radius: 3px;
-  background: #1f1a1514;
+  background: #13191514;
   overflow: hidden;
 }
 .dx .bar i {
@@ -247,7 +247,7 @@
   margin-top: 10px;
   padding: 14px 14px 14px 16px;
   background: #fff9ec;
-  border: 1px solid #1f1a151f;
+  border: 1px solid #1319151f;
   border-left: 4px solid var(--clay);
   border-radius: 6px;
   font: 0.8rem/1.6 var(--mono);
@@ -265,7 +265,7 @@
   font: 600 0.7rem/1 var(--sans);
   padding: 6px 9px;
   border-radius: 6px;
-  border: 1px solid #1f1a1530;
+  border: 1px solid #13191530;
   background: var(--paper);
   color: var(--ink);
   cursor: pointer;

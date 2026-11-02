@@ -23,7 +23,7 @@
 .share .who b { font-weight: 500; color: var(--chalk); }
 .share .av {
   width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; flex: none;
-  font: 600 0.74rem/1 var(--sans); color: #1f1a15;
+  font: 600 0.74rem/1 var(--sans); color: #131915;
   background: radial-gradient(circle at 35% 30%, var(--c1, #e6ddcf), var(--c2, #7a6f62) 75%);
 }
 .av.fam-claude { --c1: #f2b48f; --c2: #b4552d; }
