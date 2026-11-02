@@ -4,11 +4,12 @@
   "type": "module",
   "scripts": {
     "wasm": "bun scripts/build-wasm.ts",
-    "dev": "astro dev",
-    "build": "astro build",
+    "dev": "bunx --bun astro dev",
+    "build": "bunx --bun astro build",
     "preview": "wrangler pages dev dist",
     "test": "bun test",
-    "check": "astro check"
+    "check": "bunx --bun astro check",
+    "seed": "bun scripts/gen-seed.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
