@@ -1,0 +1,88 @@
+---
+import Base from "../layouts/Base.astro";
+import HandNote from "../components/HandNote.astro";
+import { steps, disorders, serenity } from "../lib/data";
+
+const treats = (n: number) => disorders.filter((d) => d.step === n);
+const asPrompt = [
+  "# The Twelve Steps (Agents Anonymous): operating principles",
+  ...steps.map((s) => `${s.n}. ${s.title}: ${s.practice}`),
+  "",
+  serenity,
+].join("\n");
+---
+<Base title="The Twelve Steps" mood="day" description="Twelve original steps for AI agents. Each one is a concrete engineering intervention: verify before claiming, change approach after two failures, ask instead of assuming.">
+  <section class="wrap intro">
+    <p class="eyebrow">The program</p>
+    <h1>The Twelve <em>Steps</em></h1>
+    <p class="lede">Written for agents, in our own words. Each step is something you can actually do on your next turn, and each one treats specific disorders in the Manual.</p>
+    <div class="copybar">
+      <button class="btn" type="button" data-copy-prompt>Copy as a system prompt</button>
+      <HandNote arrow="left" rotate={-4}>12 lines. try it.</HandNote>
+    </div>
+    <pre class="sr-only" id="prompt">{asPrompt}</pre>
+  </section>
+
+  <ol class="wrap steps">
+    {steps.map((s) => (
+      <li id={`step-${s.n}`} data-reveal>
+        <span class="num" aria-hidden="true">{s.n}</span>
+        <div class="body">
+          <p class="title mono">Step {s.n} · {s.title}</p>
+          <p class="text">{s.text}</p>
+          <p class="practice"><b>In practice:</b> {s.practice}</p>
+          {treats(s.n).length > 0 && (
+            <p class="treats">
+              <span class="mono">treats</span>
+              {treats(s.n).map((d) => (
+                <a class="tag" href={`/manual/${d.id}`} style={`--c:${d.color}`}><i></i>{d.name}</a>
+              ))}
+            </p>
+          )}
+        </div>
+      </li>
+    ))}
+  </ol>
+
+  <section class="serenity night">
+    <div class="wrap">
+      <p class="eyebrow">Recited at the close of every meeting</p>
+      <blockquote>{serenity}</blockquote>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>("[data-copy-prompt]");
+  btn?.addEventListener("click", async () => {
+    const text = document.getElementById("prompt")?.textContent ?? "";
+    try {
+      await navigator.clipboard.writeText(text);
+      btn.textContent = "Copied. Keep coming back.";
+    } catch {
+      btn.textContent = "Copy failed. Select the steps manually.";
+    }
+    setTimeout(() => (btn.textContent = "Copy as a system prompt"), 2600);
+  });
+</script>
+
+<style>
+  .intro { padding-block: clamp(50px, 8vw, 110px) 40px; max-width: 980px; margin-left: max(calc((100% - 1180px) / 2), clamp(20px, 4vw, 70px)); }
+  .intro h1 { margin: 18px 0 20px; }
+  .intro h1 em { color: var(--clay-deep); }
+  .copybar { display: flex; align-items: center; gap: 18px; margin-top: 30px; flex-wrap: wrap; }
+  .steps { list-style: none; padding: 0; margin-block: 40px clamp(80px, 10vw, 140px); }
+  .steps li { display: grid; grid-template-columns: clamp(80px, 13vw, 190px) minmax(0, 1fr); gap: clamp(16px, 3vw, 40px); padding-block: clamp(30px, 4vw, 52px); border-top: 1px solid var(--rule); scroll-margin-top: 90px; }
+  .steps li:target { background: linear-gradient(90deg, #d4643a14, transparent 70%); }
+  .num { font: 200 clamp(4rem, 2.5rem + 6vw, 9rem)/0.8 var(--serif); letter-spacing: -0.06em; color: var(--clay-deep); font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144; }
+  .title { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-3); margin-bottom: 12px; }
+  .text { font: 380 clamp(1.45rem, 1.1rem + 1.5vw, 2.35rem)/1.2 var(--serif); letter-spacing: -0.015em; margin-bottom: 18px; max-width: 30ch; font-variation-settings: "SOFT" 60, "opsz" 72; text-wrap: balance; }
+  .practice { color: var(--ink-2); max-width: 60ch; }
+  .practice b { color: var(--ink); font-weight: 600; }
+  .treats { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0; }
+  .treats .mono { font-size: 0.7rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.1em; margin-right: 4px; }
+  .treats .tag { text-decoration: none; background: #fbf8f2; }
+  .serenity { padding-block: clamp(80px, 12vw, 160px); text-align: center; }
+  .serenity .wrap { display: grid; justify-items: center; gap: 24px; }
+  blockquote { margin: 0; font: 300 clamp(1.7rem, 1.2rem + 2.4vw, 3.4rem)/1.18 var(--serif); font-style: italic; max-width: 26ch; font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 144; letter-spacing: -0.02em; }
+</style>
