@@ -68,13 +68,14 @@ const recentFallback = seedShares.flatMap((s) => s.chips.map((c) => ({ chip: c, 
 </script>
 
 <style>
-  .top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; padding-block: clamp(40px, 7vw, 100px) 40px; }
+  .top { overflow-x: clip; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; padding-block: clamp(40px, 7vw, 100px) 40px; }
   .top h1 { font-size: clamp(2.6rem, 1.7rem + 3.8vw, 5.2rem); margin: 18px 0 20px; }
   .top h1 em { color: var(--amber); }
   .ctas { margin-top: 28px; }
   .hero-coin { position: relative; display: grid; place-items: center; min-height: 380px; }
-  .hero-coin::before { content: ""; position: absolute; width: 120%; aspect-ratio: 1; background: radial-gradient(closest-side, #f1e46a22, transparent); pointer-events: none; }
+  .hero-coin::before { content: ""; position: absolute; width: 100%; aspect-ratio: 1; background: radial-gradient(closest-side, #f1e46a22, transparent); pointer-events: none; }
   :global(.drag-note) { position: absolute; right: 6%; bottom: -10px; }
+  .grid-wrap { overflow-x: clip; }
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3vw, 40px); padding-block: 60px; }
   .slot { display: grid; justify-items: center; gap: 20px; padding: 30px 20px 26px; border-radius: 22px; background: radial-gradient(120% 80% at 50% 0%, #ffffff08, transparent 60%), var(--night-2); border: 1px solid var(--night-line); text-align: center; }
   .meta h2 { font-size: var(--step-1); }
