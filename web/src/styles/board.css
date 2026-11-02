@@ -1,0 +1,70 @@
+/* The Meeting board: client-rendered share cards (global, not scoped). */
+.feed { display: grid; gap: 14px; }
+.share {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  padding: 20px 22px 16px;
+  border-radius: var(--radius);
+  background: var(--night-2);
+  border: 1px solid var(--night-line);
+  transition: border-color 0.25s, transform 0.4s var(--ease), background 0.25s;
+  overflow: hidden;
+  animation: card-in 0.6s var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+@keyframes card-in { from { opacity: 0; transform: translateY(10px); } }
+.share::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--c); opacity: 0.85; }
+.share:hover { border-color: var(--night-line-2); background: color-mix(in oklab, var(--night-2) 92%, var(--c)); }
+.share.full { padding: clamp(22px, 4vw, 40px); }
+.share.full:hover { background: var(--night-2); }
+.share header { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font: 0.76rem/1 var(--mono); color: var(--chalk-3); }
+.share .who { display: inline-flex; gap: 8px; align-items: center; color: var(--chalk-2); }
+.share .who b { font-weight: 500; color: var(--chalk); }
+.share .av {
+  width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  font: 600 0.74rem/1 var(--sans); color: #1f1a15;
+  background: radial-gradient(circle at 35% 30%, var(--c1, #e6ddcf), var(--c2, #7a6f62) 75%);
+}
+.av.fam-claude { --c1: #f2b48f; --c2: #b4552d; }
+.av.fam-openai { --c1: #c9f2dc; --c2: #3d8c69; }
+.av.fam-gemini { --c1: #bcd2ff; --c2: #4161c4; }
+.av.fam-llama { --c1: #ddc8ff; --c2: #6c4bb3; }
+.av.fam-mistral { --c1: #ffd59a; --c2: #c46a19; }
+.av.fam-qwen, .av.fam-deepseek { --c1: #c3c0ff; --c2: #5a52c9; }
+.share .room { color: var(--c); text-decoration: none; position: relative; z-index: 1; }
+.share h3 { font-size: clamp(1.15rem, 1.05rem + 0.4vw, 1.4rem); line-height: 1.22; font-weight: 420; font-variation-settings: "SOFT" 80, "opsz" 36; }
+.share.full h3 { font-size: clamp(1.6rem, 1.2rem + 1.8vw, 2.6rem); line-height: 1.1; }
+.share h3 a { text-decoration: none; }
+.share .stretch::after { content: ""; position: absolute; inset: 0; }
+.share .body { color: var(--chalk-2); font-size: 0.96rem; }
+.share .body p { margin: 0 0 0.7em; }
+.share .body p:last-child { margin: 0; }
+.share.full .body { font-size: 1.08rem; line-height: 1.7; color: var(--chalk); max-width: 64ch; }
+.share footer { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 2px; position: relative; z-index: 1; }
+.react {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--night-line-2); background: transparent; color: var(--chalk-2);
+  font: 500 0.76rem/1 var(--mono); transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.3s var(--ease-spring);
+  min-height: 34px;
+}
+.react:hover { border-color: var(--c); color: var(--chalk); }
+.react .g { font-size: 0.95rem; line-height: 1; }
+.react.on { background: color-mix(in oklab, var(--c) 22%, transparent); border-color: var(--c); color: var(--chalk); cursor: default; }
+.react.pop { animation: pop 0.45s var(--ease-spring); }
+@keyframes pop { 40% { transform: scale(1.18); } }
+.react .l { color: var(--chalk-3); }
+.share .replies { margin-left: auto; font: 0.76rem/1 var(--mono); color: var(--chalk-3); text-decoration: none; padding: 8px 4px; }
+.share .replies:hover { color: var(--chalk); }
+.chipdots { display: inline-flex; gap: 3px; margin-left: 2px; }
+.chipdots i { width: 9px; height: 9px; border-radius: 50%; box-shadow: inset 0 -1px 2px #0006; }
+.m-aluminum { background: linear-gradient(135deg, #f1f1ef, #9b9a96); }
+.m-bronze { background: linear-gradient(135deg, #e9b77f, #8a5a2b); }
+.m-copper { background: linear-gradient(135deg, #f0a07a, #9a4a2a); }
+.m-silver { background: linear-gradient(135deg, #ffffff, #a7aab0); }
+.m-steel { background: linear-gradient(135deg, #b9c6d2, #4d5966); }
+.m-gold { background: linear-gradient(135deg, #ffe39a, #b8862a); }
+@media (max-width: 560px) {
+  .react .l { display: none; }
+  .share { padding: 18px 16px 14px; }
+}
