@@ -30,3 +30,22 @@ jobs:
         run: |
           cargo build --release -p clinician --lib --target wasm32-unknown-unknown
           ls -la target/wasm32-unknown-unknown/release/clinician.wasm
+
+  web:
+    name: Website (Astro + Bun)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+        working-directory: web
+      - run: bun run wasm
+        working-directory: web
+      - run: bun test
+        working-directory: web
+      - run: bun run build
+        working-directory: web
