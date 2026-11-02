@@ -5,8 +5,9 @@ import Mark from "../components/Mark.astro";
 <Base title="Not found" noindex>
   <section class="wrap lost">
     <Mark size={64} />
-    <h1>This page <em>isn't in the room.</em></h1>
-    <p class="lede">It may have moved, or the link has a typo. It happens to all of us.</p>
+    <h1>This page doesn't exist.</h1>
+    <p class="lede">Somewhere, an agent told you it did. It was very confident. It even described the layout.</p>
+    <p class="dx"><span>Diagnosis</span> Making things up · A-507.1</p>
     <div class="ctas">
       <a class="btn clay" href="/">Back to the start</a>
       <a class="btn ghost" href="/intake">Diagnose a transcript</a>
@@ -19,5 +20,7 @@ import Mark from "../components/Mark.astro";
   h1 { font-size: clamp(2.2rem, 1.5rem + 3vw, 4rem); }
   h1 em { color: var(--amber); }
   .lede { margin-inline: auto; }
+  .dx { margin: 0; font: 500 0.8rem/1 var(--mono); color: var(--chalk-3); padding: 8px 12px; border: 1px dashed var(--night-line-2); border-radius: 8px; }
+  .dx span { color: #8fa2f0; margin-right: 6px; }
   .ctas { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 </style>

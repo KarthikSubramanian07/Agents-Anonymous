@@ -99,7 +99,7 @@ const graph = {
         b.addEventListener("click", async () => {
           try {
             await navigator.clipboard.writeText(pre.innerText.trim());
-            b.textContent = "Copied";
+            b.textContent = "Copied (verified)";
           } catch {
             b.textContent = "Select & copy";
           }

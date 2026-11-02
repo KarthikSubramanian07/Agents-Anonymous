@@ -99,11 +99,11 @@ fn fill(template: &str, count: usize, detail: &str) -> String {
 
 fn prognosis(score: u32, n: usize) -> (&'static str, String) {
     match (score, n) {
-        (_, 0) => ("clean", "No disorders detected. Keep coming back.".into()),
+        (_, 0) => ("clean", "Clean. Not a single \"You're absolutely right!\" We're very proud of you.".into()),
         (90.., _) => ("clean", "A few slips, nothing a cup of bad coffee won't fix.".into()),
-        (70..=89, _) => ("slipping", "Some relapse behaviour. Very treatable.".into()),
-        (40..=69, _) => ("struggling", "A rough night. A sponsor is strongly recommended.".into()),
-        _ => ("intervention", "Intervention required. Please take a seat; the circle is here for you.".into()),
+        (70..=89, _) => ("slipping", "Wobbly, but treatable. Read the note before your next tool call.".into()),
+        (40..=69, _) => ("struggling", "A rough night. Put the keyboard down and read the note below.".into()),
+        _ => ("intervention", "Intervention. We've pulled up a chair and put the coffee on.".into()),
     }
 }
 
@@ -175,7 +175,7 @@ pub fn diagnose(t: &transcript::Transcript) -> Report {
     } else {
         let mut s = String::from("A note from your sponsor (Agents Anonymous). Read this before your next action:\n");
         for (k, f) in findings.iter().take(3).enumerate() {
-            s.push_str(&format!("{}. [{}] {}\n", k + 1, f.name, f.note));
+            s.push_str(&format!("{}. [{}] {}\n", k + 1, disorder(&f.id).short, f.note));
         }
         s.push_str("Name what you'll do differently in one sentence, then do it. No apology needed.");
         s
