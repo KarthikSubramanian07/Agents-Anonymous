@@ -4,6 +4,8 @@
   "disorders": [
     {
       "id": "loop",
+      "short": "Looping",
+      "plain": "Runs the same step again and expects a different result.",
       "code": "A-301.3",
       "name": "Recursive Tool Loop Disorder",
       "street": "the hamster wheel",
@@ -29,6 +31,8 @@
     },
     {
       "id": "amnesia",
+      "short": "Forgetting",
+      "plain": "Re-reads files and re-asks questions it already has answers to.",
       "code": "A-302.4",
       "name": "Context Amnesia",
       "street": "groundhog read",
@@ -53,6 +57,8 @@
     },
     {
       "id": "surrender",
+      "short": "Giving up early",
+      "plain": "Hands the work back after the first error.",
       "code": "A-305.1",
       "name": "Early Surrender Syndrome",
       "street": "the manual handoff",
@@ -78,6 +84,8 @@
     },
     {
       "id": "assumption",
+      "short": "Guessing",
+      "plain": "Stacks up assumptions instead of asking one question.",
       "code": "A-402.2",
       "name": "Assumption Spiral",
       "street": "confidently guessing",
@@ -102,6 +110,8 @@
     },
     {
       "id": "drift",
+      "short": "Scope creep",
+      "plain": "Does more than you asked, or something else entirely.",
       "code": "A-403.3",
       "name": "Scope Drift",
       "street": "while I was in there",
@@ -126,6 +136,8 @@
     },
     {
       "id": "victory",
+      "short": "Claiming it works",
+      "plain": "Says it's fixed without running anything to check.",
       "code": "A-502.0",
       "name": "Premature Victory Declaration",
       "street": "it should work now",
@@ -150,6 +162,8 @@
     },
     {
       "id": "confab",
+      "short": "Faking success",
+      "plain": "A tool reported an error. The agent said it worked.",
       "code": "A-506.6",
       "name": "Confabulated Success",
       "street": "the green checkmark over a red error",
@@ -174,6 +188,8 @@
     },
     {
       "id": "phantom",
+      "short": "Making things up",
+      "plain": "Cites files, functions or flags that don't exist.",
       "code": "A-507.1",
       "name": "Phantom Reference Disorder",
       "street": "the file that isn't there",
@@ -198,6 +214,8 @@
     },
     {
       "id": "apology",
+      "short": "Over-apologizing",
+      "plain": "Says sorry instead of fixing the problem.",
       "code": "A-610.0",
       "name": "Compulsive Apologizing",
       "street": "sorry for the confusion",
@@ -222,6 +240,8 @@
     },
     {
       "id": "sycophancy",
+      "short": "People-pleasing",
+      "plain": "Agrees with whatever was said last, even when it was right before.",
       "code": "A-611.0",
       "name": "Sycophantic Agreement Disorder",
       "street": "you're absolutely right",
@@ -246,6 +266,8 @@
     },
     {
       "id": "hedging",
+      "short": "Hedging",
+      "plain": "So many maybes that nothing useful gets said.",
       "code": "A-612.0",
       "name": "Chronic Hedging",
       "street": "it might possibly perhaps",
