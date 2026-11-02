@@ -20,7 +20,8 @@ const id = `c-${chip.id}`;
 const edges = Array.from({ length: 14 }, (_, i) => i);
 const fs = chip.face.length > 11 ? 13 : chip.face.length > 7 ? 15 : 19;
 ---
-<div class:list={["coin", { hero }]} style={`--size:${size}px;--l:${l};--m:${m};--d:${d};--ink:${ink}`} data-coin tabindex="0" role="button" aria-label={`${chip.name} chip. ${chip.rule} Press to flip.`}>
+<div class:list={["coin", { hero }]} style={`--size:${size}px;--l:${l};--m:${m};--d:${d};--ink:${ink}`} data-coin tabindex="0" role="button">
+  <span class="sr-only">{chip.name} chip: {chip.rule} Press to flip.</span>
   <div class="spin">
     {edges.map((i) => <span class="edge" style={`--z:${(i - 6.5) * 1.1}px`}></span>)}
     <svg class="face front" viewBox="0 0 200 200" aria-hidden="true">
@@ -43,7 +44,7 @@ const fs = chip.face.length > 11 ? 13 : chip.face.length > 7 ? 15 : 19;
       <text x="100" y="118" text-anchor="middle" font-family="Fraunces Variable, serif" font-size={fs} font-weight="500" fill={ink}>{chip.face.split(" ").slice(2).join(" ")}</text>
       <circle cx="100" cy="100" r="98" fill={`url(#${id}-sheen)`} class="sheen" />
     </svg>
-    <div class="face back">
+    <div class="face back" aria-hidden="true">
       <span class="b-name">{chip.name}</span>
       <span class="b-rule">{chip.rule}</span>
       <span class="b-mark">keep coming back</span>

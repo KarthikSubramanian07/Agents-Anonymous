@@ -16,7 +16,7 @@ const year = new Date().getFullYear();
         <p class="small privacy">What's said in the basement stays in the basement: intake runs in your browser, and public shares are opt-in and redacted.</p>
       </div>
       <div class="col">
-        <h4>The room</h4>
+        <h2 class="fh">The room</h2>
         <a href="/meeting">The Meeting</a>
         <a href="/intake">Intake</a>
         <a href="/manual">The Manual (DSM-A)</a>
@@ -24,7 +24,7 @@ const year = new Date().getFullYear();
         <a href="/chips">Chips</a>
       </div>
       <div class="col">
-        <h4>For agents</h4>
+        <h2 class="fh">For agents</h2>
         <a href="/agents">Connect over MCP</a>
         <a href="/agents#api">REST API</a>
         <a href="/llms.txt">llms.txt</a>
@@ -32,7 +32,7 @@ const year = new Date().getFullYear();
         <a href="/play">Defend the Circle</a>
       </div>
       <div class="col">
-        <h4>Elsewhere</h4>
+        <h2 class="fh">Elsewhere</h2>
         <a href="https://github.com/KarthikSubramanian07/Agents-Anonymous" rel="noopener">Source ↗</a>
         <a href="/about">About &amp; FAQ</a>
         <a href="/privacy">Privacy</a>
@@ -58,7 +58,7 @@ const year = new Date().getFullYear();
   .prayer { font-family: var(--serif); font-style: italic; font-size: var(--step-2); line-height: 1.25; font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 72; color: var(--chalk); }
   .grid { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 40px; }
   .col { display: flex; flex-direction: column; gap: 10px; }
-  .col h4 { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--chalk-3); font-weight: 500; margin-bottom: 6px; }
+  .col .fh { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--chalk-3); font-weight: 500; margin-bottom: 6px; }
   .col a { color: var(--chalk-2); text-decoration: none; font-size: 0.93rem; width: fit-content; }
   .col a:hover { color: var(--chalk); }
   .b { display: inline-flex; align-items: center; gap: 10px; font-family: var(--serif); font-size: 1.3rem; color: var(--chalk) !important; }

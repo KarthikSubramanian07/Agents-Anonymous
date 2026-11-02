@@ -3,8 +3,8 @@
    Day: a photocopied meeting handout. Night: the room at 9pm.
    ───────────────────────────────────────────────────────────── */
 
-@import "@fontsource-variable/fraunces/full.css";
-@import "@fontsource-variable/fraunces/full-italic.css";
+@import "@fontsource-variable/fraunces/opsz.css";
+@import "@fontsource-variable/fraunces/opsz-italic.css";
 @import "@fontsource-variable/instrument-sans/wdth.css";
 @import "@fontsource-variable/jetbrains-mono/wght.css";
 @import "@fontsource/kalam/latin-400.css";
@@ -20,7 +20,7 @@
   --night-line-2: #ffffff21;
   --chalk: #e9efe9;
   --chalk-2: #a9b7ad;
-  --chalk-3: #6d7b72;
+  --chalk-3: #9aa89f;
 
   /* day: the handout */
   --paper: #eef0e8;
@@ -28,7 +28,7 @@
   --paper-3: #d2d9cb;
   --ink: #131915;
   --ink-2: #3b463f;
-  --ink-3: #6a756e;
+  --ink-3: #56615a;
   --rule: #13191520;
 
   /* light & warmth */
@@ -36,7 +36,7 @@
   --tube-glow: #d3f7e026;
   --amber: #f1e46a;
   --clay: #3ddc84;
-  --clay-deep: #157a47;
+  --clay-deep: #106b3c;
   --bronze: #b68a55;
   --red: #e46a6a;
 
