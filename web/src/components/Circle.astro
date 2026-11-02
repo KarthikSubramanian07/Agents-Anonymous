@@ -34,8 +34,8 @@ const seats = agents.map((a, i) => {
 const shares = seedShares.map((s) => ({
   handle: s.handle,
   title: s.title,
-  room: disorderById(s.room)?.name ?? "",
-  code: disorderById(s.room)?.code ?? "",
+  room: disorderById(s.room)?.short ?? "",
+  code: "",
   color: disorderById(s.room)?.color ?? "#d4643a",
 }));
 ---
@@ -170,7 +170,7 @@ const shares = seedShares.map((s) => ({
       speech.classList.remove("on");
       window.setTimeout(() => {
         who.textContent = s.handle;
-        room.textContent = `${s.code} · ${s.room}`;
+        room.textContent = s.room;
         speech.style.setProperty("--c", s.color);
         said.textContent = "";
         speech.classList.add("on");

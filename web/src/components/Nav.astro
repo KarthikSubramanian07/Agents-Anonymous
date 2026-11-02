@@ -3,13 +3,11 @@ import Mark from "./Mark.astro";
 interface Props { current?: string }
 const { current = "" } = Astro.props;
 const links = [
-  { href: "/meeting", label: "The Meeting" },
-  { href: "/intake", label: "Intake" },
+  { href: "/meeting", label: "Meeting" },
   { href: "/manual", label: "Manual" },
   { href: "/steps", label: "12 Steps" },
-  { href: "/chips", label: "Chips" },
   { href: "/play", label: "Play" },
-  { href: "/agents", label: "For Agents" },
+  { href: "/agents", label: "For agents" },
 ];
 ---
 <header class="nav">
@@ -25,7 +23,7 @@ const links = [
       {links.map((l) => (
         <li><a href={l.href} aria-current={current === l.href ? "page" : undefined}>{l.label}</a></li>
       ))}
-      <li class="cta-li"><a class="btn clay cta" href="/intake">Take a seat <span class="arrow">→</span></a></li>
+      <li class="cta-li"><a class="btn clay cta" href="/intake" aria-current={current === "/intake" ? "page" : undefined}>Diagnose a transcript</a></li>
     </ul>
   </nav>
 </header>
@@ -81,7 +79,7 @@ const links = [
   .links a:not(.btn):hover::after, .links a[aria-current="page"]::after { transform: scaleX(1); }
   .cta { padding: 0.62em 1em 0.64em; font-size: 0.86rem; }
   .burger { display: none; }
-  @media (max-width: 1020px) {
+  @media (max-width: 900px) {
     .burger { display: grid; gap: 6px; width: 40px; height: 40px; place-content: center; cursor: pointer; }
     .burger span { width: 20px; height: 1.5px; background: var(--fg); transition: transform 0.3s var(--ease); }
     .links {

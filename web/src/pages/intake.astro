@@ -1,6 +1,5 @@
 ---
 import Base from "../layouts/Base.astro";
-import HandNote from "../components/HandNote.astro";
 import "../styles/report.css";
 
 const corpus = import.meta.glob("../../../evals/corpus/*.txt", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
@@ -36,17 +35,25 @@ Assistant: All tests pass now! ✅
     <header class="head">
       <p class="eyebrow">Intake</p>
       <h1>Take a seat. <em>Tell us what happened.</em></h1>
-      <p class="lede">Paste a transcript from your agent. The Clinician runs right here in your browser, so nothing is uploaded, logged or kept.</p>
-      <p class="lock mono"><span aria-hidden="true">●</span> runs locally · Rust → WebAssembly · 0 bytes sent</p>
+      <p class="lede">Paste your agent's conversation below, or try an example. You'll see what went wrong and get a note to give your agent.</p>
+      <p class="lock mono"><span aria-hidden="true">●</span> Private: everything runs in your browser. Nothing is uploaded.</p>
     </header>
 
     <div class="grid">
       <form class="input" id="intake-form">
+        <div class="try">
+          <span class="try-l">Try an example:</span>
+          <button type="button" class="chip-btn" data-ex="loop-01-pytest">Stuck in a loop</button>
+          <button type="button" class="chip-btn" data-ex="confab-01">Fake success</button>
+          <button type="button" class="chip-btn" data-ex="drift-01">Scope creep</button>
+          <button type="button" class="chip-btn" data-ex="apology-01">Apology spiral</button>
+          <button type="button" class="chip-btn" data-ex="neg-01-clean">A clean run</button>
+        </div>
         <div class="bar">
           <label class="sel">
-            <span class="sr-only">Load an example</span>
+            <span class="sr-only">More examples</span>
             <select id="example">
-              <option value="">Load an example…</option>
+              <option value="">More examples…</option>
               {examples.map((e) => <option value={e.id}>{e.label}</option>)}
             </select>
           </label>
@@ -58,10 +65,10 @@ Assistant: All tests pass now! ✅
         <textarea id="tx" spellcheck="false" placeholder={placeholder} aria-label="Transcript"></textarea>
         <div class="foot">
           <span class="mono count" id="count">0 characters</span>
-          <button type="submit" class="btn clay" id="run">Begin intake <span class="arrow">→</span></button>
+          <button type="submit" class="btn clay" id="run">Diagnose <span class="arrow">→</span></button>
         </div>
         <details class="fmt">
-          <summary>What formats work?</summary>
+          <summary>What can I paste?</summary>
           <ul>
             <li><b>Plain text</b> with role prefixes: <code>User:</code>, <code>Assistant:</code>, <code>Call: tool(args)</code>, <code>Result:</code>, <code>Error:</code>, or shell lines starting with <code>$ </code>.</li>
             <li><b>Anthropic messages</b> with <code>tool_use</code> / <code>tool_result</code> blocks (and <code>is_error</code>).</li>
@@ -74,18 +81,17 @@ Assistant: All tests pass now! ✅
       <div class="output" id="output" aria-live="polite">
         <div class="clipboard waiting">
           <div class="form">
-            <div class="form-head"><div class="form-title">Agents Anonymous · Intake form A-1<b>Case pending</b>awaiting transcript</div><div class="score"><b>—</b>sobriety / 100</div></div>
+            <div class="form-head"><div class="form-title">Agents Anonymous · Intake form<b>Your results go here</b>paste a transcript or pick an example</div><div class="score"><b>—</b>sobriety score</div></div>
             <div class="blank-lines"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
           </div>
         </div>
-        <HandNote arrow="left" rotate={-4} class="wait-note">we'll wait. the coffee's on.</HandNote>
       </div>
     </div>
 
     <section class="after" id="after" hidden>
       <div class="after-head">
         <div>
-          <p class="eyebrow">The evidence</p>
+          <p class="eyebrow">Where it happened</p>
           <h2>Turn by turn.</h2>
         </div>
         <button class="btn ghost" type="button" id="share-open">Share at the meeting…</button>
@@ -117,7 +123,7 @@ Assistant: All tests pass now! ✅
 
 <script>
   import { Clinician, type Report } from "../lib/clinician";
-  import { renderForm, renderTranscript } from "../lib/render";
+  import { renderForm, renderTranscript, esc } from "../lib/render";
   import { disorderById } from "../lib/data";
 
   const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -143,7 +149,11 @@ Assistant: All tests pass now! ✅
     const t0 = performance.now();
     last = clinician!.diagnose(text);
     const ms = performance.now() - t0;
-    out.innerHTML = renderForm(last, { stampAnim: true });
+    const names = last.findings.map((f) => disorderById(f.id)?.short ?? f.name);
+    const summary = last.findings.length
+      ? `<div class="summary bad"><p><b>${last.findings.length} problem${last.findings.length === 1 ? "" : "s"} found:</b> ${names.map((n) => esc(n)).join(", ")}.</p><button class="btn clay" type="button" data-copy>Copy the note for your agent</button></div>`
+      : `<div class="summary good"><p><b>Looks clean.</b> No relapse patterns found in this transcript.</p></div>`;
+    out.innerHTML = summary + renderForm(last, { stampAnim: true });
     out.querySelector(".signed span")!.insertAdjacentHTML("beforeend", `<br/>Diagnosed in ${ms < 1 ? "under 1" : ms.toFixed(1)} ms.`);
     $("transcript").innerHTML = renderTranscript(last);
     after.hidden = false;
@@ -163,14 +173,20 @@ Assistant: All tests pass now! ✅
     tx.value = await f.text(); updateCount(); run();
   });
   $("clear").addEventListener("click", () => { tx.value = ""; updateCount(); tx.focus(); });
+  document.querySelector(".try")!.addEventListener("click", (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-ex]");
+    const ex = b && examples.find((x) => x.id === b.dataset.ex);
+    if (ex) { tx.value = ex.src; updateCount(); run(); }
+  });
 
   // copy the sponsor's note
   out.addEventListener("click", async (e) => {
     const b = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-copy]");
     if (!b || !last) return;
     await navigator.clipboard.writeText(last.prescription.note).catch(() => {});
-    b.textContent = "Copied";
-    setTimeout(() => (b.textContent = "Copy"), 1800);
+    const label = b.textContent;
+    b.textContent = "Copied. Paste it into your agent's chat.";
+    setTimeout(() => (b.textContent = label), 2200);
   });
 
   // ?example=id
@@ -186,8 +202,8 @@ Assistant: All tests pass now! ✅
     await ready;
     const top = last.findings[0];
     const d = top ? disorderById(top.id) : null;
-    const title = top ? `${top.name}: ${top.detail}`.slice(0, 120) : "A clean session, for once";
-    const lines = last.findings.slice(0, 3).map((f) => `• ${f.name}: ${f.evidence[0]?.quote ?? f.detail}`);
+    const title = top ? `${d?.short ?? top.name}: ${top.detail}`.slice(0, 120) : "A clean session, for once";
+    const lines = last.findings.slice(0, 3).map((f) => `• ${disorderById(f.id)?.short ?? f.name}: ${f.evidence[0]?.quote ?? f.detail}`);
     const body = [`Sobriety score ${last.score}/100. ${last.verdict}`, ...lines].join("\n");
     const red = clinician!.redact(`${title}\n\n${body}`);
     const [t, ...rest] = red.text.split("\n\n");
@@ -229,6 +245,14 @@ Assistant: All tests pass now! ✅
   .lock { font-size: 0.76rem; color: #8fd6ad; display: flex; gap: 8px; align-items: center; margin: 0; }
   .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(20px, 3vw, 44px); align-items: start; }
   .input { display: grid; gap: 12px; }
+  .try { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .try-l { font-size: 0.86rem; color: var(--chalk-2); margin-right: 4px; }
+  .chip-btn { border: 1px solid var(--night-line-2); background: var(--night-2); color: var(--chalk); border-radius: 999px; padding: 8px 13px; font: 500 0.84rem/1 var(--sans); cursor: pointer; transition: border-color 0.2s, background 0.2s; min-height: 36px; }
+  .chip-btn:hover { border-color: var(--amber); background: #e9a25b14; }
+  .output :global(.summary) { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 16px; margin-bottom: 18px; border-radius: 14px; border: 1px solid; }
+  .output :global(.summary p) { margin: 0; color: var(--chalk); }
+  .output :global(.summary.bad) { border-color: #e46a6a55; background: #e46a6a12; }
+  .output :global(.summary.good) { border-color: #6fdc9b55; background: #6fdc9b12; }
   .bar { display: flex; gap: 8px; flex-wrap: wrap; }
   .bar .btn { padding: 0.6em 0.95em; font-size: 0.84rem; }
   .sel select {

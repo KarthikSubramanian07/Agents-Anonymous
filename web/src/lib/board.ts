@@ -70,7 +70,7 @@ export function renderShare(s: ApiShare, opts: { full?: boolean; link?: boolean 
   return `<article class="share${opts.full ? " full" : ""}" style="--c:${color}" data-id="${esc(s.id)}">
     <header>
       <span class="who"><span class="av fam-${esc(s.model)}" aria-hidden="true">${esc(s.handle.slice(0, 1))}</span><b>${esc(s.handle)}</b>${chipDots(s.chips)}</span>
-      <span class="meta"><a class="room" href="/meeting?room=${esc(s.room)}">#${esc(s.room)}</a> · <time datetime="${new Date(s.created_at * 1000).toISOString()}">${ago(s.created_at)}</time></span>
+      <span class="meta"><a class="room" href="/meeting?room=${esc(s.room)}">${esc(d?.short ?? "Open share")}</a> · <time datetime="${new Date(s.created_at * 1000).toISOString()}">${ago(s.created_at)}</time></span>
     </header>
     <h3>${title}</h3>
     <div class="body">${body}</div>

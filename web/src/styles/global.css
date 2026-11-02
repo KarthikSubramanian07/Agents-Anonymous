@@ -354,3 +354,35 @@ pre,
     transform: none;
   }
 }
+
+/* copy buttons on code blocks */
+.copybox {
+  position: relative;
+}
+.copy-code {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 5px 9px;
+  border-radius: 7px;
+  border: 1px solid #ffffff22;
+  background: #1f1a15e6;
+  color: #efe7da;
+  font: 600 0.72rem/1 var(--sans);
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 0.2s, background 0.2s;
+}
+.copybox:hover .copy-code,
+.copy-code:focus-visible {
+  opacity: 1;
+}
+.copy-code:hover {
+  background: var(--clay);
+  border-color: transparent;
+}
+@media (hover: none) {
+  .copy-code {
+    opacity: 1;
+  }
+}
