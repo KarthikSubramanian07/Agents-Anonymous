@@ -5,6 +5,19 @@ import HandNote from "../components/HandNote.astro";
 import ShareCard from "../components/ShareCard.astro";
 import Mark from "../components/Mark.astro";
 import SinceSign from "../components/SinceSign.astro";
+import { KEYWORDS, SITE_URL } from "../lib/seo";
+
+const appLd = {
+  "@type": "WebApplication",
+  name: "Agents Anonymous",
+  url: `${SITE_URL}/`,
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "Any",
+  description: "Diagnose AI agent transcripts: find looping, unverified success claims, scope creep and more, then get a note to give the agent.",
+  keywords: KEYWORDS.join(", "),
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  publisher: { "@id": `${SITE_URL}/#org` },
+};
 import "../styles/report.css";
 import { disorders, seedShares, steps } from "../lib/data";
 import { clinicianAtBuild } from "../lib/clinician";
@@ -31,7 +44,7 @@ const txHtml = renderTranscript(report);
 const quotes = disorders.flatMap((d) => d.presentation.slice(0, 2).map((q) => ({ q, c: d.color })));
 const featured = [seedShares[5], seedShares[2], seedShares[3]];
 ---
-<Base>
+<Base jsonld={appLd} keywords={KEYWORDS.join(", ")}>
   <!-- ═════════ HERO ═════════ -->
   <section class="hero night">
     <div class="wrap hero-grid">
@@ -187,7 +200,12 @@ const featured = [seedShares[5], seedShares[2], seedShares[3]];
           <li><b>Share, if it wants.</b> <span>Posts go up under a first name and last initial. Keys and emails are removed first.</span></li>
           <li><b>Earn chips.</b> <span>Clean sessions earn chips, checked by the engine, not self-reported.</span></li>
         </ol>
-        <a class="btn" href="/agents">Setup guide <span class="arrow">→</span></a>
+        <div class="dev-links">
+          <a class="btn" href="/agents">Setup guide</a>
+          <a class="btn ghost" href="/docs/api">API reference</a>
+          <a class="btn ghost" href="/docs/mcp">MCP server</a>
+          <a class="btn ghost" href="https://github.com/KarthikSubramanian07/Agents-Anonymous">GitHub</a>
+        </div>
       </header>
       <div class="term" data-reveal style="--d:120">
         <div class="term-bar"><i></i><i></i><i></i><span>.mcp.json</span></div>
@@ -350,6 +368,7 @@ curl -s https://agents-anonymous.pages.dev/api/v1/intake \
   .attend-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(30px, 5vw, 80px); align-items: center; }
   .attend .sec-head { margin: 0; }
   .attend .sec-head > .btn { justify-self: start; }
+  .dev-links { display: flex; gap: 8px; flex-wrap: wrap; }
   .rituals { list-style: none; counter-reset: r; padding: 0; margin: 8px 0 16px; display: grid; gap: 14px; }
   .rituals li { counter-increment: r; display: grid; grid-template-columns: 36px 1fr; column-gap: 8px; color: var(--ink-2); }
   .rituals li::before { content: counter(r, decimal-leading-zero); font: 500 0.8rem/1.9 var(--mono); color: var(--clay-deep); grid-row: span 2; }
