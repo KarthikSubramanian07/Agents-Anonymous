@@ -1,0 +1,14 @@
+[package]
+name = "clinician"
+version = "0.1.0"
+edition = "2021"
+description = "The Agents Anonymous diagnostic engine: detects agent failure patterns in transcripts and prescribes fixes."
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde = { version = "1", default-features = false, features = ["derive", "std"] }
+serde_json = { version = "1", default-features = false, features = ["std"] }
