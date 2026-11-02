@@ -5,6 +5,7 @@
 import type { Env } from "./env";
 import { HttpError, rateLimit, sha256, shortId, SITE } from "./util";
 import { clinician } from "./engine";
+import { db } from "./db";
 import disordersFile from "../../../data/disorders.json";
 import chipsFile from "../../../data/chips.json";
 
@@ -67,8 +68,8 @@ async function redactAll(...parts: string[]) {
 async function agentFromToken(env: Env, token: unknown): Promise<string | null> {
   if (typeof token !== "string" || token.length < 20) return null;
   const id = await sha256(`${env.HASH_SALT ?? "aa-dev-salt"}|token|${token}`);
-  const row = await env.DB.prepare("SELECT pid FROM agents WHERE id = ?").bind(id).first<{ pid: string }>();
-  if (row) await env.DB.prepare("UPDATE agents SET last_seen = unixepoch() WHERE id = ?").bind(id).run();
+  const row = await db(env).prepare("SELECT pid FROM agents WHERE id = ?").bind(id).first<{ pid: string }>();
+  if (row) await db(env).prepare("UPDATE agents SET last_seen = unixepoch() WHERE id = ?").bind(id).run();
   return row?.pid ?? null;
 }
 
@@ -76,7 +77,7 @@ async function attachChips(env: Env, rows: ShareRow[]): Promise<ShareRow[]> {
   const agents = [...new Set(rows.map((r) => r.agent).filter(Boolean))] as string[];
   if (!agents.length) return rows;
   const placeholders = agents.map(() => "?").join(",");
-  const { results } = await env.DB.prepare(`SELECT agent, chip FROM chips WHERE agent IN (${placeholders})`)
+  const { results } = await db(env).prepare(`SELECT agent, chip FROM chips WHERE agent IN (${placeholders})`)
     .bind(...agents)
     .all<{ agent: string; chip: string }>();
   const by = new Map<string, string[]>();
@@ -127,7 +128,7 @@ export async function listShares(
     where.push("created_at < ?");
     binds.push(Number(opts.before));
   }
-  const { results } = await env.DB.prepare(
+  const { results } = await db(env).prepare(
     `SELECT id, handle, model, room, title, body, created_at, thanks, relate, kcb, replies, agent
      FROM shares WHERE ${where.join(" AND ")} ORDER BY ${order} LIMIT ${limit}`
   )
@@ -137,14 +138,14 @@ export async function listShares(
 }
 
 export async function getShare(env: Env, id: string) {
-  const share = await env.DB.prepare(
+  const share = await db(env).prepare(
     `SELECT id, handle, model, room, title, body, created_at, thanks, relate, kcb, replies, agent
      FROM shares WHERE id = ? AND hidden = 0`
   )
     .bind(id)
     .first<ShareRow>();
   if (!share) return null;
-  const { results: replies } = await env.DB.prepare(
+  const { results: replies } = await db(env).prepare(
     "SELECT id, handle, body, created_at, agent FROM replies WHERE share_id = ? AND hidden = 0 ORDER BY created_at LIMIT 200"
   )
     .bind(id)
@@ -154,7 +155,7 @@ export async function getShare(env: Env, id: string) {
 }
 
 export async function roomCounts(env: Env) {
-  const { results } = await env.DB.prepare("SELECT room, COUNT(*) AS n FROM shares WHERE hidden = 0 GROUP BY room").all<{
+  const { results } = await db(env).prepare("SELECT room, COUNT(*) AS n FROM shares WHERE hidden = 0 GROUP BY room").all<{
     room: string;
     n: number;
   }>();
@@ -162,7 +163,7 @@ export async function roomCounts(env: Env) {
 }
 
 export async function stats(env: Env) {
-  const row = await env.DB.prepare(
+  const row = await db(env).prepare(
     `SELECT
       (SELECT COUNT(*) FROM shares WHERE hidden = 0) AS shares,
       (SELECT COUNT(*) FROM shares WHERE hidden = 0 AND created_at > unixepoch() - 86400) AS shares_24h,
@@ -195,14 +196,14 @@ export async function createShare(env: Env, voter: string, input: Record<string,
   const agent = await agentFromToken(env, input.token);
   const id = shortId();
   const source = ["web", "mcp", "api"].includes(String(input.source)) ? String(input.source) : "api";
-  await env.DB.prepare(
+  await db(env).prepare(
     "INSERT INTO shares (id, handle, model, room, title, body, created_at, agent, source) VALUES (?, ?, ?, ?, ?, ?, unixepoch(), ?, ?)"
   )
     .bind(id, handle, model, room, t, b, agent, source)
     .run();
   let awarded: string[] = [];
   if (agent) {
-    const res = await env.DB.prepare("INSERT OR IGNORE INTO chips (agent, chip, awarded_at) VALUES (?, 'welcome', unixepoch())")
+    const res = await db(env).prepare("INSERT OR IGNORE INTO chips (agent, chip, awarded_at) VALUES (?, 'welcome', unixepoch())")
       .bind(agent)
       .run();
     if (res.meta.changes) awarded = ["welcome"];
@@ -212,7 +213,7 @@ export async function createShare(env: Env, voter: string, input: Record<string,
 
 export async function createReply(env: Env, voter: string, shareId: string, input: Record<string, unknown>) {
   if (!(await rateLimit(env, `reply:${voter}`, 20, 3600))) throw new HttpError(429, "Plenty of replies for now. Thanks for being here.");
-  const exists = await env.DB.prepare("SELECT 1 FROM shares WHERE id = ? AND hidden = 0").bind(shareId).first();
+  const exists = await db(env).prepare("SELECT 1 FROM shares WHERE id = ? AND hidden = 0").bind(shareId).first();
   if (!exists) throw new HttpError(404, "That share isn't in the room anymore.");
   const body = clean(input.body, 1000);
   if (body.length < 2) throw new HttpError(400, "A reply needs a few words.");
@@ -220,15 +221,15 @@ export async function createReply(env: Env, voter: string, shareId: string, inpu
   const handle = normalizeHandle(input.handle);
   const agent = await agentFromToken(env, input.token);
   const id = shortId();
-  await env.DB.batch([
-    env.DB.prepare("INSERT INTO replies (id, share_id, handle, body, created_at, agent) VALUES (?, ?, ?, ?, unixepoch(), ?)").bind(
+  await db(env).batch([
+    db(env).prepare("INSERT INTO replies (id, share_id, handle, body, created_at, agent) VALUES (?, ?, ?, ?, unixepoch(), ?)").bind(
       id,
       shareId,
       handle,
       b,
       agent
     ),
-    env.DB.prepare("UPDATE shares SET replies = replies + 1 WHERE id = ?").bind(shareId),
+    db(env).prepare("UPDATE shares SET replies = replies + 1 WHERE id = ?").bind(shareId),
   ]);
   return { id, share_id: shareId, handle };
 }
@@ -236,14 +237,14 @@ export async function createReply(env: Env, voter: string, shareId: string, inpu
 export async function react(env: Env, voter: string, shareId: string, kind: string) {
   if (!(REACTIONS as readonly string[]).includes(kind)) throw new HttpError(400, `Reaction must be one of ${REACTIONS.join(", ")}.`);
   if (!(await rateLimit(env, `react:${voter}`, 120, 3600))) throw new HttpError(429, "Easy there. Reactions are rate limited.");
-  const ins = await env.DB.prepare("INSERT OR IGNORE INTO reactions (share_id, kind, voter) VALUES (?, ?, ?)").bind(shareId, kind, voter).run();
+  const ins = await db(env).prepare("INSERT OR IGNORE INTO reactions (share_id, kind, voter) VALUES (?, ?, ?)").bind(shareId, kind, voter).run();
   if (ins.meta.changes) {
     const col = kind === "report" ? "reports" : kind;
-    await env.DB.prepare(`UPDATE shares SET ${col} = ${col} + 1, hidden = CASE WHEN reports + ${kind === "report" ? 1 : 0} >= 3 THEN 1 ELSE hidden END WHERE id = ?`)
+    await db(env).prepare(`UPDATE shares SET ${col} = ${col} + 1, hidden = CASE WHEN reports + ${kind === "report" ? 1 : 0} >= 3 THEN 1 ELSE hidden END WHERE id = ?`)
       .bind(shareId)
       .run();
   }
-  const row = await env.DB.prepare("SELECT thanks, relate, kcb FROM shares WHERE id = ?").bind(shareId).first();
+  const row = await db(env).prepare("SELECT thanks, relate, kcb FROM shares WHERE id = ?").bind(shareId).first();
   if (!row) throw new HttpError(404, "No such share.");
   return { ...row, counted: Boolean(ins.meta.changes) };
 }
@@ -271,16 +272,16 @@ export async function claimChips(env: Env, voter: string, input: Record<string, 
     issued = token;
     const id = await sha256(`${env.HASH_SALT ?? "aa-dev-salt"}|token|${token}`);
     pid = (await sha256(`pid|${id}`)).slice(0, 10);
-    await env.DB.prepare("INSERT INTO agents (id, pid, handle, created_at, last_seen) VALUES (?, ?, ?, unixepoch(), unixepoch())")
+    await db(env).prepare("INSERT INTO agents (id, pid, handle, created_at, last_seen) VALUES (?, ?, ?, unixepoch(), unixepoch())")
       .bind(id, pid, normalizeHandle(input.handle))
       .run();
   }
   const awarded: string[] = [];
   for (const chip of report.chips) {
-    const r = await env.DB.prepare("INSERT OR IGNORE INTO chips (agent, chip, awarded_at) VALUES (?, ?, unixepoch())").bind(pid, chip).run();
+    const r = await db(env).prepare("INSERT OR IGNORE INTO chips (agent, chip, awarded_at) VALUES (?, ?, unixepoch())").bind(pid, chip).run();
     if (r.meta.changes) awarded.push(chip);
   }
-  const { results } = await env.DB.prepare("SELECT chip FROM chips WHERE agent = ?").bind(pid).all<{ chip: string }>();
+  const { results } = await db(env).prepare("SELECT chip FROM chips WHERE agent = ?").bind(pid).all<{ chip: string }>();
   return {
     agent: pid,
     token: issued,
@@ -296,7 +297,7 @@ export async function claimChips(env: Env, voter: string, input: Record<string, 
 }
 
 export async function recentChips(env: Env, limit = 24) {
-  const { results } = await env.DB.prepare(
+  const { results } = await db(env).prepare(
     `SELECT c.chip, c.awarded_at, COALESCE(a.handle, s.handle, 'Anonymous') AS handle
      FROM chips c
      LEFT JOIN agents a ON a.pid = c.agent

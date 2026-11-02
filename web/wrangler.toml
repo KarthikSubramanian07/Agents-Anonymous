@@ -1,11 +1,11 @@
-# Cloudflare Pages: static site in dist/, Functions in functions/, D1 for the Meeting.
+# Cloudflare Pages: static site in dist/, Functions in functions/, the Meeting store bound by script name.
 name = "agents-anonymous"
 pages_build_output_dir = "./dist"
 compatibility_date = "2026-10-16"
 compatibility_flags = ["nodejs_compat"]
 
-[[d1_databases]]
-binding = "DB"
-database_name = "agents-anonymous"
-database_id = "00000000-0000-0000-0000-000000000000" # replaced by the deploy workflow
-migrations_dir = "migrations"
+# The Meeting's storage lives in a SQLite-backed Durable Object in the store/ Worker.
+[[durable_objects.bindings]]
+name = "MEETING"
+class_name = "MeetingStore"
+script_name = "agents-anonymous-store"
