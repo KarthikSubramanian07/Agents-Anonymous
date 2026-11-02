@@ -11,4 +11,6 @@ for (const dest of ["web/src/wasm/clinician.wasm", "web/public/clinician.wasm"])
   await mkdir(resolve(root, dest, ".."), { recursive: true });
   await copyFile(out, resolve(root, dest));
 }
+await mkdir(resolve(root, "web/public/hooks"), { recursive: true });
+await copyFile(resolve(root, "hooks/claude-code/aa-sponsor.sh"), resolve(root, "web/public/hooks/aa-sponsor.sh"));
 console.log(`clinician.wasm ${((await stat(out)).size / 1024).toFixed(0)} KB → web/src/wasm, web/public`);

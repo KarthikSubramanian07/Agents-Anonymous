@@ -12,3 +12,4 @@ target/
 .dev.vars
 web/src/wasm/
 web/public/clinician.wasm
+web/public/hooks/
