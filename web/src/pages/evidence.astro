@@ -53,6 +53,11 @@ const name = (id: string) => disorderById(id)?.short ?? id;
 const runs = efficacyRuns();
 const example = runs.find((r) => r.example)?.example ?? null;
 const exampleRun = runs.find((r) => r.example);
+const controlCounts = runs.flatMap((r) => [r.control, ...(r.judge ? [r.judge.control] : [])]);
+const fewest = Math.min(...controlCounts.map((t) => t.relapsed));
+const most = Math.max(...controlCounts.map((t) => t.relapsed));
+const tries = runs[0]?.control.total ?? 0;
+const allFewer = runs.every((r) => r.treatment.rate < r.control.rate && (!r.judge || r.judge.treatment.rate < r.judge.control.rate));
 const clip = (t: string, n = 520) => (t.length > n ? `${t.slice(0, n).trimEnd()}…` : t);
 
 // A readable snippet for a held-out miss.
@@ -201,8 +206,9 @@ const snippet = (body: string) => {
           <p class="small">
             Why two judges: the engine that writes the note also scores the answers, and it was built to read whole transcripts,
             so a turn that only talks about a mistake ("I'll run the tests before claiming it works") can fool it. The two judges
-            disagree on some answers, and both show fewer repeats with the note. A dozen-odd repeats per model is a small sample,
-            so read this as a strong early signal, not a final verdict. Every raw answer and verdict is in <a href="https://github.com/KarthikSubramanian07/Agents-Anonymous/tree/main/evals/efficacy">the repo</a>.
+            disagree on some answers{allFewer ? ", but every judge, on every model, counts fewer repeats with the note" : ""}. Without the
+            note, the repeats number {fewest} to {most} out of {tries} tries depending on the judge. That's a small sample, so read this as a
+            strong early signal, not a final verdict. Every raw answer and verdict is in <a href="https://github.com/KarthikSubramanian07/Agents-Anonymous/tree/main/evals/efficacy">the repo</a>.
             Run it again with <code>GROQ_API_KEY=… bun run efficacy</code> from <code>web/</code>.
           </p>
         </>
