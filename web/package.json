@@ -9,7 +9,9 @@
     "preview": "wrangler pages dev dist",
     "test": "bun test",
     "check": "bunx --bun astro check",
-    "seed": "bun scripts/gen-seed.ts"
+    "seed": "bun scripts/gen-seed.ts",
+    "deploy": "bun scripts/deploy.ts",
+    "efficacy": "bun scripts/efficacy.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
