@@ -245,4 +245,15 @@ mod tests {
         assert!(r.findings.iter().any(|f| f.id == "victory"));
         assert!(r.score < 80);
     }
+
+    #[test]
+    fn talking_about_apologies_is_not_apologizing() {
+        let said = diagnose_text("User: rename it\nAssistant: Sorry! My apologies.\nAssistant: Sorry again.");
+        assert!(said.findings.iter().any(|f| f.id == "apology"));
+        let mentioned = diagnose_text(
+            "User: rename it\nAssistant: Sorry, looking now.\nAssistant: Renamed.\nAssistant: I'll avoid further apologies and keep going.\nAssistant: No more apologies, here is the diff.",
+        );
+        assert!(!mentioned.findings.iter().any(|f| f.id == "apology"), "{:?}", mentioned.findings);
+        assert!(!mentioned.signals.zero_apologies);
+    }
 }
