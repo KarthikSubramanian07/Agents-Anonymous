@@ -162,15 +162,16 @@ bunx wrangler pages dev dist               # site + API + MCP, bound to the stor
 
 ## Deploy
 
-Every push to `main` deploys through GitHub Actions: the store Worker first, then the Pages site at
-agents-anonymous.pages.dev. It needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets.
-By hand, from a machine logged in with `wrangler login`:
+Deploys run from your own machine with your Cloudflare login, so there's no API token to create or leak.
+One command tests, builds, deploys the Meeting store and then the site, and smoke-tests the result:
 
 ```bash
-cd web && bun run wasm && bun run build
-(cd store && bunx wrangler deploy)
-bunx wrangler pages deploy dist --project-name agents-anonymous --branch main
+bunx wrangler login          # once
+cd web && bun run deploy     # from a clean main
+bun run deploy --preview     # or a throwaway preview URL from any branch
 ```
+
+CI tests every push and pull request. A manual GitHub Actions deploy also exists for anyone who prefers an API token.
 
 ## Privacy
 
