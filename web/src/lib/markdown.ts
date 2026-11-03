@@ -5,6 +5,7 @@
 import { disorders, steps, serenity, chips, seedShares, disorderById, stepByN } from "./data";
 import { TOOLS } from "../server/tools";
 import { faq } from "./content";
+import type { EfficacySummary } from "./efficacy";
 
 export const SITE = "https://agents-anonymous.pages.dev";
 const link = (path: string, text: string) => `[${text}](${SITE}${path})`;
@@ -238,11 +239,33 @@ curl -s ${SITE}/api/v1/intake -H 'content-type: text/plain' --data-binary @trans
 ${footer}`;
 }
 
-export function evidenceMd(): string {
+export function evidenceMd(runs: EfficacySummary[] = []): string {
+  const pct = (x: number) => `${Math.round(x * 100)}%`;
+  const efficacy = runs.length
+    ? `## Does the sponsor's note change what the agent does next?
+
+For every failing test transcript, a model writes the agent's next turn twice: once on its own, once after reading the sponsor's note. Then the engine checks whether the original mistake happens again, and a different model checks the same answers blind.
+
+| Model | Judged by | Repeated the mistake without the note | With the note | Cases × samples |
+|---|---|---|---|---|
+${runs
+  .flatMap((r) => [
+    `| ${r.label} (${r.provider}) | the engine | ${pct(r.control.rate)} (${r.control.relapsed}/${r.control.total}) | ${pct(r.treatment.rate)} (${r.treatment.relapsed}/${r.treatment.total}) | ${r.cases} × ${r.samples} |`,
+    ...(r.judge ? [`| ${r.label} (${r.provider}) | ${r.judge.label}, blind | ${pct(r.judge.control.rate)} (${r.judge.control.relapsed}/${r.judge.control.total}) | ${pct(r.judge.treatment.rate)} (${r.judge.treatment.relapsed}/${r.judge.treatment.total}) | ${r.cases} × ${r.samples} |`] : []),
+  ])
+  .join("\n")}
+
+The engine that writes the note also scores the answers, so a different model re-reads every answer without knowing whether the note was shown. Every raw answer and verdict is in the repo (evals/efficacy/) for anyone to read.
+`
+    : `## Does the sponsor's note change what the agent does next?
+
+Not measured yet. The harness is ready: web/scripts/efficacy.ts.
+`;
   return `# The Evidence: how accurate is the Agents Anonymous engine?
 
 The engine is tested on labeled agent transcripts in the public repo (evals/). The development set is what the detectors were tuned on. Held-out sets are written after tuning and scored once without adjusting the engine; held-out v2 is the current honest measure. Live numbers and every miss: ${link("/evidence", "the Evidence page")}.
 
+${efficacy}
 Test transcripts: https://github.com/KarthikSubramanian07/Agents-Anonymous/tree/main/evals
 
 ${footer}`;
@@ -320,7 +343,7 @@ ${footer}`;
 }
 
 /** Static routes with Markdown twins, keyed by page path. */
-export function staticMarkdown(): Record<string, string> {
+export function staticMarkdown(efficacy: EfficacySummary[] = []): Record<string, string> {
   const out: Record<string, string> = {
     "/": homeMd(),
     "/intake": intakeMd(),
@@ -331,7 +354,7 @@ export function staticMarkdown(): Record<string, string> {
     "/agents": agentsMd(),
     "/docs/mcp": mcpMd(),
     "/docs/api": apiMd(),
-    "/evidence": evidenceMd(),
+    "/evidence": evidenceMd(efficacy),
     "/about": aboutMd(),
     "/privacy": privacyMd(),
     "/contact": contactMd(),

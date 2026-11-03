@@ -2,9 +2,10 @@
 // The Pages middleware serves these on the page's own URL when a client asks for text/markdown.
 import type { APIRoute } from "astro";
 import { staticMarkdown } from "../../lib/markdown";
+import { efficacyRuns } from "../../lib/efficacy-runs";
 
 export function getStaticPaths() {
-  return Object.entries(staticMarkdown()).map(([path, body]) => ({
+  return Object.entries(staticMarkdown(efficacyRuns())).map(([path, body]) => ({
     params: { slug: path === "/" ? "index.md" : `${path.slice(1)}.md` },
     props: { body },
   }));

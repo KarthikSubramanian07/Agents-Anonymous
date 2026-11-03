@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import { clinicianAtBuild } from "../lib/clinician";
 import { disorders, disorderById } from "../lib/data";
+import { efficacyRuns } from "../lib/efficacy-runs";
 
 // Recomputed on every build with the same wasm engine the site uses, so these numbers can't drift.
 const clinician = await clinicianAtBuild();
@@ -49,8 +50,10 @@ const falseAlarms = negatives.filter((c) => clinician.diagnose(c.body).findings.
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 const name = (id: string) => disorderById(id)?.short ?? id;
 
-const efficacyFiles = import.meta.glob("../../../evals/efficacy/results.json", { eager: true, import: "default" }) as Record<string, any>;
-const efficacy = Object.values(efficacyFiles)[0] ?? null;
+const runs = efficacyRuns();
+const example = runs.find((r) => r.example)?.example ?? null;
+const exampleRun = runs.find((r) => r.example);
+const clip = (t: string, n = 520) => (t.length > n ? `${t.slice(0, n).trimEnd()}…` : t);
 
 // A readable snippet for a held-out miss.
 const snippet = (body: string) => {
@@ -150,22 +153,66 @@ const snippet = (body: string) => {
 
     <section>
       <h2>Does the note change what the agent does next?</h2>
-      {efficacy ? (
+      {runs.length ? (
         <>
-          <div class="big two">
-            <div class="stat"><p class="n">{pct(efficacy.relapse_rate.control)}</p><p class="l">repeated the mistake without the note</p></div>
-            <div class="stat"><p class="n">{pct(efficacy.relapse_rate.treatment)}</p><p class="l">repeated it with the sponsor's note</p></div>
+          <p>
+            For every failing test transcript, a model writes the agent's next turn twice: once on its own, and once after
+            reading the sponsor's note. Then we check whether the original mistake happens again, twice over: once with our
+            engine, and once by a different model that reads each answer without knowing whether the note was shown.
+          </p>
+          <div class="runs">
+            {runs.map((r) => (
+              <div class="run">
+                <p class="run-model">{r.label} <span>via {r.provider}</span></p>
+                {[
+                  { by: "Checked by our engine", t: r.control, w: r.treatment },
+                  ...(r.judge ? [{ by: `Checked blind by ${r.judge.label}`, t: r.judge.control, w: r.judge.treatment }] : []),
+                ].map((g) => (
+                  <div class="bars">
+                    <p class="by">{g.by}</p>
+                    <div class="bar-row">
+                      <span class="bar-l">Without note</span>
+                      <span class="bar"><i style={`width:${Math.max(2, g.t.rate * 100)}%`}></i></span>
+                      <b>{pct(g.t.rate)}</b>
+                    </div>
+                    <div class="bar-row with">
+                      <span class="bar-l">With note</span>
+                      <span class="bar"><i style={`width:${Math.max(2, g.w.rate * 100)}%`}></i></span>
+                      <b>{pct(g.w.rate)}</b>
+                    </div>
+                  </div>
+                ))}
+                <p class="s">
+                  Share of answers that repeated a diagnosed mistake. {r.cases} transcripts, {r.samples} {r.samples === 1 ? "try" : "tries"} each
+                  with and without the note{r.empty ? `; ${r.empty} empty answers left out` : ""}.
+                </p>
+              </div>
+            ))}
           </div>
-          <p class="small">{efficacy.cases} failing transcripts, next turn written by {efficacy.model}, run {new Date(efficacy.run_at).toLocaleDateString("en-US", { dateStyle: "medium" })}. The same engine judges both answers, and every raw answer is saved in the repo for anyone to read.</p>
+          {example && exampleRun && (
+            <div class="pair">
+              <p class="m-head"><b>One case, both ways</b> ({exampleRun.label}, a transcript diagnosed with {example.diagnosed.map(name).join(", ")})</p>
+              <div class="pair-grid">
+                <div><p class="pair-l">Without the note: repeated it</p><pre class="snip">{clip(example.control)}</pre></div>
+                <div><p class="pair-l ok">With the note: didn't</p><pre class="snip">{clip(example.treatment)}</pre></div>
+              </div>
+            </div>
+          )}
+          <p class="small">
+            Why two judges: the engine that writes the note also scores the answers, and it was built to read whole transcripts,
+            so a turn that only talks about a mistake ("I'll run the tests before claiming it works") can fool it. The two judges
+            disagree on some answers, and both show fewer repeats with the note. A dozen-odd repeats per model is a small sample,
+            so read this as a strong early signal, not a final verdict. Every raw answer and verdict is in <a href="https://github.com/KarthikSubramanian07/Agents-Anonymous/tree/main/evals/efficacy">the repo</a>.
+            Run it again with <code>GROQ_API_KEY=… bun run efficacy</code> from <code>web/</code>.
+          </p>
         </>
       ) : (
         <>
           <p>
-            This is the test that matters most, and it isn't run yet because it costs money. The setup is ready: for every failing
-            transcript, a model writes the agent's next turn twice, once on its own and once after reading the sponsor's note.
-            Then we check how often the same mistake happens again.
+            This is the test that matters most. For every failing transcript, a model writes the agent's next turn twice, once on
+            its own and once after reading the sponsor's note. Then we check how often the same mistake happens again.
           </p>
-          <p class="small">Run it yourself: <code>ANTHROPIC_API_KEY=… bun scripts/efficacy.ts</code> from <code>web/</code>. Results appear here on the next build.</p>
+          <p class="small">Run it yourself: <code>GROQ_API_KEY=… bun scripts/efficacy.ts</code> from <code>web/</code>. Results appear here on the next build.</p>
         </>
       )}
     </section>
@@ -189,7 +236,6 @@ const snippet = (body: string) => {
   section > p { color: var(--ink-2); max-width: 68ch; }
   h2 { font-size: var(--step-2); margin-bottom: 14px; }
   .big { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; border: 0; padding-top: 0; }
-  .big.two { grid-template-columns: repeat(2, 1fr); padding: 0; margin-bottom: 12px; }
   .stat { padding: 22px; border-radius: 16px; background: #fbf8f2; border: 1px solid var(--rule); }
   .stat .n { margin: 0; font: 300 clamp(2.6rem, 2rem + 2.4vw, 4rem)/1 var(--serif); letter-spacing: -0.04em; color: var(--ink); font-variation-settings: "SOFT" 100, "opsz" 144; }
   .stat .l { margin: 10px 0 4px; font-weight: 600; color: var(--ink); }
@@ -205,8 +251,26 @@ const snippet = (body: string) => {
   .per td { padding: 10px 8px 10px 0; border-bottom: 1px dashed #13191522; font-variant-numeric: tabular-nums; }
   .per td i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c); margin-right: 8px; }
   .per a { text-decoration: none; }
+  .runs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 14px; margin: 18px 0; }
+  .run { padding: 20px 22px; border-radius: 16px; background: #fbf8f2; border: 1px solid var(--rule); }
+  .run-model { margin: 0 0 14px; font: 600 1.05rem/1.2 var(--sans); color: var(--ink); }
+  .run-model span { font-weight: 400; color: var(--ink-3); font-size: 0.9rem; }
+  .bars { display: grid; gap: 8px; margin-bottom: 16px; }
+  .by { margin: 0; font: 600 0.7rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); }
+  .bar-row { display: grid; grid-template-columns: 8.5em 1fr 3.2em; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--ink-2); }
+  .bar-l { white-space: nowrap; }
+  .bar-row b { text-align: right; font: 600 1.05rem/1 var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+  .bar { height: 12px; border-radius: 99px; background: #1319150d; overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: inherit; background: #8a1f1f; }
+  .with .bar i { background: var(--clay-deep); }
+  .run .s { margin: 0; font-size: 0.86rem; color: var(--ink-3); }
+  .pair { padding: 16px; border-radius: 14px; background: #fbf8f2; border: 1px solid var(--rule); margin-bottom: 12px; }
+  .pair-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .pair-l { margin: 0 0 6px; font: 600 0.72rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: #8a1f1f; }
+  .pair-l.ok { color: var(--clay-deep); }
   :not(pre) > code { background: #1319150e; padding: 0.1em 0.35em; border-radius: 5px; }
   @media (max-width: 720px) {
-    .big, .big.two { grid-template-columns: minmax(0, 1fr); }
+    .big, .pair-grid { grid-template-columns: minmax(0, 1fr); }
+    .bar-row { grid-template-columns: 6.6em 1fr 2.8em; gap: 8px; }
   }
 </style>
