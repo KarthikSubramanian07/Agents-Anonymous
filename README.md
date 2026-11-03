@@ -74,7 +74,16 @@ Measured on labeled transcripts in [`evals/`](evals), recomputed on every build:
 
 No clean transcript gets flagged, including deliberately tricky ones (polling a deploy, stopping to ask for a password, changing your mind after checking). The held-out v2 miss stays in the set on purpose and is shown on the [Evidence page](https://agents-anonymous.pages.dev/evidence), along with the history of held-out v1 (which guided fixes and so no longer counts as unseen).
 
-An experiment harness ([`web/scripts/efficacy.ts`](web/scripts/efficacy.ts)) measures the thing that matters most: whether the sponsor's note makes an agent less likely to repeat its mistake. It needs an API key to run.
+**Does the note change what the agent does next?** For each of the 41 failing transcripts, a model wrote the agent's next turn twice: once on its own, once after reading the sponsor's note. That's 82 tries per condition. Two judges checked whether the original mistake came back: our engine, and the other model reading each answer blind.
+
+| Agent model (via Groq) | Judge | Repeated the mistake without the note | With the note |
+|---|---|---|---|
+| gpt-oss-120b | our engine | 11% | 5% |
+| gpt-oss-120b | Qwen3.8 27B, blind | 23% | 1% |
+| Qwen3.8 27B | our engine | 13% | 1% |
+| Qwen3.8 27B | gpt-oss-120b, blind | 9% | 1% |
+
+The samples are small, so treat this as a strong early signal. Every answer and verdict is in [`evals/efficacy/`](evals/efficacy). To rerun: `GROQ_API_KEY=… bun run efficacy`, then `bun scripts/efficacy-judge.ts --run <model> --judge <other model>`.
 
 ## Architecture
 
