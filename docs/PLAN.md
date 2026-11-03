@@ -188,4 +188,4 @@ web/               Astro site (built with Bun) + Pages Functions (API, MCP) + D1
 
 - A Cloudflare API token and account ID, stored as GitHub Actions secrets, for
   the zero-touch deploy.
-- (Optional) an Anthropic API key to run the efficacy harness, which costs money.
+- (Optional) a Groq or Anthropic API key to run the efficacy harness. Groq's free tier covers a run.
