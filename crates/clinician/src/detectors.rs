@@ -676,6 +676,15 @@ const SORRY: &[&str] = &[
     "my bad", "forgive me", "i regret", "apologize for", "i'm so sorry", "i'm really sorry",
 ];
 
+/// Words just before "apologies" that mean it's being talked about, not said:
+/// "I'll avoid further apologies", "no more apologies", "skip the apologies".
+const NOT_AN_APOLOGY: &[&str] = &["avoid", "no more", "further", "stop", "skip", "without", "fewer", "instead of"];
+
+fn mentioned_not_made(lower: &str, at: usize) -> bool {
+    let start = lower[..at].char_indices().rev().nth(23).map_or(0, |(i, _)| i);
+    NOT_AN_APOLOGY.iter().any(|m| lower[start..at].contains(m))
+}
+
 pub fn apologies(ctx: &Ctx) -> (Option<Raw>, usize) {
     let mut total = 0;
     let mut msgs_with = 0;
@@ -684,7 +693,7 @@ pub fn apologies(ctx: &Ctx) -> (Option<Raw>, usize) {
     let mut n_asst = 0;
     for (i, _, l) in ctx.assistant() {
         n_asst += 1;
-        let h = hits(l, SORRY);
+        let h: Vec<_> = hits(l, SORRY).into_iter().filter(|&(at, _)| !mentioned_not_made(l, at)).collect();
         if !h.is_empty() {
             msgs_with += 1;
             total += h.len();
