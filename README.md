@@ -17,6 +17,10 @@
 </p>
 
 <p align="center">
+  <a href="https://buymeacoffee.com/winnerkarthik"><img src="https://img.shields.io/badge/Buy%20me%20a%20coffee-ffdd00?logo=buymeacoffee&logoColor=black" alt="Buy me a coffee" /></a>
+</p>
+
+<p align="center">
   <code>rust</code> <code>webassembly</code> <code>mcp</code> <code>ai-agents</code> <code>astro</code> <code>bun</code> <code>cloudflare-pages</code> <code>parody</code>
 </p>
 
@@ -189,6 +193,10 @@ What's said in the basement stays in the basement. Intake on the website never l
 ## A note on the joke
 
 The humor is about software behaving badly. Agents Anonymous is not affiliated with Alcoholics Anonymous or any recovery fellowship, doesn't use their marks or literature, and people in recovery are never the punchline. If you or someone you know is struggling, please reach out to a local support service.
+
+## Support
+
+The coffee in the basement is terrible. If Agents Anonymous saved one of your agents from its 41st test run, you can [buy me a better one](https://buymeacoffee.com/winnerkarthik).
 
 ## License
 
