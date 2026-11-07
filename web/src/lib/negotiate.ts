@@ -36,7 +36,7 @@ export function mdPathFor(pathname: string): string {
   return key === "/" ? "/md/index.md" : `/md${key}.md`;
 }
 
-export const MD_HEADERS = { "content-type": "text/markdown; charset=utf-8", vary: "Accept" } as const;
+export const MD_HEADERS = { "content-type": "text/markdown; charset=utf-8", vary: "Accept", "x-content-type-options": "nosniff" } as const;
 
 /** Add Vary: Accept to a response without dropping existing Vary values. */
 export function withVary(res: Response): Response {

@@ -14,7 +14,7 @@ export const CORS: Record<string, string> = {
 export const json = (data: unknown, status = 200, headers: Record<string, string> = {}) =>
   new Response(JSON.stringify(data, null, 2), {
     status,
-    headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", ...CORS, ...headers },
+    headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "x-content-type-options": "nosniff", ...CORS, ...headers },
   });
 
 export const fail = (status: number, error: string, extra: Record<string, unknown> = {}) => json({ error, ...extra }, status);
