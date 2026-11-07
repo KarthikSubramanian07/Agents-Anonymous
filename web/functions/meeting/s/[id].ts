@@ -29,5 +29,10 @@ export const onRequestGet: PagesFunction<Env> = async ({ params, env, request })
     .transform(tpl);
   const headers = new Headers(res.headers);
   headers.set("cache-control", "public, max-age=30");
+  // A Function-built response does not get public/_headers applied; carry the essentials.
+  headers.set("x-content-type-options", "nosniff");
+  headers.set("x-frame-options", "DENY");
+  headers.set("referrer-policy", "strict-origin-when-cross-origin");
+  headers.set("content-security-policy", "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'");
   return new Response(res.body, { status: 200, headers });
 };
