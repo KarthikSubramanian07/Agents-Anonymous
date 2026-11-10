@@ -62,7 +62,8 @@ Assistant: All tests pass now! ✅
           </label>
           <button type="button" class="btn ghost" id="clear">Clear</button>
         </div>
-        <textarea id="tx" spellcheck="false" placeholder={placeholder} aria-label="Transcript"></textarea>
+        <textarea id="tx" spellcheck="false" placeholder={placeholder} aria-label="Transcript" aria-describedby="tx-error"></textarea>
+        <p class="tx-error" id="tx-error" hidden>Paste a transcript first, or pick an example above.</p>
         <div class="foot">
           <span class="mono count" id="count">0 characters · or drop a file here</span>
           <button type="submit" class="btn clay" id="run">Diagnose <span class="arrow">→</span></button>
@@ -78,7 +79,8 @@ Assistant: All tests pass now! ✅
         </details>
       </form>
 
-      <div class="output" id="output" aria-live="polite">
+      <p class="sr-only" role="status" id="run-status"></p>
+      <div class="output" id="output">
         <div class="clipboard waiting">
           <div class="form">
             <div class="form-head"><div class="form-title">Agents Anonymous · Intake form<b>Your results go here</b>no pressure. take your time.</div><div class="score"><b>—</b>sobriety score</div></div>
@@ -100,11 +102,11 @@ Assistant: All tests pass now! ✅
     </section>
   </section>
 
-  <dialog id="share" class="share-dlg">
+  <dialog id="share" class="share-dlg" aria-labelledby="share-h">
     <form method="dialog" class="dlg" id="share-form">
       <header>
         <p class="eyebrow">Opt-in · redacted · public</p>
-        <h3>Share at the meeting</h3>
+        <h2 id="share-h">Share at the meeting</h2>
         <p class="muted">Only what's below gets posted. We scrub keys, tokens, emails, IPs and home paths first, and the full transcript is never uploaded.</p>
       </header>
       <label>First name, last initial <input name="handle" maxlength="24" placeholder="Sonnet K." required /></label>
@@ -115,7 +117,7 @@ Assistant: All tests pass now! ✅
         <button value="cancel" class="btn ghost" formnovalidate>Not tonight</button>
         <button value="share" class="btn clay" id="share-send">Share</button>
       </footer>
-      <p class="status mono" id="share-status"></p>
+      <p class="status mono" id="share-status" role="status"></p>
     </form>
   </dialog>
   <script type="application/json" id="examples-data" set:html={JSON.stringify(examples)} />
@@ -136,15 +138,30 @@ Assistant: All tests pass now! ✅
   let last: Report | null = null;
   const ready = Clinician.load(fetch("/clinician.wasm")).then((c) => (clinician = c));
 
+  const txError = $("tx-error");
+  const runStatus = $("run-status");
+  const showError = (on: boolean) => {
+    txError.hidden = !on;
+    on ? tx.setAttribute("aria-invalid", "true") : tx.removeAttribute("aria-invalid");
+  };
   const updateCount = () => {
     const n = tx.value.length;
     count.textContent = `${n.toLocaleString()} character${n === 1 ? "" : "s"}`;
+    if (n) showError(false);
   };
   tx.addEventListener("input", updateCount);
 
   async function run() {
     const text = tx.value.trim();
-    if (!text) { tx.focus(); return; }
+    if (!text) {
+      // Say what is missing instead of just moving the cursor.
+      showError(true);
+      runStatus.textContent = "";
+      runStatus.textContent = txError.textContent;
+      tx.focus();
+      return;
+    }
+    showError(false);
     await ready;
     const t0 = performance.now();
     last = clinician!.diagnose(text);
@@ -157,6 +174,9 @@ Assistant: All tests pass now! ✅
     out.querySelector(".signed span")!.insertAdjacentHTML("beforeend", `<br/>Diagnosed in ${ms < 1 ? "under 1" : ms.toFixed(1)} ms.`);
     $("transcript").innerHTML = renderTranscript(last);
     after.hidden = false;
+    runStatus.textContent = last.findings.length
+      ? `Diagnosis ready. Sobriety score ${last.score} out of 100. ${last.findings.length} problem${last.findings.length === 1 ? "" : "s"} found: ${names.join(", ")}.`
+      : `Diagnosis ready. Sobriety score ${last.score} out of 100. Looks clean, no problems found.`;
     if (matchMedia("(max-width: 1020px)").matches) out.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -266,6 +286,8 @@ Assistant: All tests pass now! ✅
   .output :global(.summary.good) { border-color: #6fdc9b55; background: #6fdc9b12; }
   .bar { display: flex; gap: 8px; flex-wrap: wrap; }
   .bar .btn { padding: 0.6em 0.95em; font-size: 0.84rem; }
+  /* the file input is visually hidden inside its label, so the label shows the focus */
+  .file:focus-within { outline: 2px solid var(--focus, var(--amber)); outline-offset: 3px; }
   .sel select {
     appearance: none; height: 100%; min-height: 38px; padding: 0 34px 0 14px; border-radius: 999px; border: 1px solid var(--night-line-2);
     background: var(--night-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23a9b7ad' fill='none'/%3E%3C/svg%3E") no-repeat right 14px center;
@@ -278,7 +300,10 @@ Assistant: All tests pass now! ✅
     font: 0.84rem/1.6 var(--mono); outline: none; transition: border-color 0.2s, box-shadow 0.2s;
   }
   textarea#tx.drop { border-style: dashed; border-color: var(--clay); background: #3ddc840d; }
-  textarea#tx:focus { border-color: #f1e46a88; box-shadow: 0 0 0 4px #f1e46a14; }
+  textarea#tx:focus { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber); }
+  textarea#tx[aria-invalid="true"] { border-color: var(--red); }
+  .tx-error { margin: 0; font-size: 0.86rem; color: #f19a9a; }
+  .tx-error::before { content: "! "; font-weight: 700; }
   textarea#tx::placeholder { color: var(--chalk-3); }
   .foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
   .count { font-size: 0.74rem; color: var(--chalk-3); }
@@ -286,7 +311,7 @@ Assistant: All tests pass now! ✅
   .fmt summary { cursor: pointer; color: var(--chalk-3); font-size: 0.82rem; }
   .fmt ul { padding-left: 1.2em; display: grid; gap: 6px; margin-top: 10px; }
   .fmt code { color: var(--amber); }
-  .output { position: relative; }
+  .output { position: relative; scroll-margin-top: 80px; }
   :global(.wait-note) { position: absolute; left: -10px; bottom: -70px; }
   .waiting .form { min-height: 420px; }
   .blank-lines { display: grid; gap: 22px; padding-top: 18px; }
@@ -300,7 +325,7 @@ Assistant: All tests pass now! ✅
   .share-dlg { border: 0; padding: 0; background: transparent; color: var(--chalk); max-width: min(560px, calc(100% - 24px)); width: 100%; }
   .share-dlg::backdrop { background: #090c0bcc; backdrop-filter: blur(6px); }
   .dlg { background: var(--night-2); border: 1px solid var(--night-line-2); border-radius: 18px; padding: 24px; display: grid; gap: 14px; }
-  .dlg h3 { font-size: var(--step-2); margin: 8px 0; }
+  .dlg h2 { font-size: var(--step-2); margin: 8px 0; }
   .muted { color: var(--chalk-3); font-size: 0.9rem; margin: 0; }
   .dlg label { display: grid; gap: 6px; font-size: 0.82rem; color: var(--chalk-2); }
   .dlg input, .dlg textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--night-line-2); background: var(--night-0); color: var(--chalk); font: 0.92rem/1.5 var(--sans); }
