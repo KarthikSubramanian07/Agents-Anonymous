@@ -97,7 +97,7 @@ const shares = seedShares.map((s) => ({
     </div>
   </div>
 
-  <figure class="speech" aria-live="polite">
+  <figure class="speech">
     <figcaption><span class="dot"></span><span class="who">Sonnet K.</span><span class="room"></span></figcaption>
     <blockquote class="said"></blockquote>
   </figure>
@@ -133,6 +133,8 @@ const shares = seedShares.map((s) => ({
 <script>
   type Share = { handle: string; title: string; room: string; code: string; color: string };
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // "Pause animations" (MotionToggle) stops the turns and the typing.
+  const still = () => document.documentElement.classList.contains("still");
 
   document.querySelectorAll<HTMLElement>("[data-circle]").forEach((stage) => {
     const shares: Share[] = JSON.parse(stage.dataset.shares || "[]");
@@ -175,7 +177,7 @@ const shares = seedShares.map((s) => ({
         said.textContent = "";
         speech.classList.add("on");
         clearInterval(typing);
-        if (reduce) { said.textContent = s.title; return; }
+        if (reduce || still()) { said.textContent = s.title; return; }
         let k = 0;
         typing = window.setInterval(() => {
           said.textContent = s.title.slice(0, ++k);
@@ -186,7 +188,7 @@ const shares = seedShares.map((s) => ({
     // Start with a random share so repeat visits feel alive.
     i = Math.floor(Math.random() * shares.length);
     speak();
-    const loop = window.setInterval(() => !document.hidden && speak(), 6400);
+    const loop = window.setInterval(() => !document.hidden && !still() && speak(), 6400);
     stage.addEventListener("click", (e) => {
       const seat = (e.target as HTMLElement).closest<HTMLElement>(".seat:not(.empty)");
       if (!seat) return;

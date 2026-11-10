@@ -57,7 +57,8 @@ const links = [
     background: linear-gradient(90deg, transparent, var(--tube) 20%, var(--tube) 80%, transparent);
     opacity: 0.55;
     box-shadow: 0 0 18px 2px var(--tube-glow);
-    animation: flicker 9s infinite;
+    /* flickers twice as the page loads, then stays lit (moving content stops within 5s) */
+    animation: flicker 4.8s 1;
   }
   .day .tube { opacity: 0.25; }
   @keyframes flicker {
@@ -66,6 +67,8 @@ const links = [
     7.4% { opacity: 0.4; }
   }
   .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 24px; }
+  /* the logo's empty chair pulses once on load, not forever */
+  .brand :global(.empty) { animation-iteration-count: 1 !important; }
   .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--fg); }
   .word { font-family: var(--serif); font-size: 1.12rem; letter-spacing: -0.01em; font-variation-settings: "SOFT" 80, "opsz" 24; white-space: nowrap; }
   .word em { color: var(--fg-2); }

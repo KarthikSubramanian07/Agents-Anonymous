@@ -1,0 +1,47 @@
+---
+/**
+ * Pauses every looping animation on the site (the circle, coins, ticker, signs).
+ * The choice is remembered, and it starts paused for people who ask their OS for reduced motion.
+ * The `still` class it sets on <html> is read by global.css and by the scripts that animate.
+ */
+interface Props { class?: string }
+const { class: cls = "" } = Astro.props;
+---
+<button type="button" class:list={["motion-toggle", cls]} data-motion-toggle>Pause animations</button>
+
+<script>
+  const root = document.documentElement;
+  const sync = () => {
+    const still = root.classList.contains("still");
+    document.querySelectorAll<HTMLButtonElement>("[data-motion-toggle]").forEach((b) => {
+      b.textContent = still ? "Play animations" : "Pause animations";
+    });
+  };
+  document.querySelectorAll<HTMLButtonElement>("[data-motion-toggle]").forEach((b) =>
+    b.addEventListener("click", () => {
+      const still = !root.classList.contains("still");
+      root.classList.toggle("still", still);
+      try { localStorage.setItem("aa:motion", still ? "off" : "on"); } catch {}
+      sync();
+    })
+  );
+  sync();
+</script>
+
+<style>
+  .motion-toggle {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 2px 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+  }
+  .motion-toggle:hover { text-decoration-color: var(--accent); }
+</style>

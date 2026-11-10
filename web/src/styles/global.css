@@ -366,6 +366,13 @@ pre,
   }
 }
 
+/* "Pause animations" (MotionToggle): freeze every loop where it is. */
+html.still *,
+html.still *::before,
+html.still *::after {
+  animation-play-state: paused !important;
+}
+
 /* copy buttons on code blocks */
 .copybox {
   position: relative;

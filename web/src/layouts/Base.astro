@@ -71,6 +71,13 @@ const mdTwin = mdTwins.has(pagePath) ? mdPathFor(pagePath) : null;
     {mdTwin && <link rel="alternate" type="text/markdown" href={mdTwin} />}
     {keywords && <meta name="keywords" content={keywords} />}
     <slot name="head" />
+    <script is:inline>
+      // Start with animations paused if the visitor paused them before, or asks their OS for less motion.
+      try {
+        var m = localStorage.getItem("aa:motion");
+        if (m === "off" || (m === null && matchMedia("(prefers-reduced-motion: reduce)").matches)) document.documentElement.classList.add("still");
+      } catch (e) {}
+    </script>
   </head>
   <body class={mood}>
     <a class="skip sr-only" href="#main">Skip to content</a>

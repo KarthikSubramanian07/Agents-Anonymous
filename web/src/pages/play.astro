@@ -45,7 +45,7 @@ const tray = TOWER_ORDER.map((k) => {
 
       <div class="overlay" id="ov-start">
         <div class="card start">
-          <Mark size={46} />
+          <Mark size={46} live={false} />
           <p class="eyebrow">Agents Anonymous presents</p>
           <h1>Defend <em>the Circle</em></h1>
           <p class="sub">Bad habits are walking toward the agent's focus, the table in the middle. Stop them before they reach it.</p>
@@ -449,11 +449,16 @@ const tray = TOWER_ORDER.map((k) => {
   game = new Game(7, {});
   for (const c of [0, 3, 6, 9]) game.towers.set(c, { chair: c, kind: TOWER_ORDER[c % 7], level: 1, cd: 1, flash: 0, aim: 0, spent: 0 });
 
+  // Less motion: no screen shake, and the attract-mode room behind the start card settles after 5s.
+  const calm = () => matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.classList.contains("still");
+  const attractUntil = performance.now() + 5000;
   function frame(now: number) {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    if (!paused && !codexOpen) game.tick(dt);
+    const settled = game.state === "ready" && (now > attractUntil || calm());
+    if (!paused && !codexOpen && !settled) game.tick(dt);
     else game.tick(0);
+    if (calm()) game.shake = 0;
     draw(ctx, game, view, ov);
     if (game.state === "between") hud();
     requestAnimationFrame(frame);
