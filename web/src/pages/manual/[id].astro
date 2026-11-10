@@ -137,7 +137,8 @@ const jsonld = {
   .rx-card > p { margin: 0; color: #d9cfbf; }
   .step { display: grid; gap: 4px; padding: 14px; border-radius: 12px; background: #ffffff0d; text-decoration: none; border: 1px solid #ffffff14; }
   .step:hover { border-color: var(--c); }
-  .step .n { font: 600 0.72rem/1 var(--mono); color: var(--c); letter-spacing: 0.06em; }
+  /* a touch lighter than the room colour so the darkest one (Claiming it works) still reads at 4.5:1 here */
+  .step .n { font: 600 0.72rem/1 var(--mono); color: color-mix(in srgb, var(--c) 88%, #fff); letter-spacing: 0.06em; }
   .step .t { font: 400 1.02rem/1.35 var(--serif); }
   .label { font-size: 0.68rem !important; text-transform: uppercase; letter-spacing: 0.1em; color: #b9ac99 !important; }
   .tmpl { margin: 0; white-space: pre-wrap; font: 0.78rem/1.55 var(--mono); color: #e9efe9; background: #00000033; padding: 12px; border-radius: 10px; }
