@@ -92,6 +92,12 @@ const mdTwin = mdTwins.has(pagePath) ? mdPathFor(pagePath) : null;
       );
       document.querySelectorAll("[data-reveal]").forEach((el) => io.observe(el));
 
+      // Code blocks that scroll sideways must be reachable by keyboard to be scrolled.
+      document.querySelectorAll<HTMLPreElement>("pre").forEach((pre) => {
+        const o = getComputedStyle(pre).overflowX;
+        if (o === "auto" || o === "scroll") pre.tabIndex = 0;
+      });
+
       // One-tap copy on every code block.
       document.querySelectorAll<HTMLPreElement>("pre:has(> code)").forEach((pre) => {
         const box = document.createElement("div");
