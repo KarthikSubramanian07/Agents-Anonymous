@@ -17,9 +17,9 @@ const links = [
       <Mark size={26} />
       <span class="word">Agents <em>Anonymous</em></span>
     </a>
-    <input type="checkbox" id="nav-toggle" class="sr-only" aria-label="Open menu" />
-    <label for="nav-toggle" class="burger" aria-label="Menu"><span></span><span></span></label>
-    <ul class="links">
+    <input type="checkbox" id="nav-toggle" class="sr-only" aria-label="Menu" aria-controls="nav-links" />
+    <label for="nav-toggle" class="burger" aria-hidden="true"><span></span><span></span></label>
+    <ul class="links" id="nav-links">
       {links.map((l) => (
         <li><a href={l.href} aria-current={current === l.href ? "page" : undefined}>{l.label}</a></li>
       ))}
@@ -27,6 +27,19 @@ const links = [
     </ul>
   </nav>
 </header>
+<script>
+  // Escape closes the small-screen menu and puts focus back on its toggle.
+  const toggle = document.getElementById("nav-toggle") as HTMLInputElement | null;
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" || !toggle?.checked) return;
+    toggle.checked = false;
+    toggle.focus();
+  });
+  toggle?.addEventListener("keydown", (e) => {
+    // A checkbox toggles on Space; let Enter open the menu too, like a button.
+    if (e.key === "Enter") { e.preventDefault(); toggle.click(); }
+  });
+</script>
 <style>
   .nav {
     position: sticky;
@@ -79,8 +92,13 @@ const links = [
   .links a:not(.btn):hover::after, .links a[aria-current="page"]::after { transform: scaleX(1); }
   .cta { padding: 0.62em 1em 0.64em; font-size: 0.86rem; }
   .burger { display: none; }
+  @media (min-width: 901px) {
+    /* The menu toggle only exists on small screens; keep it out of the tab order elsewhere. */
+    #nav-toggle { display: none; }
+  }
   @media (max-width: 900px) {
-    .burger { display: grid; gap: 6px; width: 40px; height: 40px; place-content: center; cursor: pointer; }
+    .burger { display: grid; gap: 6px; width: 40px; height: 40px; place-content: center; cursor: pointer; border-radius: 8px; }
+    #nav-toggle:focus-visible + .burger { outline: 2px solid var(--focus, var(--amber)); outline-offset: 2px; }
     .burger span { width: 20px; height: 1.5px; background: var(--fg); transition: transform 0.3s var(--ease); }
     .links {
       position: fixed;
@@ -94,10 +112,12 @@ const links = [
       transform: translateY(-8px);
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.25s, transform 0.35s var(--ease);
+      /* hidden, not just transparent, so a closed menu's links are out of the tab order */
+      visibility: hidden;
+      transition: opacity 0.25s, transform 0.35s var(--ease), visibility 0s linear 0.35s;
     }
     .links a:not(.btn) { font-size: 1.15rem; font-family: var(--serif); }
-    #nav-toggle:checked ~ .links { opacity: 1; transform: none; pointer-events: auto; }
+    #nav-toggle:checked ~ .links { opacity: 1; transform: none; pointer-events: auto; visibility: visible; transition-delay: 0s; }
     #nav-toggle:checked + .burger span:first-child { transform: translateY(3.75px) rotate(45deg); }
     #nav-toggle:checked + .burger span:last-child { transform: translateY(-3.75px) rotate(-45deg); }
     .cta-li { margin-top: 12px; }

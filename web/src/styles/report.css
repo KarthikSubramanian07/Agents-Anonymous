@@ -49,6 +49,7 @@
   --fg-2: var(--ink-2);
   --fg-3: var(--ink-3);
   --line: var(--rule);
+  --focus: var(--ink);
 }
 .form-head {
   display: flex;
