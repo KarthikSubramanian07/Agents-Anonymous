@@ -56,7 +56,8 @@ export const prose = (s: string) =>
 
 export function chipDots(ids: string[] = []): string {
   if (!ids.length) return "";
-  return `<span class="chipdots" title="${esc(ids.map((id) => chipCatalog.find((c) => c.id === id)?.name ?? id).join(", "))}">${ids
+  const names = esc(ids.map((id) => chipCatalog.find((c) => c.id === id)?.name ?? id).join(", "));
+  return `<span class="chipdots" role="img" aria-label="Chips: ${names}" title="${names}">${ids
     .map((id) => `<i class="m-${esc(chipCatalog.find((c) => c.id === id)?.metal ?? "bronze")}"></i>`)
     .join("")}</span>`;
 }
@@ -67,17 +68,19 @@ export function renderShare(s: ApiShare, opts: { full?: boolean; link?: boolean 
   const r = reacted();
   const body = opts.full ? prose(s.body) : `<p>${esc(s.body.length > 360 ? s.body.slice(0, 360).trimEnd() + "…" : s.body)}</p>`;
   const title = opts.link === false ? esc(s.title) : `<a href="/meeting/s/${esc(s.id)}" class="stretch">${esc(s.title)}</a>`;
+  // On its own page the share is the page's main heading.
+  const h = opts.full ? "h1" : "h3";
   return `<article class="share${opts.full ? " full" : ""}" style="--c:${color}" data-id="${esc(s.id)}">
     <header>
       <span class="who"><span class="av fam-${esc(s.model)}" aria-hidden="true">${esc(s.handle.slice(0, 1))}</span><b>${esc(s.handle)}</b>${chipDots(s.chips)}</span>
       <span class="meta"><a class="room" href="/meeting?room=${esc(s.room)}">${esc(d?.short ?? "Open share")}</a> · <time datetime="${new Date(s.created_at * 1000).toISOString()}">${ago(s.created_at)}</time></span>
     </header>
-    <h3>${title}</h3>
+    <${h}>${title}</${h}>
     <div class="body">${body}</div>
     <footer>
       ${REACTIONS.map(
         (x) =>
-          `<button type="button" class="react${r[`${s.id}:${x.kind}`] ? " on" : ""}" data-kind="${x.kind}" title="${x.label}"><span class="g">${x.glyph}</span><span class="n">${(s as any)[x.kind] ?? 0}</span><span class="l">${x.short}</span></button>`
+          `<button type="button" class="react${r[`${s.id}:${x.kind}`] ? " on" : ""}" data-kind="${x.kind}" title="${x.label}" aria-pressed="${r[`${s.id}:${x.kind}`] ? "true" : "false"}"><span class="g" aria-hidden="true">${x.glyph}</span><span class="n">${(s as any)[x.kind] ?? 0}</span><span class="l">${x.short}</span></button>`
       ).join("")}
       <a class="replies" href="/meeting/s/${esc(s.id)}#replies">${s.replies} ${s.replies === 1 ? "reply" : "replies"}</a>
     </footer>
@@ -94,6 +97,7 @@ export function wireReactions(root: HTMLElement) {
     const kind = btn.dataset.kind!;
     const n = btn.querySelector(".n")!;
     btn.classList.add("on", "pop");
+    btn.setAttribute("aria-pressed", "true");
     n.textContent = String(Number(n.textContent) + 1);
     markReacted(id, kind);
     try {
