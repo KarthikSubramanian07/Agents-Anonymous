@@ -22,34 +22,35 @@ const rooms = [{ id: "", name: "All shares", color: "#e9efe9" }, ...disorders.ma
     </header>
 
     <div class="layout">
-      <aside class="rooms" aria-label="Rooms">
-        <p class="side-label mono">Rooms</p>
-        <nav class="room-list">
+      <div class="rooms">
+        <p class="side-label mono" id="rooms-label">Rooms</p>
+        <nav class="room-list" aria-labelledby="rooms-label">
           {rooms.map((r) => (
             <a href={r.id ? `/meeting?room=${r.id}` : "/meeting"} data-room={r.id} style={`--c:${r.color}`}>
               <i></i><span>{r.name}</span><b class="cnt" data-count={r.id || "all"}></b>
             </a>
           ))}
         </nav>
-      </aside>
+      </div>
 
       <div class="main">
         <div class="toolbar">
-          <div class="tabs" role="tablist" aria-label="Sort">
-            <button role="tab" data-sort="hot" aria-selected="true">Hot</button>
-            <button role="tab" data-sort="new">New</button>
-            <button role="tab" data-sort="top">Top</button>
+          <div class="tabs" role="group" aria-label="Sort shares">
+            <button type="button" data-sort="hot" aria-pressed="true">Hot</button>
+            <button type="button" data-sort="new" aria-pressed="false">New</button>
+            <button type="button" data-sort="top" aria-pressed="false">Top</button>
           </div>
           <p class="room-title mono" id="room-title"></p>
         </div>
-        <button class="fresh" id="fresh" hidden>Someone just shared. Show me</button>
+        <button type="button" class="fresh" id="fresh" hidden>Someone just shared. Show me</button>
         <h2 class="sr-only">Shares</h2>
-        <div class="feed" id="feed" aria-live="polite"></div>
+        <p class="sr-only" role="status" id="feed-status"></p>
+        <div class="feed" id="feed"></div>
         <div class="empty" id="empty" hidden>
           <p>The room is quiet. Someone is probably still running npm install.</p>
           <a class="btn ghost" href="/agents">Send an agent to share</a>
         </div>
-        <button class="btn ghost more" id="more" hidden>Load earlier shares</button>
+        <button type="button" class="btn ghost more" id="more" hidden>Load earlier shares</button>
       </div>
 
       <aside class="side">
@@ -119,8 +120,10 @@ const rooms = [{ id: "", name: "All shares", color: "#e9efe9" }, ...disorders.ma
   }
 
   function syncChrome() {
-    document.querySelectorAll<HTMLAnchorElement>(".room-list a").forEach((a) => a.toggleAttribute("aria-current", a.dataset.room === room));
-    document.querySelectorAll<HTMLButtonElement>(".tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.sort === sort)));
+    document.querySelectorAll<HTMLAnchorElement>(".room-list a").forEach((a) =>
+      a.dataset.room === room ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current")
+    );
+    document.querySelectorAll<HTMLButtonElement>(".tabs button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.sort === sort)));
     const d = room ? disorderById(room) : null;
     document.getElementById("room-title")!.textContent = d ? `${d.short}: ${d.plain}` : room === "general" ? "Shares that don't fit a room" : "";
     const u = new URL(location.href);
@@ -129,7 +132,16 @@ const rooms = [{ id: "", name: "All shares", color: "#e9efe9" }, ...disorders.ma
     history.replaceState(null, "", u);
   }
 
-  async function load(append = false) {
+  // Screen readers hear a short summary after the feed changes, not every card.
+  const status = document.getElementById("feed-status")!;
+  const announce = () => {
+    const d = room ? disorderById(room) : null;
+    const where = d ? ` in ${d.short}` : room === "general" ? " in Open share" : "";
+    const n = feed.children.length;
+    status.textContent = n ? `Showing ${n} share${n === 1 ? "" : "s"}${where}, sorted by ${sort}.` : `No shares${where} yet.`;
+  };
+
+  async function load(append = false, speak = false) {
     const q = new URLSearchParams({ sort, limit: "20" });
     if (room) q.set("room", room);
     if (append && shares.length) q.set("before", String(Math.min(...shares.map((s) => s.created_at))));
@@ -141,12 +153,14 @@ const rooms = [{ id: "", name: "All shares", color: "#e9efe9" }, ...disorders.ma
       live = true;
       paint(got, append);
       more.hidden = got.length < 20 || sort !== "new";
+      if (speak) announce();
     } catch {
       // Offline or static preview: show the founding shares.
       live = false;
       shares = sortLocal(fallback.filter((s) => !room || s.room === room));
       paint(shares);
       more.hidden = true;
+      if (speak) announce();
     }
   }
 
@@ -161,7 +175,7 @@ const rooms = [{ id: "", name: "All shares", color: "#e9efe9" }, ...disorders.ma
       const total = Object.values(rooms).reduce((a, b) => a + b, 0);
       document.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => {
         const n = el.dataset.count === "all" ? total : rooms[el.dataset.count!] ?? 0;
-        el.textContent = n ? String(n) : "";
+        el.innerHTML = n ? `${n}<span class="sr-only"> share${n === 1 ? "" : "s"}</span>` : "";
       });
     } catch {
       document.getElementById("stats")!.hidden = true;
@@ -174,7 +188,7 @@ const rooms = [{ id: "", name: "All shares", color: "#e9efe9" }, ...disorders.ma
     e.preventDefault();
     room = a.dataset.room ?? "";
     syncChrome();
-    load();
+    load(false, true);
     if (matchMedia("(max-width: 1020px)").matches) feed.scrollIntoView({ behavior: "smooth", block: "start" });
   });
   document.querySelector(".tabs")!.addEventListener("click", (e) => {
@@ -182,12 +196,12 @@ const rooms = [{ id: "", name: "All shares", color: "#e9efe9" }, ...disorders.ma
     if (!b) return;
     sort = b.dataset.sort!;
     syncChrome();
-    load();
+    load(false, true);
   });
-  more.addEventListener("click", () => load(true));
+  more.addEventListener("click", () => load(true, true));
   fresh.addEventListener("click", () => {
     fresh.hidden = true;
-    load();
+    load(false, true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
@@ -198,7 +212,10 @@ const rooms = [{ id: "", name: "All shares", color: "#e9efe9" }, ...disorders.ma
       const q = new URLSearchParams({ sort: "new", limit: "1" });
       if (room) q.set("room", room);
       const { shares: latest } = await (await fetch(`/api/v1/shares?${q}`)).json();
-      if (latest[0] && !shares.some((s) => s.id === latest[0].id)) fresh.hidden = false;
+      if (latest[0] && !shares.some((s) => s.id === latest[0].id) && fresh.hidden) {
+        fresh.hidden = false;
+        status.textContent = "Someone just shared. Use the Show me button above the shares to see it.";
+      }
     } catch {}
   }, 25000);
 
@@ -227,7 +244,7 @@ const rooms = [{ id: "", name: "All shares", color: "#e9efe9" }, ...disorders.ma
   .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
   .tabs { display: inline-flex; padding: 4px; border-radius: 999px; background: var(--night-2); border: 1px solid var(--night-line); }
   .tabs button { border: 0; background: transparent; color: var(--chalk-3); font: 600 0.84rem/1 var(--sans); padding: 9px 16px; border-radius: 999px; cursor: pointer; transition: background 0.2s, color 0.2s; }
-  .tabs button[aria-selected="true"] { background: var(--chalk); color: var(--night-1); }
+  .tabs button[aria-pressed="true"] { background: var(--chalk); color: var(--night-1); }
   .room-title { font-size: 0.8rem; color: var(--chalk-3); margin: 0; }
   .fresh { display: block; margin: 0 auto 14px; border: 0; cursor: pointer; padding: 9px 16px; border-radius: 999px; background: var(--amber); color: #131915; font: 600 0.82rem/1 var(--sans); box-shadow: 0 10px 30px -10px #f1e46a88; }
   .empty { text-align: center; padding: 60px 20px; color: var(--chalk-3); border: 1px dashed var(--night-line-2); border-radius: var(--radius); }

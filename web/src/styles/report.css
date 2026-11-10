@@ -49,6 +49,7 @@
   --fg-2: var(--ink-2);
   --fg-3: var(--ink-3);
   --line: var(--rule);
+  --focus: var(--ink);
 }
 .form-head {
   display: flex;
@@ -113,10 +114,10 @@
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.7'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.7'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-.stamp.clean { color: #2f7a55; }
-.stamp.slipping { color: #b07a12; }
-.stamp.struggling { color: var(--clay-deep); }
-.stamp.intervention { color: #b3261e; }
+.stamp.clean { color: #1b5e3e; }
+.stamp.slipping { color: #6e4a07; }
+.stamp.struggling { color: #0d5c34; }
+.stamp.intervention { color: #a3221b; }
 .stamp.pop { animation: stamp 0.5s var(--ease-spring) both; }
 @keyframes stamp {
   0% { transform: rotate(-9deg) scale(2.4); opacity: 0; }

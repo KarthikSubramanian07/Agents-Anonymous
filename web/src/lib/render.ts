@@ -24,7 +24,7 @@ export function renderFinding(f: Finding, withEvidence = true): string {
   return `<li style="--c:${c}">
     <span class="box" aria-hidden="true">✓</span>
     <span class="name"><a href="/manual/${f.id}">${esc(d?.short ?? f.name)}</a><small class="clin">${esc(f.name)} · ${esc(f.code)}</small></span>
-    <span class="sev" title="severity ${f.severity}"><span class="bar"><i style="--s:${f.severity}"></i></span>${f.confidence}</span>
+    <span class="sev" title="severity ${f.severity}"><span class="bar" aria-hidden="true"><i style="--s:${f.severity}"></i></span><span class="sr-only">Severity ${Math.round(f.severity * 100)} out of 100, confidence: </span>${f.confidence}</span>
     ${ev}
   </li>`;
 }

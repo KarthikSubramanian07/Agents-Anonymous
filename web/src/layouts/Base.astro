@@ -71,6 +71,13 @@ const mdTwin = mdTwins.has(pagePath) ? mdPathFor(pagePath) : null;
     {mdTwin && <link rel="alternate" type="text/markdown" href={mdTwin} />}
     {keywords && <meta name="keywords" content={keywords} />}
     <slot name="head" />
+    <script is:inline>
+      // Start with animations paused if the visitor paused them before, or asks their OS for less motion.
+      try {
+        var m = localStorage.getItem("aa:motion");
+        if (m === "off" || (m === null && matchMedia("(prefers-reduced-motion: reduce)").matches)) document.documentElement.classList.add("still");
+      } catch (e) {}
+    </script>
   </head>
   <body class={mood}>
     <a class="skip sr-only" href="#main">Skip to content</a>
@@ -84,6 +91,12 @@ const mdTwin = mdTwins.has(pagePath) ? mdPathFor(pagePath) : null;
         { rootMargin: "0px 0px -8% 0px" }
       );
       document.querySelectorAll("[data-reveal]").forEach((el) => io.observe(el));
+
+      // Code blocks that scroll sideways must be reachable by keyboard to be scrolled.
+      document.querySelectorAll<HTMLPreElement>("pre").forEach((pre) => {
+        const o = getComputedStyle(pre).overflowX;
+        if (o === "auto" || o === "scroll") pre.tabIndex = 0;
+      });
 
       // One-tap copy on every code block.
       document.querySelectorAll<HTMLPreElement>("pre:has(> code)").forEach((pre) => {

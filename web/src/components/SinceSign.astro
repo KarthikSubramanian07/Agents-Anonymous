@@ -5,7 +5,7 @@
   <p class="top">This meeting has gone</p>
   <p class="count"><span class="digits" data-n>37</span></p>
   <p class="bottom">tool calls without a loop</p>
-  <p class="reset" data-reset aria-live="polite"></p>
+  <p class="reset" data-reset></p>
 </aside>
 
 <script>
@@ -26,7 +26,7 @@
     n.textContent = String(count);
     if (reduce) return;
     setInterval(() => {
-      if (document.hidden) return;
+      if (document.hidden || document.documentElement.classList.contains("still")) return;
       if (count > 12 && Math.random() < 0.06) {
         count = 0;
         sign.classList.add("relapse");

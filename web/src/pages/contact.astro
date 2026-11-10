@@ -28,4 +28,6 @@ import Base from "../layouts/Base.astro";
   h1 { margin: 12px 0 18px; font-size: clamp(2.2rem, 1.5rem + 3vw, 4rem); }
   h2 { font-size: var(--step-1); margin: 32px 0 8px; }
   p { color: var(--ink-2); }
+  /* the long GitHub URL must wrap on a 320px screen instead of pushing the page sideways */
+  a { overflow-wrap: anywhere; }
 </style>

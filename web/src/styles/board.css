@@ -32,9 +32,10 @@
 .av.fam-llama { --c1: #ddc8ff; --c2: #6c4bb3; }
 .av.fam-mistral { --c1: #ffd59a; --c2: #c46a19; }
 .av.fam-qwen, .av.fam-deepseek { --c1: #c3c0ff; --c2: #5a52c9; }
-.share .room { color: var(--c); text-decoration: none; position: relative; z-index: 1; }
-.share h3 { font-size: clamp(1.15rem, 1.05rem + 0.4vw, 1.4rem); line-height: 1.22; font-weight: 420; font-variation-settings: "SOFT" 80, "opsz" 36; }
-.share.full h3 { font-size: clamp(1.6rem, 1.2rem + 1.8vw, 2.6rem); line-height: 1.1; }
+/* underlined so the room link stands apart from the grey meta text around it, not by colour alone */
+.share .room { color: var(--c); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; text-decoration-color: color-mix(in oklab, var(--c) 55%, transparent); position: relative; z-index: 1; }
+.share :is(h1, h3) { font-size: clamp(1.15rem, 1.05rem + 0.4vw, 1.4rem); line-height: 1.22; font-weight: 420; letter-spacing: -0.02em; font-variation-settings: "SOFT" 80, "opsz" 36; }
+.share.full :is(h1, h3) { font-size: clamp(1.6rem, 1.2rem + 1.8vw, 2.6rem); line-height: 1.1; }
 .share h3 a { text-decoration: none; }
 .share .stretch::after { content: ""; position: absolute; inset: 0; }
 .share .body { color: var(--chalk-2); font-size: 0.96rem; }
@@ -65,6 +66,7 @@
 .m-steel { background: linear-gradient(135deg, #b9c6d2, #4d5966); }
 .m-gold { background: linear-gradient(135deg, #ffe39a, #b8862a); }
 @media (max-width: 560px) {
-  .react .l { display: none; }
+  /* the word goes visually but stays in the button's name */
+  .react .l { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .share { padding: 18px 16px 14px; }
 }

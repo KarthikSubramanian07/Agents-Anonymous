@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import Mark from "../components/Mark.astro";
 import { TOWERS, TOWER_ORDER, ENEMIES } from "../game/defs";
+import { CHAIRS } from "../game/defend";
 
 const tray = TOWER_ORDER.map((k) => {
   const t = TOWERS[k];
@@ -11,32 +12,41 @@ const tray = TOWER_ORDER.map((k) => {
 ---
 <Base title="Defend the Circle" description="A tower-defense game about keeping an AI agent on task. Disorders swarm the meeting; place the right intervention on the right chair before the context window caves." current="/play">
   <section class="play-wrap">
-    <div class="arena" id="arena">
+    <div class="arena" id="arena" tabindex="-1">
       <canvas id="cv" aria-label="Defend the Circle game board" role="img"></canvas>
 
-      <div class="hud" aria-live="polite">
+      <!-- Keyboard and screen-reader way to use the chairs drawn on the canvas: one button per chair, laid over it. -->
+      <div class="seats" id="seats" role="group" aria-label="Chairs around the table" aria-describedby="seats-help" hidden>
+        {CHAIRS.map((c) => (
+          <button type="button" class="seat-b" id={`seat-${c.i}`} data-chair={c.i}>Chair {c.i + 1}, empty</button>
+        ))}
+      </div>
+      <p class="sr-only" id="seats-help">Pick a fix with keys 1 to 7 or from the Fixes list, then press Enter on an empty chair to place it. Press Enter on a used chair to upgrade or sell it. P pauses, S uses the Serenity Prompt, M mutes.</p>
+      <p class="sr-only" role="status" id="say"></p>
+
+      <div class="hud">
         <div class="h-item"><span class="h-l mono">wave</span><b id="h-wave">0</b></div>
         <div class="h-item ctx"><span class="h-l mono">context</span><b id="h-ctx">100%</b><span class="bar"><i id="h-ctxbar"></i></span></div>
         <div class="h-item"><span class="h-l mono">coffee</span><b id="h-tok">150</b></div>
         <div class="h-item hide-s"><span class="h-l mono">score</span><b id="h-score">0</b></div>
         <div class="h-btns">
-          <button class="icon" id="b-next" title="Call the next wave early (Space)">Next wave ▸</button>
-          <button class="icon serene" id="b-serenity" title="The Serenity Prompt (S): freeze and unmask every disorder for 4s">☮ <span id="ser-cost">250</span></button>
-          <button class="icon" id="b-pause" title="Pause (P)" aria-label="Pause">❚❚</button>
-          <button class="icon" id="b-mute" title="Sound (M)" aria-label="Toggle sound">♪</button>
+          <button type="button" class="icon" id="b-next" title="Call the next wave early (Space)" aria-keyshortcuts="Space">Next wave <span aria-hidden="true">▸</span></button>
+          <button type="button" class="icon serene" id="b-serenity" title="The Serenity Prompt (S): freeze and unmask every disorder for 4s" aria-keyshortcuts="S"><span aria-hidden="true">☮</span> <span class="sr-only">Serenity Prompt, costs </span><span id="ser-cost">250</span><span class="sr-only"> coffee</span></button>
+          <button type="button" class="icon" id="b-pause" title="Pause (P)" aria-label="Pause" aria-keyshortcuts="P">❚❚</button>
+          <button type="button" class="icon" id="b-mute" title="Sound (M)" aria-label="Mute" aria-pressed="false" aria-keyshortcuts="M">♪</button>
         </div>
       </div>
 
-      <div class="pop" id="pop" hidden>
+      <div class="pop" id="pop" role="group" aria-labelledby="pop-name" hidden>
         <p class="pop-name" id="pop-name"></p>
         <p class="pop-lvl mono" id="pop-lvl"></p>
         <div class="pop-btns">
-          <button class="btn clay" id="pop-up"></button>
-          <button class="btn ghost" id="pop-sell"></button>
+          <button type="button" class="btn clay" id="pop-up" aria-keyshortcuts="U"></button>
+          <button type="button" class="btn ghost" id="pop-sell"></button>
         </div>
       </div>
 
-      <div class="banner" id="banner" hidden></div>
+      <div class="banner" id="banner" aria-hidden="true" hidden></div>
 
       <div class="coach" id="coach" hidden role="status">
         <span id="coach-text"></span>
@@ -45,7 +55,7 @@ const tray = TOWER_ORDER.map((k) => {
 
       <div class="overlay" id="ov-start">
         <div class="card start">
-          <Mark size={46} />
+          <Mark size={46} live={false} />
           <p class="eyebrow">Agents Anonymous presents</p>
           <h1>Defend <em>the Circle</em></h1>
           <p class="sub">Bad habits are walking toward the agent's focus, the table in the middle. Stop them before they reach it.</p>
@@ -55,27 +65,27 @@ const tray = TOWER_ORDER.map((k) => {
             <li>New habits come with a card that tells you what beats them.</li>
           </ul>
           <div class="start-btns">
-            <button class="btn clay big" id="b-play">Take a seat <span class="arrow">→</span></button>
-            <button class="btn ghost" id="b-daily">Tonight's meeting (daily)</button>
+            <button type="button" class="btn clay big" id="b-play">Take a seat <span class="arrow">→</span></button>
+            <button type="button" class="btn ghost" id="b-daily">Tonight's meeting (daily)</button>
           </div>
           <p class="best mono" id="best"></p>
         </div>
       </div>
 
       <div class="overlay" id="ov-codex" hidden>
-        <div class="card codex" id="codex"></div>
+        <div class="card codex" id="codex" role="dialog" aria-labelledby="cx-name"></div>
       </div>
 
       <div class="overlay" id="ov-pause" hidden>
-        <div class="card">
-          <h2>Paused</h2>
+        <div class="card" role="dialog" aria-labelledby="pause-h">
+          <h2 id="pause-h">Paused</h2>
           <p class="sub">The coffee is still warm.</p>
-          <button class="btn clay" id="b-resume">Resume</button>
+          <button type="button" class="btn clay" id="b-resume">Resume</button>
         </div>
       </div>
 
       <div class="overlay" id="ov-over" hidden>
-        <div class="card over" id="over"></div>
+        <div class="card over" id="over" role="dialog" aria-labelledby="over-h"></div>
       </div>
     </div>
 
@@ -83,18 +93,18 @@ const tray = TOWER_ORDER.map((k) => {
       <p class="tray-l mono">Fixes <span>· keys 1–7</span></p>
       <div class="tray-list" id="tray">
         {tray.map((t, i) => (
-          <button class="tw" data-kind={t.kind} style={`--c:${t.color}`} aria-pressed="false">
-            <span class="tw-g">{t.glyph}</span>
+          <button type="button" class="tw" data-kind={t.kind} style={`--c:${t.color}`} aria-pressed="false" aria-keyshortcuts={String(i + 1)}>
+            <span class="tw-g" aria-hidden="true">{t.glyph}</span>
             <span class="tw-txt">
               <span class="tw-n">{t.name}</span>
               <span class="tw-t">treats {t.treats.join(", ")}</span>
             </span>
-            <span class="tw-c mono">☕{t.cost}</span>
-            <kbd class="tw-k">{i + 1}</kbd>
+            <span class="tw-c mono"><span aria-hidden="true">☕</span>{t.cost}<span class="sr-only"> coffee</span><span class="sr-only tw-short"></span></span>
+            <kbd class="tw-k" aria-hidden="true">{i + 1}</kbd>
           </button>
         ))}
       </div>
-      <p class="tray-foot">Stuck? ☮ <b>Serenity</b> freezes everything for 4 seconds. Each fix is a real habit from <a href="/steps">the 12 Steps</a>.</p>
+      <p class="tray-foot">Stuck? <span aria-hidden="true">☮</span> <b>Serenity</b> freezes everything for 4 seconds. Each fix is a real habit from <a href="/steps">the 12 Steps</a>.</p>
     </aside>
   </section>
 </Base>
@@ -108,6 +118,21 @@ const tray = TOWER_ORDER.map((k) => {
   const cv = $("cv") as HTMLCanvasElement;
   const ctx = cv.getContext("2d", { alpha: false })!;
   const arena = $("arena");
+  const seats = $("seats");
+  const seatBtns = [...seats.querySelectorAll<HTMLButtonElement>(".seat-b")];
+  const playWrap = document.querySelector<HTMLElement>(".play-wrap")!;
+  let started = false;
+
+  // Short spoken updates for screen readers; each kind of message at most once every few seconds.
+  const sayEl = $("say");
+  const lastSaid: Record<string, number> = {};
+  function say(msg: string, key = msg, gap = 0) {
+    const now = performance.now();
+    if (gap && now - (lastSaid[key] ?? -1e9) < gap) return;
+    lastSaid[key] = now;
+    sayEl.textContent = "";
+    requestAnimationFrame(() => (sayEl.textContent = msg));
+  }
   let view: View = { scale: 1, ox: 0, oy: 0, dpr: 1, w: 1, h: 1 };
   const ov: Overlay = { hoverChair: null, selectedKind: null, selectedChair: null };
   let game: Game;
@@ -133,6 +158,44 @@ const tray = TOWER_ORDER.map((k) => {
     const hudPad = r.width < 560 ? 56 : 0;
     const scale = Math.min(r.width, r.height - hudPad) / visible;
     view = { scale, ox: r.width / 2 - (W / 2) * scale, oy: hudPad + (r.height - hudPad) / 2 - (W / 2) * scale, dpr, w: r.width, h: r.height };
+    layoutSeats();
+  }
+
+  // ───────────── chair buttons over the canvas
+  function layoutSeats() {
+    const size = Math.max(32, 68 * view.scale);
+    seatBtns.forEach((b, i) => {
+      const ch = CHAIRS[i];
+      b.style.width = b.style.height = `${size}px`;
+      b.style.left = `${ch.x * view.scale + view.ox - size / 2}px`;
+      b.style.top = `${ch.y * view.scale + view.oy - size / 2}px`;
+    });
+  }
+  function seatLabel(i: number) {
+    const t = game?.towers.get(i);
+    return t ? `Chair ${i + 1}: ${TOWERS[t.kind].name}, level ${t.level}` : `Chair ${i + 1}, empty`;
+  }
+  function syncSeats() {
+    seats.hidden = !started;
+    seats.inert = paused || codexOpen || !game || game.state === "over";
+    seatBtns.forEach((b, i) => {
+      const label = seatLabel(i);
+      if (b.textContent !== label) b.textContent = label;
+    });
+  }
+
+  // Overlays move focus in when they open and give it back when they close.
+  let returnFocus: HTMLElement | null = null;
+  function focusIn(el: HTMLElement | null) {
+    const a = document.activeElement as HTMLElement | null;
+    if (a && a !== document.body && !a.closest(".overlay")) returnFocus = a;
+    el?.focus();
+  }
+  function focusBack() {
+    const el = returnFocus;
+    returnFocus = null;
+    if (el && el.isConnected && !el.closest("[hidden]") && !el.closest("[inert]")) el.focus();
+    else if (started) seatBtns[0].focus();
   }
   new ResizeObserver(resize).observe(arena);
 
@@ -143,15 +206,25 @@ const tray = TOWER_ORDER.map((k) => {
       onNewEnemy: codex,
       onWave: banner,
       onOver: over,
-      sound: (n, a) => { play(n, a); if (n === "leak") navigator.vibrate?.(40); else if (n === "place" || n === "upgrade") navigator.vibrate?.(8); },
+      sound: (n, a) => {
+        play(n, a);
+        if (n === "leak") navigator.vibrate?.(40);
+        else if (n === "place" || n === "upgrade") navigator.vibrate?.(8);
+        if (n === "leak" && game) say(`A habit reached the table. Context ${game.context}%.`, "leak", 3000);
+        else if (n === "deny") say("Not enough coffee yet.", "deny", 1500);
+      },
     });
     ov.selectedChair = null;
     ov.selectedKind = null;
     hidePop();
     paused = false;
+    started = true;
     game.start();
     syncTray();
     hud();
+    syncSeats();
+    // Start keyboard users on the chairs; the help text says how to pick a fix.
+    seatBtns[0].focus();
   }
 
   // ───────────── HUD
@@ -171,8 +244,9 @@ const tray = TOWER_ORDER.map((k) => {
     nb.hidden = game.state !== "between";
     $("ser-cost").textContent = String(game.serenityCost);
     ($("b-serenity") as HTMLButtonElement).disabled = game.state !== "running" || game.tokens < game.serenityCost;
-    nb.textContent = game.wave === 0 ? "Start ▸" : `Next wave ▸ ${Math.max(0, Math.ceil(game.betweenT))}`;
+    nb.innerHTML = game.wave === 0 ? `Start <span aria-hidden="true">▸</span>` : `Next wave <span aria-hidden="true">▸</span> ${Math.max(0, Math.ceil(game.betweenT))}`;
     syncTray();
+    syncSeats();
     if (ov.selectedChair !== null) showPop(ov.selectedChair);
     coach();
   }
@@ -213,8 +287,12 @@ const tray = TOWER_ORDER.map((k) => {
   function syncTray() {
     document.querySelectorAll<HTMLButtonElement>(".tw").forEach((b) => {
       const k = b.dataset.kind as TowerKind;
-      b.classList.toggle("broke", !!game && game.tokens < TOWERS[k].cost);
+      const broke = !!game && game.tokens < TOWERS[k].cost;
+      b.classList.toggle("broke", broke);
       b.setAttribute("aria-pressed", String(ov.selectedKind === k));
+      const short = b.querySelector(".tw-short")!;
+      const text = broke ? ", not enough coffee yet" : "";
+      if (short.textContent !== text) short.textContent = text;
     });
   }
 
@@ -226,6 +304,7 @@ const tray = TOWER_ORDER.map((k) => {
     void b.offsetWidth;
     b.classList.add("go");
     setTimeout(() => (b.hidden = true), 1600);
+    say(`Wave ${w}.`);
   }
 
   function codex(def: EnemyDef) {
@@ -234,17 +313,21 @@ const tray = TOWER_ORDER.map((k) => {
     const treat = def.counters.map((k) => TOWERS[k]);
     $("codex").innerHTML = `
       <p class="eyebrow">New habit</p>
-      <div class="cx-head"><span class="cx-g" style="--c:${def.color}">${def.glyph}</span><h2>${def.name}</h2></div>
+      <div class="cx-head"><span class="cx-g" style="--c:${def.color}" aria-hidden="true">${def.glyph}</span><h2 id="cx-name">${def.name}</h2></div>
       <p class="sub">${def.tip}</p>
       <p class="cx-treat mono">beat it with ${treat.map((t) => `<b style="color:${t.color}">${t.glyph} ${t.name}</b>`).join(" or ")}</p>
-      <div class="start-btns"><button class="btn clay" id="cx-ok">Got it</button><a class="btn ghost" href="/manual/${def.kind}" target="_blank" rel="noopener">Manual entry ↗</a></div>`;
+      <div class="start-btns"><button type="button" class="btn clay" id="cx-ok">Got it</button><a class="btn ghost" href="/manual/${def.kind}" target="_blank" rel="noopener">Manual entry <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a></div>`;
     $("ov-codex").hidden = false;
     $("cx-ok").addEventListener("click", closeCodex, { once: true });
+    syncSeats();
+    focusIn($("cx-ok"));
   }
   function closeCodex() {
     codexOpen = false;
     $("ov-codex").hidden = true;
     last = performance.now();
+    syncSeats();
+    focusBack();
   }
 
   function over() {
@@ -257,7 +340,7 @@ const tray = TOWER_ORDER.map((k) => {
     const text = `I held the circle for ${game.wave} wave${game.wave === 1 ? "" : "s"} in Defend the Circle (${game.kills} disorders treated, score ${game.score.toLocaleString()}).${daily ? " Tonight's meeting." : ""}`;
     $("over").innerHTML = `
       <p class="eyebrow">The meeting is over</p>
-      <h2>${game.wave >= 14 ? "You held the room. The coffee is still terrible." : game.wave >= 9 ? "A solid night. Mostly verified." : game.wave >= 5 ? "It said it was done. It was not." : game.wave >= 3 ? "The agent apologized and left." : "That was fast. Like, loop-detector fast."}</h2>
+      <h2 id="over-h" tabindex="-1">${game.wave >= 14 ? "You held the room. The coffee is still terrible." : game.wave >= 9 ? "A solid night. Mostly verified." : game.wave >= 5 ? "It said it was done. It was not." : game.wave >= 3 ? "The agent apologized and left." : "That was fast. Like, loop-detector fast."}</h2>
       <dl class="stats">
         <div><dt>waves</dt><dd>${game.wave}</dd></div>
         <div><dt>treated</dt><dd>${game.kills}</dd></div>
@@ -266,13 +349,16 @@ const tray = TOWER_ORDER.map((k) => {
       ${isBest ? `<p class="best-new hand">new personal best!</p>` : best ? `<p class="mono small">best: wave ${best.wave} · ${best.score.toLocaleString()}</p>` : ""}
       ${wdef ? `<p class="sub">What got through most: <b style="color:${wdef.color}">${wdef.name}</b>. Its treatment is <b>${wdef.counters.map((k) => TOWERS[k].name).join(" or ")}</b>. <a href="/manual/${wdef.kind}">Read the entry →</a></p>` : ""}
       ${daily
-        ? `<form class="sheet-form" id="sheet-form"><label for="sheet-handle">Sign tonight's attendance sheet</label><div class="sheet-row"><input id="sheet-handle" name="handle" maxlength="24" placeholder="First name, last initial" required autocomplete="off" /><button class="btn clay" type="submit">Sign</button></div><p class="sheet-status mono" id="sheet-status"></p></form><ol class="sheet" id="sheet-list"></ol>`
+        ? `<form class="sheet-form" id="sheet-form"><label for="sheet-handle">Sign tonight's attendance sheet</label><div class="sheet-row"><input id="sheet-handle" name="handle" maxlength="24" placeholder="First name, last initial" required autocomplete="off" /><button class="btn clay" type="submit">Sign</button></div><p class="sheet-status mono" id="sheet-status" role="status"></p></form><ol class="sheet" id="sheet-list"></ol>`
         : `<p class="sub small-note">Play <b>tonight's meeting</b> to sign the attendance sheet. Everyone gets the same waves.</p>`}
       <div class="start-btns">
-        <button class="btn clay" id="b-again">Another meeting</button>
-        <button class="btn ghost" id="b-share">Share</button>
+        <button type="button" class="btn clay" id="b-again">Another meeting</button>
+        <button type="button" class="btn ghost" id="b-share">Share</button>
       </div>`;
     $("ov-over").hidden = false;
+    hidePop();
+    syncSeats();
+    focusIn($("over-h"));
     if (daily) {
       loadSheet();
       $("sheet-form").addEventListener("submit", async (e) => {
@@ -329,7 +415,7 @@ const tray = TOWER_ORDER.map((k) => {
   });
 
   // ───────────── tower popover
-  function showPop(chair: number) {
+  function showPop(chair: number, focus = false) {
     const t = game.towers.get(chair);
     if (!t) return hidePop();
     const def = TOWERS[t.kind];
@@ -339,9 +425,12 @@ const tray = TOWER_ORDER.map((k) => {
     $("pop-name").style.color = def.color;
     $("pop-lvl").textContent = `level ${t.level} · ${def.blurb}`;
     const up = $("pop-up") as HTMLButtonElement;
-    if (t.level >= 3) { up.textContent = "Max level"; up.disabled = true; }
-    else { const c = upgradeCost(t); up.textContent = `Upgrade ☕${c}`; up.disabled = game.tokens < c; }
-    $("pop-sell").textContent = `Sell ☕${sellValue(t)}`;
+    // one wrapper span so the button's flex gap doesn't pull the price apart
+    const coffee = (n: number) => `<span aria-hidden="true">☕</span>${n}<span class="sr-only"> coffee</span>`;
+    const set = (el: HTMLElement, html: string) => { if (el.innerHTML !== html) el.innerHTML = html; };
+    if (t.level >= 3) { set(up, "Max level"); up.disabled = true; }
+    else { const c = upgradeCost(t); set(up, `<span>Upgrade ${coffee(c)}</span>`); up.disabled = game.tokens < c; }
+    set($("pop-sell"), `<span>Sell ${coffee(sellValue(t))}</span>`);
     pop.hidden = false;
     const px = ch.x * view.scale + view.ox;
     const py = ch.y * view.scale + view.oy;
@@ -349,13 +438,34 @@ const tray = TOWER_ORDER.map((k) => {
     const left = Math.min(Math.max(8, px - pw / 2), view.w - pw - 8);
     const top = py - ph - 34 * view.scale - 10 < 60 ? py + 34 * view.scale + 8 : py - ph - 34 * view.scale - 8;
     pop.style.transform = `translate(${left}px, ${Math.min(top, view.h - ph - 8)}px)`;
+    if (focus) (up.disabled ? $("pop-sell") : up).focus();
   }
-  function hidePop() { $("pop").hidden = true; }
-  $("pop-up").addEventListener("click", () => { if (ov.selectedChair !== null) game.upgrade(ov.selectedChair); });
+  function hidePop() {
+    const pop = $("pop");
+    const hadFocus = pop.contains(document.activeElement);
+    const chair = ov.selectedChair;
+    pop.hidden = true;
+    // Keyboard users go back to the chair they were working on.
+    if (hadFocus) seatBtns[chair ?? 0]?.focus();
+  }
+  $("pop-up").addEventListener("click", () => {
+    if (ov.selectedChair === null) return;
+    const t = game.towers.get(ov.selectedChair);
+    if (t && game.upgrade(ov.selectedChair)) say(`${TOWERS[t.kind].name} upgraded to level ${t.level}.`);
+  });
   $("pop-sell").addEventListener("click", () => {
-    if (ov.selectedChair !== null) game.sell(ov.selectedChair);
-    ov.selectedChair = null;
+    const chair = ov.selectedChair;
+    const t = chair !== null ? game.towers.get(chair) : undefined;
+    if (chair !== null && t) {
+      const name = TOWERS[t.kind].name;
+      game.sell(chair);
+      say(`${name} sold.`);
+    }
     hidePop();
+    ov.selectedChair = null;
+  });
+  $("pop").addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { e.stopPropagation(); hidePop(); ov.selectedChair = null; }
   });
 
   // ───────────── input
@@ -381,10 +491,10 @@ const tray = TOWER_ORDER.map((k) => {
     cv.style.cursor = ov.hoverChair !== null && (ov.selectedKind || game?.towers.has(ov.hoverChair)) ? "pointer" : "default";
   });
   cv.addEventListener("pointerleave", () => (ov.hoverChair = null));
-  cv.addEventListener("pointerdown", (e) => {
+  // One action for a chair, whether it was tapped on the canvas or pressed as a button.
+  function act(chair: number | null, fromKey = false) {
     if (!game || game.state === "over") return;
     unlock();
-    const { chair } = local(e);
     if (chair === null) {
       ov.selectedChair = null;
       hidePop();
@@ -392,29 +502,53 @@ const tray = TOWER_ORDER.map((k) => {
     }
     if (game.towers.has(chair)) {
       ov.selectedChair = ov.selectedChair === chair ? null : chair;
-      ov.selectedChair === null ? hidePop() : showPop(chair);
+      ov.selectedChair === null ? hidePop() : showPop(chair, fromKey);
       return;
     }
     if (ov.selectedKind) {
-      if (game.place(chair, ov.selectedKind) && !game.canAfford(ov.selectedKind)) select(null);
+      const kind = ov.selectedKind;
+      if (game.place(chair, kind)) {
+        say(`${TOWERS[kind].name} placed on chair ${chair + 1}.`);
+        if (!game.canAfford(kind)) select(null);
+      }
     } else {
       // nudge: no intervention chosen yet
       document.querySelector(".tray")!.classList.remove("nudge");
       void (document.querySelector(".tray") as HTMLElement).offsetWidth;
       document.querySelector(".tray")!.classList.add("nudge");
+      say("Pick a fix first: press 1 to 7, or choose one from the Fixes list.");
     }
+  }
+  cv.addEventListener("pointerdown", (e) => act(local(e).chair));
+  seats.addEventListener("click", (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLButtonElement>(".seat-b");
+    if (b) act(Number(b.dataset.chair), true);
   });
 
+  // Single-key shortcuts only work while focus is inside the game, so they never fire from the
+  // site's menu, from typing, or from speech input elsewhere on the page.
   window.addEventListener("keydown", (e) => {
-    if (!game || e.target instanceof HTMLInputElement) return;
+    const t = e.target as HTMLElement;
+    if (!game || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t instanceof HTMLSelectElement || t.isContentEditable) return;
+    if (!playWrap.contains(t)) return;
+    const onControl = !!t.closest("button, a");
     const n = Number(e.key);
     if (n >= 1 && n <= TOWER_ORDER.length) select(TOWER_ORDER[n - 1]);
-    else if (e.key === "Escape") { select(null); if (codexOpen) closeCodex(); }
-    else if (e.key === " ") { e.preventDefault(); if (codexOpen) closeCodex(); else if (game.state === "between") game.nextWave(); }
+    else if (e.key === "Escape") {
+      if (codexOpen) closeCodex();
+      else if (paused) togglePause();
+      else select(null);
+    }
+    else if (e.key === " ") {
+      if (onControl) return; // Space presses the focused button
+      e.preventDefault();
+      if (codexOpen) closeCodex(); else if (game.state === "between") game.nextWave();
+    }
     else if (e.key.toLowerCase() === "p") togglePause();
     else if (e.key.toLowerCase() === "s") game.serenity();
     else if (e.key.toLowerCase() === "m") toggleMute();
-    else if (e.key.toLowerCase() === "u" && ov.selectedChair !== null) game.upgrade(ov.selectedChair);
+    else if (e.key.toLowerCase() === "u" && ov.selectedChair !== null) $("pop-up").click();
   });
 
   function togglePause() {
@@ -422,10 +556,14 @@ const tray = TOWER_ORDER.map((k) => {
     paused = !paused;
     $("ov-pause").hidden = !paused;
     last = performance.now();
+    syncSeats();
+    if (paused) focusIn($("b-resume"));
+    else focusBack();
   }
   function toggleMute() {
     setMuted(!isMuted());
     $("b-mute").classList.toggle("off", isMuted());
+    $("b-mute").setAttribute("aria-pressed", String(isMuted()));
   }
   $("coach-x").addEventListener("click", () => {
     coachOff = true;
@@ -437,6 +575,7 @@ const tray = TOWER_ORDER.map((k) => {
   $("b-resume").addEventListener("click", togglePause);
   $("b-mute").addEventListener("click", () => { unlock(); toggleMute(); });
   $("b-mute").classList.toggle("off", isMuted());
+  $("b-mute").setAttribute("aria-pressed", String(isMuted()));
   $("b-next").addEventListener("click", () => game?.nextWave());
   $("b-play").addEventListener("click", () => { unlock(); $("ov-start").hidden = true; newGame(false); });
   $("b-daily").addEventListener("click", () => { unlock(); $("ov-start").hidden = true; newGame(true); });
@@ -449,11 +588,16 @@ const tray = TOWER_ORDER.map((k) => {
   game = new Game(7, {});
   for (const c of [0, 3, 6, 9]) game.towers.set(c, { chair: c, kind: TOWER_ORDER[c % 7], level: 1, cd: 1, flash: 0, aim: 0, spent: 0 });
 
+  // Less motion: no screen shake, and the attract-mode room behind the start card settles after 5s.
+  const calm = () => matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.classList.contains("still");
+  const attractUntil = performance.now() + 5000;
   function frame(now: number) {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    if (!paused && !codexOpen) game.tick(dt);
+    const settled = game.state === "ready" && (now > attractUntil || calm());
+    if (!paused && !codexOpen && !settled) game.tick(dt);
     else game.tick(0);
+    if (calm()) game.shake = 0;
     draw(ctx, game, view, ov);
     if (game.state === "between") hud();
     requestAnimationFrame(frame);
@@ -476,6 +620,15 @@ const tray = TOWER_ORDER.map((k) => {
   .arena { position: relative; overflow: hidden; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
   canvas { position: absolute; inset: 0; display: block; }
 
+  .arena:focus { outline: none; }
+  /* chair buttons sit over the chairs drawn on the canvas: invisible to the eye until focused,
+     and transparent to the pointer so taps still reach the canvas */
+  .seats { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+  .seat-b {
+    position: absolute; padding: 0; border: 0; border-radius: 50%; background: transparent;
+    color: transparent; font-size: 1px; overflow: hidden; white-space: nowrap; pointer-events: none;
+  }
+  .seat-b:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
   .hud { position: absolute; left: 12px; right: 12px; top: 12px; display: flex; gap: 8px; align-items: stretch; pointer-events: none; flex-wrap: wrap; z-index: 2; }
   .h-item { display: grid; gap: 3px; padding: 8px 12px; border-radius: 12px; background: #0e1311cc; border: 1px solid var(--night-line); backdrop-filter: blur(8px); min-width: 64px; }
   .h-l { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--chalk-3); }
@@ -500,6 +653,7 @@ const tray = TOWER_ORDER.map((k) => {
   }
   .coach.in { animation: coach-in 0.45s var(--ease-spring) both; }
   @keyframes coach-in { from { opacity: 0; transform: translateY(10px); } }
+  .coach { --focus: #131915; }
   .coach button { flex: none; width: 28px; height: 28px; border-radius: 50%; border: 0; background: #13191514; color: #131915; font-size: 1rem; cursor: pointer; }
   .pop { position: absolute; left: 0; top: 0; z-index: 4; width: 230px; padding: 12px; border-radius: 14px; background: #151b18f2; border: 1px solid var(--night-line-2); box-shadow: 0 20px 40px -20px #000; }
   .pop-name { margin: 0; font: 450 1.05rem/1.2 var(--serif); }
@@ -561,7 +715,9 @@ const tray = TOWER_ORDER.map((k) => {
   }
   .tw:hover { border-color: color-mix(in oklab, var(--c) 60%, transparent); }
   .tw[aria-pressed="true"] { border-color: var(--c); background: color-mix(in oklab, var(--c) 14%, var(--night-2)); box-shadow: 0 0 0 1px var(--c), 0 10px 30px -14px var(--c); transform: translateX(-3px); }
-  .tw.broke { opacity: 0.5; }
+  /* can't afford it yet: dim the glyph and strike the price, but keep the words readable */
+  .tw.broke .tw-g { opacity: 0.5; }
+  .tw.broke .tw-c { text-decoration: line-through; }
   .tw-g { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font: 700 1.15rem/1 var(--mono); color: var(--c); border: 1.5px solid var(--c); background: #090c0b; }
   .tw-txt { display: grid; gap: 2px; min-width: 0; }
   .tw-n { font: 600 0.9rem/1.2 var(--sans); }

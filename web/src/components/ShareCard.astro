@@ -40,7 +40,7 @@ const d = disorderById(s.room);
   header { display: flex; justify-content: space-between; gap: 10px; font: 0.76rem/1 var(--mono); color: var(--chalk-3); flex-wrap: wrap; }
   .who { display: inline-flex; gap: 8px; align-items: center; color: var(--chalk-2); }
   .av { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in oklab, var(--c) 30%, var(--night-3)); color: var(--chalk); font: 600 0.7rem/1 var(--sans); }
-  .room { color: var(--c); text-decoration: none; }
+  .room { color: var(--c); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; text-decoration-color: color-mix(in oklab, var(--c) 55%, transparent); }
   h3 { font-size: var(--step-1); line-height: 1.2; font-variation-settings: "SOFT" 80, "opsz" 36; font-weight: 420; }
   h3 a { text-decoration: none; }
   h3 a::after { content: ""; position: absolute; inset: 0; }

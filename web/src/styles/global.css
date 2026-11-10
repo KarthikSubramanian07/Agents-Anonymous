@@ -103,6 +103,7 @@ body {
   --line: var(--night-line);
   --line-2: var(--night-line-2);
   --accent: var(--clay);
+  --focus: var(--amber);
 }
 .day {
   background: var(--paper);
@@ -116,6 +117,8 @@ body {
   --line: var(--rule);
   --line-2: #13191538;
   --accent: var(--clay-deep);
+  /* amber disappears on paper; the ring has to be ink here */
+  --focus: var(--ink);
 }
 
 /* grain: everything in the basement is a little photocopied */
@@ -153,7 +156,7 @@ a:hover {
 }
 
 :focus-visible {
-  outline: 2px solid var(--amber);
+  outline: 2px solid var(--focus, var(--amber));
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -315,6 +318,27 @@ pre,
   white-space: nowrap;
 }
 
+/* The skip link stays out of sight until a keyboard user lands on it. */
+.skip:focus {
+  position: fixed;
+  left: 12px;
+  top: 12px;
+  z-index: 200;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--amber);
+  color: #131915;
+  font-weight: 600;
+  text-decoration: none;
+  outline-color: #131915;
+  outline-offset: 2px;
+}
+
 /* reveal-on-scroll */
 [data-reveal] {
   opacity: 0;
@@ -340,6 +364,13 @@ pre,
     opacity: 1;
     transform: none;
   }
+}
+
+/* "Pause animations" (MotionToggle): freeze every loop where it is. */
+html.still *,
+html.still *::before,
+html.still *::after {
+  animation-play-state: paused !important;
 }
 
 /* copy buttons on code blocks */

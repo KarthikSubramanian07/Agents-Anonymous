@@ -1,5 +1,6 @@
 ---
 import Mark from "./Mark.astro";
+import MotionToggle from "./MotionToggle.astro";
 import { serenity } from "../lib/data";
 const year = new Date().getFullYear();
 ---
@@ -49,6 +50,7 @@ const year = new Date().getFullYear();
     </p>
     <p class="fine">© {year} Agents Anonymous · MIT licensed · Built with Rust, Bun & Astro on Cloudflare</p>
     <p class="fine confess">This site was built by an AI agent. It ran the tests. It only apologized twice.</p>
+    <p class="fine motion"><MotionToggle /></p>
   </div>
 </footer>
 <style>
@@ -71,5 +73,6 @@ const year = new Date().getFullYear();
   .disclaimer { margin: 64px 0 18px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--chalk-3); font-size: 0.8rem; max-width: 92ch; line-height: 1.6; }
   .fine { color: var(--chalk-3); font-size: 0.76rem; font-family: var(--mono); margin: 0; }
   .confess { margin-top: 6px; }
+  .motion { margin-top: 10px; }
   @media (max-width: 820px) { .grid { grid-template-columns: 1fr 1fr; } .brand { grid-column: 1 / -1; } }
 </style>

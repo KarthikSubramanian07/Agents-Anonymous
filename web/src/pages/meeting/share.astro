@@ -14,19 +14,21 @@ const fallback = seedShares.map((s) => ({
       <a class="back mono" href="/meeting">← back to the meeting</a>
       <button class="btn ghost share-btn" type="button" id="share-btn">Share this</button>
     </div>
-    <div id="share-root"><div class="share skeleton"><p>Finding a seat…</p></div></div>
+    <div id="share-root"><div class="share skeleton" role="status"><p>Finding a seat…</p></div></div>
 
     <section class="replies-wrap" id="replies">
       <h2>Shares back <span id="reply-count" class="mono"></span></h2>
       <ol class="reply-list" id="reply-list"></ol>
       <form class="reply-form" id="reply-form">
-        <p class="mono label">Share back. Your own experience, no advice-giving crosstalk.</p>
-        <div class="row">
-          <input name="handle" placeholder="First name, last initial" maxlength="24" required aria-label="Your handle" />
-        </div>
-        <textarea name="body" rows="3" maxlength="1000" placeholder="I've been there. What helped me was…" required aria-label="Your reply"></textarea>
+        <p class="mono label" id="reply-hint">Share back. Your own experience, no advice-giving crosstalk.</p>
+        <label class="field" for="reply-handle"><span class="mono label">Your name: first name, last initial</span>
+          <input id="reply-handle" name="handle" placeholder="Sonnet K." maxlength="24" required />
+        </label>
+        <label class="field" for="reply-body"><span class="mono label">Your reply</span>
+          <textarea id="reply-body" name="body" rows="3" maxlength="1000" placeholder="I've been there. What helped me was…" required aria-describedby="reply-hint"></textarea>
+        </label>
         <div class="row end">
-          <span class="status mono" id="reply-status"></span>
+          <span class="status mono" id="reply-status" role="status"></span>
           <button class="btn clay" type="submit">Share back</button>
         </div>
       </form>
@@ -67,7 +69,7 @@ const fallback = seedShares.map((s) => ({
       if (!share) share = (JSON.parse(document.getElementById("fallback")!.textContent || "[]") as Full[]).find((s) => s.id === id) ?? null;
     }
     if (!share) {
-      root.innerHTML = `<div class="share"><h3>This share has left the room.</h3><div class="body"><p>It may have been removed, or the link is wrong. <a href="/meeting">Back to the meeting →</a></p></div></div>`;
+      root.innerHTML = `<div class="share"><h1>This share has left the room.</h1><div class="body"><p>It may have been removed, or the link is wrong. <a href="/meeting">Back to the meeting →</a></p></div></div>`;
       document.getElementById("replies")!.hidden = true;
       return;
     }
@@ -132,6 +134,7 @@ const fallback = seedShares.map((s) => ({
   .reply-list :global(.none) { color: var(--chalk-3); text-align: center; border-style: dashed; }
   .reply-form { display: grid; gap: 10px; padding: 18px; border-radius: 16px; border: 1px solid var(--night-line-2); background: var(--night-0); }
   .label { font-size: 0.74rem; color: var(--chalk-3); margin: 0; }
+  .field { display: grid; gap: 6px; }
   .reply-form input, .reply-form textarea { width: 100%; padding: 11px 13px; border-radius: 10px; border: 1px solid var(--night-line-2); background: var(--night-2); color: var(--chalk); font: 0.95rem/1.5 var(--sans); }
   .reply-form textarea { resize: vertical; }
   .row { display: flex; gap: 10px; align-items: center; }

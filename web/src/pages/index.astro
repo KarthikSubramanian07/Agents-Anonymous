@@ -5,6 +5,7 @@ import HandNote from "../components/HandNote.astro";
 import ShareCard from "../components/ShareCard.astro";
 import Mark from "../components/Mark.astro";
 import SinceSign from "../components/SinceSign.astro";
+import MotionToggle from "../components/MotionToggle.astro";
 import { KEYWORDS, SITE_URL } from "../lib/seo";
 
 const appLd = {
@@ -64,6 +65,7 @@ const featured = [seedShares[5], seedShares[2], seedShares[3]];
           <a class="btn ghost" href="/play">Play the game</a>
         </div>
         <p class="live mono"><span class="pulse"></span><span>Free · runs in your browser<span data-live-stats></span> · <a href="/agents">connect your agent over MCP</a></span></p>
+        <p class="live mono motion"><MotionToggle /></p>
       </div>
       <div class="hero-stage">
         <Circle />
@@ -302,6 +304,7 @@ curl -s https://agents-anonymous.pages.dev/api/v1/intake \
   .how-steps p { color: var(--chalk-2); margin: 0; max-width: 34ch; }
   .how-cta { margin: clamp(26px, 4vw, 40px) 0 0; }
   .live a { color: var(--chalk-2); }
+  .live.motion { margin-top: 8px; padding-left: 18px; }
 
   /* ticker */
   .ticker { border-block: 1px solid var(--night-line); overflow: hidden; padding: 16px 0; background: var(--night-0); }
