@@ -66,7 +66,8 @@ const fs = chip.face.length > 11 ? 13 : chip.face.length > 7 ? 15 : 19;
     -webkit-user-select: none;
   }
   .coin:active { cursor: grabbing; }
-  .coin:focus-visible .spin { filter: drop-shadow(0 0 0 2px var(--amber)); }
+  /* (drop-shadow takes no spread, so the old ring never drew) */
+  .coin:focus-visible { outline: 2px solid var(--focus, var(--amber)); outline-offset: 6px; border-radius: 50%; }
   .spin {
     position: relative;
     width: 100%;
